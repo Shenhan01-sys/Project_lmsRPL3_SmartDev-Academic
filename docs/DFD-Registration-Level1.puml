@@ -1,0 +1,76 @@
+@startuml DFD-Registration-Level1
+!theme plain
+title SmartDev LMS - Data Flow Diagram Level 1\nStudent Registration Process Detailed
+
+' External Entities
+actor "Calon Siswa" as Student
+actor "Admin" as Admin
+actor "Email System" as Email
+
+' Sub-processes
+rectangle "1.0\nValidate\nRegistration\nData" as Process1
+rectangle "2.0\nStore\nRegistration\nInformation" as Process2
+rectangle "3.0\nHandle\nDocument\nUpload" as Process3
+rectangle "4.0\nAdmin\nReview\nProcess" as Process4
+rectangle "5.0\nApproval\nDecision\nHandling" as Process5
+rectangle "6.0\nNotification\nManagement" as Process6
+
+' Data Stores
+storage "D1: Users" as UserStore
+storage "D2: Student_Registrations" as RegStore
+storage "D3: Document_Files" as DocStore
+storage "D4: Registration_Logs" as LogStore
+
+' Student to System flows
+Student --> Process1 : Personal Information\n(Name, Email, Phone, Address)
+Student --> Process3 : Identity Documents\n(KTP, Ijazah, Foto)
+Student --> Process4 : Status Check Request
+
+' Process 1: Validation
+Process1 --> Process2 : Validated Data
+Process1 --> Student : Validation Errors
+Process1 --> UserStore : Email Verification Check
+UserStore --> Process1 : Existing User Data
+
+' Process 2: Store Registration
+Process2 --> RegStore : Registration Record
+Process2 --> Process6 : Registration Success Event
+Process2 --> Student : Registration ID
+
+' Process 3: Document Upload
+Process3 --> DocStore : Document Files
+Process3 --> RegStore : Document References
+Process3 --> Student : Upload Confirmation
+Process3 --> Process6 : Upload Complete Event
+
+' Process 4: Admin Review
+Admin --> Process4 : Review Request
+Process4 --> Admin : Pending Registration List
+Process4 --> Admin : Registration Details
+Process4 --> Admin : Document Preview
+RegStore --> Process4 : Registration Data
+DocStore --> Process4 : Document Files
+
+' Process 5: Approval Decision
+Admin --> Process5 : Approval Decision
+Admin --> Process5 : Rejection Reason
+Process5 --> RegStore : Status Update
+Process5 --> UserStore : User Account Creation
+Process5 --> Process6 : Decision Event
+Process5 --> LogStore : Decision Log
+
+' Process 6: Notifications
+Process6 --> Email : Registration Confirmation
+Process6 --> Email : Document Upload Notice
+Process6 --> Email : Approval Notification
+Process6 --> Email : Rejection Notice
+Process6 --> Student : Status Update
+Process6 --> Admin : Process Summary
+
+' Data Store interactions
+RegStore --> Process4 : Registration Records
+RegStore --> Process6 : Current Status
+LogStore --> Process4 : Audit Trail
+UserStore --> Process5 : User Creation Target
+
+@enduml
