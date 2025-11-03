@@ -60,16 +60,52 @@ class User extends Authenticatable
         return $this->hasOne(StudentRegistration::class);
     }
 
+    /**
+     * Get the student profile if user is a student
+     */
+    public function student()
+    {
+        return $this->hasOne(Student::class);
+    }
+
+    /**
+     * Get the instructor profile if user is an instructor
+     */
+    public function instructor()
+    {
+        return $this->hasOne(Instructor::class);
+    }
+
+    /**
+     * Get the parent profile if user is a parent
+     */
+    public function parentProfile()
+    {
+        return $this->hasOne(ParentModel::class);
+    }
+
+    /**
+     * Get courses taught by this instructor (if user is instructor)
+     * @deprecated Use instructor()->courses() instead
+     */
     public function taughtCourses()
     {
         return $this->hasMany(Course::class, 'instructor_id');
     }
 
+    /**
+     * Get enrollments for this student (if user is student)
+     * @deprecated Use student()->enrollments() instead
+     */
     public function enrollments()
     {
         return $this->hasMany(Enrollment::class, 'student_id');
     }
 
+    /**
+     * Get submissions for this student (if user is student)
+     * @deprecated Use student()->submissions() instead
+     */
     public function submissions()
     {
         return $this->hasMany(Submission::class, 'student_id');

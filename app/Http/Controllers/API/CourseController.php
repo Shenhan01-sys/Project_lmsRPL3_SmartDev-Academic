@@ -44,7 +44,7 @@ class CourseController extends Controller
             'course_code' => 'required|string|unique:courses,course_code',
             'course_name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'instructor_id' => 'required|exists:users,id',
+            'instructor_id' => 'required|exists:instructors,id',
         ]);
 
         try {
@@ -66,7 +66,7 @@ class CourseController extends Controller
         // Authorization: Check if user can view this course
         $this->authorize('view', $course);
         
-        $course->load('instructor', 'enrollments.student', 'courseModules.materials', 'assignments');
+        $course->load('instructor.user', 'enrollments.student.user', 'courseModules.materials', 'assignments');
         return response()->json($course);
     }
 
@@ -86,7 +86,7 @@ class CourseController extends Controller
             'course_code' => ['sometimes', 'required', 'string', Rule::unique('courses')->ignore($course->id)],
             'course_name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
-            'instructor_id' => 'sometimes|required|exists:users,id',
+            'instructor_id' => 'sometimes|required|exists:instructors,id',
         ]);
 
         try {

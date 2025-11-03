@@ -23,6 +23,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
+            'role' => 'required|in:admin,student,instructor,parent',
         ]);
 
         $ValidatedEmail = strtolower($validated['email']);
@@ -32,12 +33,13 @@ class AuthController extends Controller
             'name' => $ValidatedName,
             'email' => $ValidatedEmail,
             'password' => Hash::make($validated['password']),
-            'role' => 'admin', // Default role
+            'role' => $validated['role'],
         ]);
 
         return response()->json([
-            'message' => 'Registration successful',
+            'message' => 'Registration successful. Please create your profile.',
             'user' => $user,
+            'next_step' => "Create {$validated['role']} profile via appropriate endpoint"
         ], 201);
     }
 
@@ -66,9 +68,23 @@ class AuthController extends Controller
         // Create new token
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
+        // Load role-specific profile
+        $profile = null;
+        switch ($user->role) {
+            case 'student':
+                $profile = $user->student()->with('parent')->first();
+                break;
+            case 'instructor':
+                $profile = $user->instructor()->with('courses')->first();
+                break;
+            case 'parent':
+                $profile = $user->parentProfile()->with('students')->first();
+                break;
+        }
 
+        return response()->json([
             'user' => $user,
+            'profile' => $profile,
             'access_token' => $token,
             'token_type' => 'Bearer',
         ], 200);
@@ -82,7 +98,7 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $request->user()->tokens()->delete();
 
         return response()->json(['message' => 'Successfully logged out'], 200);
     }

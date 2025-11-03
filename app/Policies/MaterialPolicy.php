@@ -41,15 +41,23 @@ class MaterialPolicy
 
         if ($user->role === 'instructor') {
             // Instructor hanya bisa lihat material dari course yang dia ajar
-            return $material->courseModule->course->instructor_id === $user->id;
+            return $user->instructor && $material->courseModule->course->instructor_id === $user->instructor->id;
         }
 
         if (in_array($user->role, ['student', 'parent'])) {
             // Student bisa lihat material dari course yang dia ikuti
             // Parent bisa lihat material dari course yang anaknya ikuti
-            $enrolledCourses = $user->role === 'student' 
-                ? $user->enrollments()->pluck('course_id')
-                : $user->children()->with('enrollments')->get()->pluck('enrollments.*.course_id')->flatten();
+            if ($user->role === 'student' && $user->student) {
+                $enrolledCourses = $user->student->enrollments()->pluck('course_id');
+            } elseif ($user->role === 'parent' && $user->parentProfile) {
+                $enrolledCourses = $user->parentProfile->students()
+                    ->with('enrollments')
+                    ->get()
+                    ->pluck('enrollments.*.course_id')
+                    ->flatten();
+            } else {
+                return false;
+            }
             
             return $enrolledCourses->contains($material->courseModule->course_id);
         }
@@ -77,7 +85,7 @@ class MaterialPolicy
 
         if ($user->role === 'instructor') {
             // Instructor hanya bisa update material dari course yang dia ajar
-            return $material->courseModule->course->instructor_id === $user->id;
+            return $user->instructor && $material->courseModule->course->instructor_id === $user->instructor->id;
         }
 
         return false;
@@ -94,7 +102,7 @@ class MaterialPolicy
 
         if ($user->role === 'instructor') {
             // Instructor hanya bisa delete material dari course yang dia ajar
-            return $material->courseModule->course->instructor_id === $user->id;
+            return $user->instructor && $material->courseModule->course->instructor_id === $user->instructor->id;
         }
 
         return false;

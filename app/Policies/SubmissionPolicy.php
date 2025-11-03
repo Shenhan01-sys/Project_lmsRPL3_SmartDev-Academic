@@ -21,9 +21,21 @@ class SubmissionPolicy
      */
     public function view(User $user, Submission $submission): bool
     {
-        return $user->role === 'admin'
-            || $user->id === $submission->assignment->course->instructor_id
-            || $user->id === $submission->student_id;
+        if ($user->role === 'admin') {
+            return true;
+        }
+        
+        // Instructor can view submissions in their course
+        if ($user->role === 'instructor' && $user->instructor) {
+            return $user->instructor->id === $submission->assignment->course->instructor_id;
+        }
+        
+        // Student can view their own submission
+        if ($user->role === 'student' && $user->student) {
+            return $user->student->id === $submission->student_id;
+        }
+        
+        return false;
     }
 
     /**
@@ -39,7 +51,7 @@ class SubmissionPolicy
      */
     public function update(User $user, Submission $submission): bool
     {
-        return $user->id === $submission->student_id;
+        return $user->student && $user->student->id === $submission->student_id;
     }
 
     /**
@@ -47,7 +59,7 @@ class SubmissionPolicy
      */
     public function delete(User $user, Submission $submission): bool
     {
-        return $user->id === $submission->student_id;
+        return $user->student && $user->student->id === $submission->student_id;
     }
 
     /**

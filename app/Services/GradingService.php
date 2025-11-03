@@ -230,9 +230,10 @@ class GradingService
     {
         // Ambil semua siswa yang terdaftar di course
         $enrolledStudents = DB::table('enrollments')
-            ->join('users', 'enrollments.student_id', '=', 'users.id')
+            ->join('students', 'enrollments.student_id', '=', 'students.id')
+            ->join('users', 'students.user_id', '=', 'users.id')
             ->where('enrollments.course_id', $courseId)
-            ->select('users.id', 'users.name', 'users.email')
+            ->select('students.id', 'students.full_name as name', 'students.email', 'students.student_number')
             ->get();
 
         $summary = collect();
@@ -241,6 +242,7 @@ class GradingService
             $finalGrade = $this->calculateFinalGrade($student->id, $courseId);
             $finalGrade['student_name'] = $student->name;
             $finalGrade['student_email'] = $student->email;
+            $finalGrade['student_number'] = $student->student_number;
             
             $summary->push($finalGrade);
         }

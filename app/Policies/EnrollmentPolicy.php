@@ -21,7 +21,7 @@ class EnrollmentPolicy
      */
     public function view(User $user, Enrollment $enrollment): bool
     {
-        return $user->role === 'admin' || $user->id === $enrollment->student_id;
+        return $user->role === 'admin' || ($user->student && $user->student->id === $enrollment->student_id);
     }
 
     /**
@@ -45,7 +45,7 @@ class EnrollmentPolicy
      */
     public function delete(User $user, Enrollment $enrollment): bool
     {
-        return $user->role === 'admin' || $user->id === $enrollment->student_id;
+        return $user->role === 'admin' || ($user->student && $user->student->id === $enrollment->student_id);
     }
 
     /**

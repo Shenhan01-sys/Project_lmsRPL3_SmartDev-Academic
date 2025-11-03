@@ -20,7 +20,7 @@ class EnrollmentController extends Controller
     public function index()
     {
         try {
-            $enrollments = Enrollment::with(['student', 'course'])->get();
+            $enrollments = Enrollment::with(['student.user', 'course.instructor'])->get();
             return response()->json($enrollments);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error retrieving enrollments', 'error' => $e->getMessage()], 500);
@@ -36,7 +36,7 @@ class EnrollmentController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'student_id' => 'required|exists:users,id',
+            'student_id' => 'required|exists:students,id',
             'course_id' => [
                 'required',
                 'exists:courses,id',
@@ -62,7 +62,7 @@ class EnrollmentController extends Controller
      */
     public function show(Enrollment $enrollment)
     {
-        $enrollment->load(['student', 'course']);
+        $enrollment->load(['student.user', 'course.instructor']);
         return response()->json($enrollment);
     }
 

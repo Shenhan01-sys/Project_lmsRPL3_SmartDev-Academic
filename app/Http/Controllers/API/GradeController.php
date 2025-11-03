@@ -27,7 +27,7 @@ class GradeController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'student_id' => 'required|exists:users,id',
+            'student_id' => 'required|exists:students,id',
             'grade_component_id' => 'required|exists:grade_components,id',
             'score' => 'required|numeric|min:0',
             'max_score' => 'nullable|numeric|min:0',
@@ -51,7 +51,7 @@ class GradeController extends Controller
                 $options
             );
 
-            $grade->load(['student:id,name', 'gradeComponent:id,name,weight', 'grader:id,name']);
+            $grade->load(['student:id,full_name,student_number', 'gradeComponent:id,name,weight', 'grader:id,name']);
 
             return response()->json([
                 'message' => 'Nilai berhasil di-input.',
@@ -73,7 +73,7 @@ class GradeController extends Controller
     {
         $validated = $request->validate([
             'grades' => 'required|array',
-            'grades.*.student_id' => 'required|exists:users,id',
+            'grades.*.student_id' => 'required|exists:students,id',
             'grades.*.grade_component_id' => 'required|exists:grade_components,id',
             'grades.*.score' => 'required|numeric|min:0',
             'grades.*.max_score' => 'nullable|numeric|min:0',
@@ -120,7 +120,7 @@ class GradeController extends Controller
     public function getStudentGrades(Request $request)
     {
         $validated = $request->validate([
-            'student_id' => 'required|exists:users,id',
+            'student_id' => 'required|exists:students,id',
             'course_id' => 'required|exists:courses,id',
         ]);
 
@@ -217,7 +217,7 @@ class GradeController extends Controller
             }
 
             $grade->update($validated);
-            $grade->load(['student:id,name', 'gradeComponent:id,name,weight', 'grader:id,name']);
+            $grade->load(['student:id,full_name,student_number', 'gradeComponent:id,name,weight', 'grader:id,name']);
 
             return response()->json([
                 'message' => 'Nilai berhasil diupdate.',

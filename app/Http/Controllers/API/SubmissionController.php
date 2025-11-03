@@ -21,7 +21,7 @@ class SubmissionController extends Controller
     public function index()
     {
         try {
-            $submissions = Submission::with(['assignment', 'student'])->get();
+            $submissions = Submission::with(['assignment', 'student.user'])->get();
             return response()->json($submissions);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error retrieving submissions', 'error' => $e->getMessage()], 500);
@@ -37,26 +37,33 @@ class SubmissionController extends Controller
      */
     public function store(Request $request)
     {
-        $StudentId = $request->user()->id;
+        // Get current user and their student profile
+        $user = $request->user();
+        $student = $user->student;
+        
+        if (!$student) {
+            return response()->json(['message' => 'You must be a student to submit assignments.'], 403);
+        }
+        
         $validated = $request->validate([
             'assignment_id' => [
                 'required',
                 'exists:assignments,id',
-                Rule::unique('submissions')->where(function ($query) use ($request) {
-                    return $query->where('student_id', $request->student_id);
+                Rule::unique('submissions')->where(function ($query) use ($student) {
+                    return $query->where('student_id', $student->id);
                 }),
             ],
-            'student_id' => 'required|exists:users,id',
             'file_path' => 'nullable|string',
             'grade' => 'nullable|numeric',
             'feedback' => 'nullable|string',
         ]);
 
-        if($StudentId !== $validated['student_id']){
-            return response()->json(['message' => 'You are not authorized or a student to submit for this assignment.'], 403);
-        }
+        // Auto-assign student_id from authenticated user's student profile
+        $validated['student_id'] = $student->id;
+
         try {
             $submission = Submission::create($validated);
+            $submission->load('assignment', 'student.user');
             return response()->json($submission, 201);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error creating submission', 'error' => $e->getMessage()], 500);
@@ -71,7 +78,7 @@ class SubmissionController extends Controller
      */
     public function show(Submission $submission)
     {
-        $submission->load(['assignment', 'student']);
+        $submission->load(['assignment', 'student.user']);
         return response()->json($submission);
     }
 
@@ -89,11 +96,10 @@ class SubmissionController extends Controller
                 'sometimes',
                 'required',
                 'exists:assignments,id',
-                Rule::unique('submissions')->ignore($submission->id)->where(function ($query) use ($request, $submission) {
-                    return $query->where('student_id', $request->student_id ?? $submission->student_id);
+                Rule::unique('submissions')->ignore($submission->id)->where(function ($query) use ($submission) {
+                    return $query->where('student_id', $submission->student_id);
                 }),
             ],
-            'student_id' => 'sometimes|required|exists:users,id',
             'file_path' => 'nullable|string',
             'grade' => 'nullable|numeric',
             'feedback' => 'nullable|string',
@@ -101,6 +107,7 @@ class SubmissionController extends Controller
 
         try {
             $submission->update($validated);
+            $submission->load(['assignment', 'student.user']);
             return response()->json($submission);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error updating submission', 'error' => $e->getMessage()], 500);

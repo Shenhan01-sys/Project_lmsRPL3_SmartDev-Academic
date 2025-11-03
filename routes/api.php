@@ -9,6 +9,8 @@ use App\Http\Controllers\API\MaterialController;
 use App\Http\Controllers\API\SubmissionController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\ParentController;
+use App\Http\Controllers\API\StudentController;
+use App\Http\Controllers\API\InstructorController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\PasswordController;
@@ -72,8 +74,26 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Grup untuk semua rute CRUD resource dengan prefix v1
     Route::prefix('v1')->group(function () {
+        // User management (Admin only, for managing admin accounts)
         Route::get('instructors', [UserController::class, 'indexInstructor'])->name('users.instructors');
         Route::apiResource('users', UserController::class);
+        
+        // Student management
+        Route::apiResource('students', StudentController::class);
+        Route::get('students/{student}/enrollments', [StudentController::class, 'enrollments'])->name('students.enrollments');
+        Route::get('students/{student}/submissions', [StudentController::class, 'submissions'])->name('students.submissions');
+        
+        // Instructor management
+        Route::apiResource('instructors', InstructorController::class);
+        Route::get('instructors/{instructor}/courses', [InstructorController::class, 'courses'])->name('instructors.courses');
+        Route::get('instructors/{instructor}/active-courses', [InstructorController::class, 'activeCourses'])->name('instructors.active-courses');
+        
+        // Parent management
+        Route::apiResource('parents', ParentController::class);
+        Route::get('parents/{parent}/students', [ParentController::class, 'students'])->name('parents.students');
+        Route::get('parents/{parent}/active-students', [ParentController::class, 'activeStudents'])->name('parents.active-students');
+        
+        // Course & Academic routes
         Route::apiResource('courses', CourseController::class);
         Route::apiResource('enrollments', EnrollmentController::class);
         Route::apiResource('course-modules', CourseModuleController::class);
@@ -101,7 +121,5 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/grades/bulk', [App\Http\Controllers\API\GradeController::class, 'bulkStore'])->name('grades.bulk');
         Route::get('/grades/student', [App\Http\Controllers\API\GradeController::class, 'getStudentGrades'])->name('grades.student');
         Route::get('/grades/course', [App\Http\Controllers\API\GradeController::class, 'getCourseGrades'])->name('grades.course');
-        Route::apiResource('parents', ParentController::class);
-        Route::get('parents/{parent}/children', [ParentController::class, 'children'])->name('parents.children');
     });
 });
