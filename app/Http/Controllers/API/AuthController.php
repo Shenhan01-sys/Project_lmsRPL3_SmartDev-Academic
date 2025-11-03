@@ -12,35 +12,36 @@ use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
     /**
-     * Register a new user.
+     * Register a new user (DEPRECATED - Admin only via protected routes)
+     *
+     * @deprecated This endpoint is deprecated. Use specific registration endpoints:
+     *             - POST /api/register-calon-siswa for student registration (public)
+     *             - POST /api/v1/instructors for instructor creation (admin only)
+     *             - POST /api/v1/parents for parent creation (admin only)
+     *             - POST /api/v1/users for admin creation (admin only)
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function register(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'role' => 'required|in:admin,student,instructor,parent',
-        ]);
-
-        $ValidatedEmail = strtolower($validated['email']);
-        $ValidatedName = ucfirst($validated['name']);
-
-        $user = User::create([
-            'name' => $ValidatedName,
-            'email' => $ValidatedEmail,
-            'password' => Hash::make($validated['password']),
-            'role' => $validated['role'],
-        ]);
-
-        return response()->json([
-            'message' => 'Registration successful. Please create your profile.',
-            'user' => $user,
-            'next_step' => "Create {$validated['role']} profile via appropriate endpoint"
-        ], 201);
+        // This endpoint should not be used anymore
+        // Keeping it for backward compatibility but return error
+        return response()->json(
+            [
+                "message" =>
+                    "This endpoint is deprecated. Please use the appropriate registration endpoint.",
+                "available_endpoints" => [
+                    "student_registration" =>
+                        "POST /api/register-calon-siswa (public)",
+                    "instructor_creation" =>
+                        "POST /api/v1/instructors (admin only)",
+                    "parent_creation" => "POST /api/v1/parents (admin only)",
+                    "admin_creation" => "POST /api/v1/users (admin only)",
+                ],
+            ],
+            410,
+        ); // 410 Gone - indicates the endpoint is no longer available
     }
 
     /**
@@ -52,42 +53,48 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+            "email" => "required|email",
+            "password" => "required",
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where("email", $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Password yang diberikan salah'], 422);
+            return response()->json(
+                ["message" => "Password yang diberikan salah"],
+                422,
+            );
         }
 
         // Revoke all old tokens
         $user->tokens()->delete();
 
         // Create new token
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken("auth_token")->plainTextToken;
 
         // Load role-specific profile
         $profile = null;
         switch ($user->role) {
-            case 'student':
-                $profile = $user->student()->with('parent')->first();
+            case "student":
+                $profile = $user->student()->with("parent")->first();
                 break;
-            case 'instructor':
-                $profile = $user->instructor()->with('courses')->first();
+            case "instructor":
+                $profile = $user->instructor()->with("courses")->first();
                 break;
-            case 'parent':
-                $profile = $user->parentProfile()->with('students')->first();
+            case "parent":
+                $profile = $user->parentProfile()->with("students")->first();
                 break;
         }
 
-        return response()->json([
-            'user' => $user,
-            'profile' => $profile,
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-        ], 200);
+        return response()->json(
+            [
+                "user" => $user,
+                "profile" => $profile,
+                "access_token" => $token,
+                "token_type" => "Bearer",
+            ],
+            200,
+        );
     }
 
     /**
@@ -100,6 +107,6 @@ class AuthController extends Controller
     {
         $request->user()->tokens()->delete();
 
-        return response()->json(['message' => 'Successfully logged out'], 200);
+        return response()->json(["message" => "Successfully logged out"], 200);
     }
 }
