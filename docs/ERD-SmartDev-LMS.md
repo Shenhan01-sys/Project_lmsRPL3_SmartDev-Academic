@@ -141,11 +141,46 @@ SmartDev Academic LMS menggunakan **12 tabel utama** dengan struktur yang **norm
 2. **Unique Constraints**: Prevent duplicate enrollments/grades
 3. **Efficient Queries**: Well-structured relationships
 
+## 🔐 **Enrollment Validation**
+
+### **Business Logic Implementation**
+
+Untuk menjaga **data integrity**, sistem mengimplementasikan validasi enrollment di application layer:
+
+#### **EnrollmentService**
+Centralized service untuk validasi apakah student sudah enrolled di course sebelum:
+- ✅ Submit assignment (`SubmissionController`)
+- ✅ Menerima/input nilai (`GradeController`)
+- ✅ Akses assignment details (`AssignmentController`)
+- ✅ Akses materials & modules (`MaterialController`, `CourseModuleController`)
+
+#### **Validation Points**
+1. **submissions** → Cek enrollment via `assignments.course_id`
+2. **grades** → Cek enrollment via `grade_components.course_id`
+3. **materials** → Cek enrollment via `course_modules.course_id`
+4. **assignments** → Filter by enrolled courses
+
+#### **Implementation**
+- **Location**: `app/Services/EnrollmentService.php`
+- **Documentation**: `docs/ENROLLMENT_VALIDATION.md`
+- **Controllers Updated**: 
+  - `SubmissionController` - Submit & update validations
+  - `GradeController` - Individual & bulk grade input validations
+  - `AssignmentController` - Index filtering & show validation
+
+**Benefits:**
+- ✅ Prevents unauthorized access to course materials
+- ✅ Ensures accurate grade reporting
+- ✅ Maintains referential integrity at business logic level
+- ✅ Centralized, maintainable, and testable
+
 ---
 
 **📁 Files:**
 - `ERD-SmartDev-LMS.puml` - PlantUML diagram source
 - `ERD-SmartDev-LMS.md` - This documentation
+- `ENROLLMENT_VALIDATION.md` - Enrollment validation documentation
+- `ENROLLMENT_VALIDATION_SUMMARY.md` - Quick reference guide
 
 **🛠️ Tools to View:**
 - PlantUML online editor
