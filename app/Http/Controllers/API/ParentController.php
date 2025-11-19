@@ -4,63 +4,176 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\ParentModel;
-use App\Models\Parents;
+use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class ParentController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index()
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
     {
-        // $this->authorize('viewAny', Parents::class); // bisa ditambahkan Policy jika diperlukan
-        return response()->json(Parents::query()->latest()->get());
+        $query = ParentModel::with('user');
+
+        // Search by name or email
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('full_name', 'like', "%$search%")
+                  ->orWhere('email', 'like', "%$search%")
+                  ->orWhere('phone', 'like', "%$search%");
+            });
+        }
+
+        $parents = $query->paginate($request->get('per_page', 15));
+
+        return response()->json($parents);
     }
 
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
-        // $this->authorize('create', ParentModel::class);
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'nullable|email|unique:parents,email',
-            'phone' => 'nullable|string|max:50',
+            'full_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:parents,email',
+            'password' => 'required|string|min:8',
+            'phone' => 'nullable|string|max:20',
+            'relationship' => 'required|in:father,mother,guardian',
+            'occupation' => 'nullable|string|max:255',
+            'address' => 'nullable|string',
         ]);
 
-        $parent = Parents::create($validated);
-        return response()->json($parent, 201);
+        DB::beginTransaction();
+        try {
+            // Create user account for login
+            $user = User::create([
+                'name' => $validated['full_name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'role' => 'parent',
+            ]);
+
+            // Create parent profile
+            $parent = ParentModel::create([
+                'user_id' => $user->id,
+                'full_name' => $validated['full_name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'] ?? null,
+                'relationship' => $validated['relationship'],
+                'occupation' => $validated['occupation'] ?? null,
+                'address' => $validated['address'] ?? null,
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Parent created successfully',
+                'parent' => $parent->load('user'),
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Failed to create parent',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
-    public function show(Parents $parent)
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
     {
-        // $this->authorize('view', $parent);
-        return response()->json($parent->load('children'));
-    }
+        $parent = ParentModel::with(['user', 'students'])
+            ->findOrFail($id);
 
-    public function update(Request $request, Parents $parent)
-    {
-        // $this->authorize('update', $parent);
-        $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|nullable|email|unique:parents,email,' . $parent->id,
-            'phone' => 'sometimes|nullable|string|max:50',
-        ]);
-
-        $parent->update($validated);
         return response()->json($parent);
     }
 
-    public function destroy(Parents $parent)
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
     {
-        // $this->authorize('delete', $parent);
-        $parent->delete();
-        return response()->json(null, 204);
+        $parent = ParentModel::findOrFail($id);
+
+        $validated = $request->validate([
+            'full_name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|unique:parents,email,' . $id,
+            'phone' => 'nullable|string|max:20',
+            'relationship' => 'sometimes|in:father,mother,guardian',
+            'occupation' => 'nullable|string|max:255',
+            'address' => 'nullable|string',
+        ]);
+
+        $parent->update($validated);
+
+        // Update user email if changed
+        if (isset($validated['email']) && $parent->user->email !== $validated['email']) {
+            $parent->user->update(['email' => $validated['email']]);
+        }
+
+        return response()->json([
+            'message' => 'Parent updated successfully',
+            'parent' => $parent->load('user'),
+        ]);
     }
 
-    public function children(Parents $parent)
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
     {
-        // Dapatkan semua anak (users) milik parent
-        $children = $parent->children()->where('role', 'student')->get();
-        return response()->json($children);
+        $parent = ParentModel::findOrFail($id);
+        
+        DB::beginTransaction();
+        try {
+            // This will cascade delete the user account
+            $parent->user->delete();
+            
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Parent deleted successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Failed to delete parent',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get parent's students (children)
+     */
+    public function students(string $id)
+    {
+        $parent = ParentModel::findOrFail($id);
+        $students = $parent->students()->with(['enrollments.course'])->get();
+
+        return response()->json($students);
+    }
+
+    /**
+     * Get parent's active students
+     */
+    public function activeStudents(string $id)
+    {
+        $parent = ParentModel::findOrFail($id);
+        $students = $parent->activeStudents()->with(['enrollments.course'])->get();
+
+        return response()->json($students);
     }
 }

@@ -1,0 +1,229 @@
+@startuml SmartDev_LMS_ERD
+
+!define PRIMARY_KEY(x) <u>x</u>
+!define FOREIGN_KEY(x) <i>x</i>
+
+skinparam roundcorner 10
+skinparam shadowing true
+skinparam dpi 300
+
+' Users Table (Main Authentication)
+entity "users" as users {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  name : VARCHAR(255)
+  email : VARCHAR(255) UNIQUE
+  password : VARCHAR(255)
+  role : ENUM('student', 'instructor', 'admin')
+  level : ENUM('SMP', 'SMA') NULL
+  FOREIGN_KEY(parent_id) : BIGINT NULL
+  profile_photo_path : VARCHAR(255) NULL
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' Student Registration Table (Registration Workflow)
+entity "student_registrations" as student_registrations {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(user_id) : BIGINT
+  tanggal_lahir : VARCHAR(255) NULL
+  tempat_lahir : VARCHAR(255) NULL
+  jenis_kelamin : ENUM('L', 'P') NULL
+  nama_orang_tua : VARCHAR(255) NULL
+  phone_orang_tua : VARCHAR(255) NULL
+  alamat_orang_tua : TEXT NULL
+  ktp_orang_tua_path : VARCHAR(255) NULL
+  ijazah_path : VARCHAR(255) NULL
+  foto_siswa_path : VARCHAR(255) NULL
+  bukti_pembayaran_path : VARCHAR(255) NULL
+  registration_status : ENUM('pending_documents', 'pending_payment', 'pending_approval', 'approved', 'rejected')
+  submitted_at : TIMESTAMP NULL
+  approved_at : TIMESTAMP NULL
+  approval_notes : TEXT NULL
+  FOREIGN_KEY(approved_by) : BIGINT NULL
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' Parents Table (Guardian Information)
+entity "parents" as parents {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  name : VARCHAR(255)
+  email : VARCHAR(255) UNIQUE NULL
+  phone : VARCHAR(255) NULL
+  address : TEXT NULL
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' Courses Table (Academic Courses)
+entity "courses" as courses {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  course_code : VARCHAR(255) UNIQUE
+  course_name : VARCHAR(255)
+  description : TEXT
+  FOREIGN_KEY(instructor_id) : BIGINT
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' Course Modules Table (Course Content Structure)
+entity "course_modules" as course_modules {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(course_id) : BIGINT
+  module_name : VARCHAR(255)
+  description : TEXT NULL
+  order : INTEGER
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' Materials Table (Learning Materials)
+entity "materials" as materials {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(course_module_id) : BIGINT
+  title : VARCHAR(255)
+  content : TEXT
+  material_type : ENUM('text', 'video', 'pdf', 'link')
+  file_path : VARCHAR(255) NULL
+  order : INTEGER
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' Enrollments Table (Student-Course Registration)
+entity "enrollments" as enrollments {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(student_id) : BIGINT
+  FOREIGN_KEY(course_id) : BIGINT
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+  --
+  UNIQUE(student_id, course_id)
+}
+
+' Assignments Table (Course Tasks)
+entity "assignments" as assignments {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(course_id) : BIGINT
+  title : VARCHAR(255)
+  description : TEXT
+  due_date : DATETIME NULL
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' Submissions Table (Assignment Submissions)
+entity "submissions" as submissions {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(student_id) : BIGINT
+  FOREIGN_KEY(assignment_id) : BIGINT
+  submission_text : TEXT NULL
+  file_path : VARCHAR(255) NULL
+  submitted_at : TIMESTAMP NULL
+  score : DECIMAL(8,2) NULL
+  feedback : TEXT NULL
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' Grade Components Table (Assessment Components)
+entity "grade_components" as grade_components {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(course_id) : BIGINT
+  component_name : VARCHAR(255)
+  component_type : ENUM('quiz', 'assignment', 'exam', 'project', 'participation')
+  max_score : DECIMAL(8,2)
+  weight : DECIMAL(5,2)
+  description : TEXT NULL
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' Grades Table (Student Grades)
+entity "grades" as grades {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(student_id) : BIGINT
+  FOREIGN_KEY(grade_component_id) : BIGINT
+  score : DECIMAL(8,2)
+  max_score : DECIMAL(8,2)
+  notes : TEXT NULL
+  graded_at : TIMESTAMP NULL
+  FOREIGN_KEY(graded_by) : BIGINT NULL
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+  --
+  UNIQUE(student_id, grade_component_id)
+}
+
+' Authentication Tables
+entity "personal_access_tokens" as tokens {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  tokenable_type : VARCHAR(255)
+  FOREIGN_KEY(tokenable_id) : BIGINT
+  name : VARCHAR(255)
+  token : VARCHAR(64) UNIQUE
+  abilities : TEXT NULL
+  last_used_at : TIMESTAMP NULL
+  expires_at : TIMESTAMP NULL
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "sessions" as sessions {
+  PRIMARY_KEY(id) : VARCHAR(255)
+  --
+  FOREIGN_KEY(user_id) : BIGINT NULL
+  ip_address : VARCHAR(45) NULL
+  user_agent : TEXT NULL
+  payload : LONGTEXT
+  last_activity : INTEGER
+}
+
+' Password Reset Table
+entity "password_reset_tokens" as password_resets {
+  PRIMARY_KEY(email) : VARCHAR(255)
+  --
+  token : VARCHAR(255)
+  created_at : TIMESTAMP NULL
+}
+
+' RELATIONSHIPS
+
+' User Relationships
+users ||--o{ student_registrations : "has registration"
+users ||--o{ parents : "has parent"
+users ||--o{ courses : "instructs"
+users ||--o{ enrollments : "enrolls in"
+users ||--o{ submissions : "submits"
+users ||--o{ grades : "receives grades"
+users ||--o{ grades : "grades (as instructor)"
+users ||--o{ student_registrations : "approves registration"
+
+' Course Structure Relationships
+courses ||--o{ course_modules : "contains"
+course_modules ||--o{ materials : "has"
+courses ||--o{ enrollments : "has enrollments"
+courses ||--o{ assignments : "has"
+courses ||--o{ grade_components : "has components"
+
+' Assignment & Grading Relationships
+assignments ||--o{ submissions : "receives"
+grade_components ||--o{ grades : "graded by"
+
+' Authentication Relationships
+users ||--o{ tokens : "has tokens"
+users ||--o{ sessions : "has sessions"
+
+@enduml

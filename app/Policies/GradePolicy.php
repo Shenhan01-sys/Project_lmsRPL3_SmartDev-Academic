@@ -38,9 +38,9 @@ class GradePolicy
         // student bisa lihat nilai sendiri, parent bisa lihat nilai anak
         return match($user->role) {
             'admin' => true,
-            'instructor' => $grade->gradeComponent->course->instructor_id === $user->id,
-            'student' => $grade->student_id === $user->id,
-            'parent' => $grade->student->parent_id === $user->id,
+            'instructor' => $user->instructor && $grade->gradeComponent->course->instructor_id === $user->instructor->id,
+            'student' => $user->student && $grade->student_id === $user->student->id,
+            'parent' => $user->parentProfile && $grade->student->parent_id === $user->parentProfile->id,
             default => false,
         };
     }
@@ -62,7 +62,7 @@ class GradePolicy
         // Admin bisa update semua, instructor hanya bisa update grades course-nya
         return match($user->role) {
             'admin' => true,
-            'instructor' => $grade->gradeComponent->course->instructor_id === $user->id,
+            'instructor' => $user->instructor && $grade->gradeComponent->course->instructor_id === $user->instructor->id,
             default => false,
         };
     }
@@ -75,7 +75,7 @@ class GradePolicy
         // Admin bisa delete semua, instructor hanya bisa delete grades course-nya
         return match($user->role) {
             'admin' => true,
-            'instructor' => $grade->gradeComponent->course->instructor_id === $user->id,
+            'instructor' => $user->instructor && $grade->gradeComponent->course->instructor_id === $user->instructor->id,
             default => false,
         };
     }

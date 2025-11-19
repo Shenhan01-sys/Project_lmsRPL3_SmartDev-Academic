@@ -1,0 +1,53 @@
+@startuml DFD-Registration-Level0
+!theme plain
+title SmartDev LMS - Data Flow Diagram Level 0\nStudent Registration System
+
+' External Entities
+actor "Calon Siswa" as Student
+actor "Admin" as Admin
+actor "Email System" as Email
+
+' Central Process
+circle "Student\nRegistration\nSystem" as System
+
+' Data Stores
+storage "User Database" as UserDB
+storage "Registration Database" as RegDB
+storage "Document Storage" as DocStorage
+
+' Data Flows from Student
+Student --> System : Registration Form Data
+Student --> System : Identity Documents
+Student --> System : Status Inquiry
+
+' Data Flows to Student
+System --> Student : Registration Confirmation
+System --> Student : Upload Instructions
+System --> Student : Status Updates
+System --> Student : Approval/Rejection Notice
+
+' Data Flows from Admin
+Admin --> System : Review Request
+Admin --> System : Approval Decision
+Admin --> System : Rejection Reason
+
+' Data Flows to Admin
+System --> Admin : Pending Registrations
+System --> Admin : Document Files
+System --> Admin : Registration Details
+
+' Data Flows to Email System
+System --> Email : Registration Notifications
+System --> Email : Status Change Alerts
+
+' Data Flows to Data Stores
+System --> UserDB : User Account Data
+System --> RegDB : Registration Records
+System --> DocStorage : Uploaded Documents
+
+' Data Flows from Data Stores
+UserDB --> System : User Verification
+RegDB --> System : Registration History
+DocStorage --> System : Document Files
+
+@enduml

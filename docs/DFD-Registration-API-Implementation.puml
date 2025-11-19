@@ -1,0 +1,76 @@
+@startuml DFD-Registration-API-Flow
+!theme plain
+title SmartDev LMS - DFD Registration API Flow\nBased on Actual Implementation
+
+' External Entities
+actor "Mobile/Web App" as Client
+actor "Admin Dashboard" as AdminUI
+actor "File System" as FileSystem
+
+' API Processes (sesuai RegistrationController methods)
+rectangle "POST\n/api/register-calon-siswa\n(registerCalonSiswa)" as RegisterAPI
+rectangle "POST\n/api/upload-documents\n(uploadDocuments)" as UploadAPI
+rectangle "GET\n/api/registration-status/{userId}\n(getRegistrationStatus)" as StatusAPI
+rectangle "GET\n/api/pending-registrations\n(getPendingRegistrations)" as PendingAPI
+rectangle "POST\n/api/approve-registration\n(approveRegistration)" as ApproveAPI
+rectangle "POST\n/api/reject-registration\n(rejectRegistration)" as RejectAPI
+rectangle "GET\n/api/all-registrations\n(getAllRegistrations)" as AllAPI
+
+' Data Stores (actual database tables)
+storage "users\n(authentication)" as UsersTable
+storage "student_registrations\n(registration data)" as RegTable
+storage "storage/app/public\n(document files)" as Storage
+
+' Client Registration Flow
+Client --> RegisterAPI : JSON: name, email, password,\nphone, address, birth_date, etc.
+RegisterAPI --> UsersTable : Create user record\n(basic auth data)
+RegisterAPI --> RegTable : Create registration record\n(detailed student data)
+RegisterAPI --> Client : Response: user_id,\nregistration_id, message
+
+' Document Upload Flow
+Client --> UploadAPI : Multipart: user_id,\nktp_file, ijazah_file, photo_file
+UploadAPI --> RegTable : Read registration record
+RegTable --> UploadAPI : Registration data
+UploadAPI --> FileSystem : Store document files
+UploadAPI --> RegTable : Update document paths
+UploadAPI --> Client : Response: uploaded files info
+
+' Status Check Flow
+Client --> StatusAPI : user_id parameter
+StatusAPI --> RegTable : Query registration
+RegTable --> StatusAPI : Registration status & data
+StatusAPI --> Client : JSON: status, documents,\ncreated_at, updated_at
+
+' Admin Review Flows
+AdminUI --> PendingAPI : GET request
+PendingAPI --> RegTable : Query pending registrations
+RegTable --> PendingAPI : List of pending records
+PendingAPI --> AdminUI : JSON: pending registrations\nwith user relationships
+
+AdminUI --> AllAPI : GET request (optional filters)
+AllAPI --> RegTable : Query all registrations
+RegTable --> AllAPI : All registration records
+AllAPI --> AdminUI : JSON: all registrations\nwith pagination
+
+' Admin Decision Flows
+AdminUI --> ApproveAPI : JSON: registration_id, admin_id
+ApproveAPI --> RegTable : Update status to 'approved'
+ApproveAPI --> UsersTable : Update user role to 'student'
+ApproveAPI --> AdminUI : Response: success message
+
+AdminUI --> RejectAPI : JSON: registration_id,\nrejection_reason, admin_id
+RejectAPI --> RegTable : Update status to 'rejected'\nand store reason
+RejectAPI --> AdminUI : Response: success message
+
+' File Access Flow
+StatusAPI --> FileSystem : Read document files\n(for URL generation)
+FileSystem --> StatusAPI : File URLs
+PendingAPI --> FileSystem : Document access
+FileSystem --> PendingAPI : File URLs
+
+note top of RegisterAPI : Validates required fields:\n- name, email, password\n- phone, address\n- birth_date, gender
+note top of UploadAPI : Accepts file types:\n- KTP: jpg,png,pdf\n- Ijazah: jpg,png,pdf\n- Photo: jpg,png
+note top of ApproveAPI : Updates user role from\n'calon_siswa' to 'student'
+note top of RejectAPI : Stores rejection reason\nfor admin audit trail
+
+@enduml

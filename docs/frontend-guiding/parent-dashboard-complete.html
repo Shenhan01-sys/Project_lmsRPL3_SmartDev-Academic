@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Dashboard Complete Guide - SmartDev LMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .nav {
+            background: var(--dark);
+            padding: 1rem 2rem;
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        h3 {
+            color: var(--dark);
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        h4 {
+            color: var(--secondary);
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        p {
+            margin: 1rem 0;
+            line-height: 1.8;
+        }
+
+        .code-block {
+            position: relative;
+            background: var(--dark);
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            overflow: hidden;
+        }
+
+        .code-label {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .code-block pre {
+            color: #e2e8f0;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 0;
+            font-family: "Consolas", "Monaco", monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            color: #1e40af;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            border-color: var(--success);
+            color: #065f46;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border-color: var(--warning);
+            color: #92400e;
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            border-color: var(--danger);
+            color: #991b1b;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th {
+            background: var(--light);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: var(--light);
+        }
+
+        ul, ol {
+            margin: 1rem 0 1rem 2rem;
+            line-height: 2;
+        }
+
+        li {
+            margin: 0.5rem 0;
+        }
+
+        code {
+            background: #f1f5f9;
+            color: #e11d48;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: "Consolas", "Monaco", monospace;
+            font-size: 0.9em;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .badge-new {
+            background: var(--success);
+            color: white;
+        }
+
+        .badge-important {
+            background: var(--danger);
+            color: white;
+        }
+
+        .footer {
+            background: var(--dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+
+            .container {
+                border-radius: 0;
+            }
+
+            .header h1 {
+                font-size: 1.75rem;
+            }
+
+            .content {
+                padding: 1rem;
+            }
+
+            .nav {
+                padding: 0.5rem 1rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📱 Parent Dashboard Complete Guide</h1>
+            <p>Panduan Lengkap Frontend dengan Ngrok Integration</p>
+            <p style="font-size: 0.9rem; margin-top: 1rem;">
+                <strong>Ngrok URL:</strong> https://loraine-seminiferous-snappily.ngrok-free.dev
+            </p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav">
+            <a class="nav-item active" onclick="showSection('overview')">📋 Overview</a>
+            <a class="nav-item" onclick="showSection('setup')">⚙️ Setup</a>
+            <a class="nav-item" onclick="showSection('api')">🔌 API Helper</a>
+            <a class="nav-item" onclick="showSection('layout')">🎨 Layout</a>
+            <a class="nav-item" onclick="showSection('dashboard')">📊 Dashboard</a>
+            <a class="nav-item" onclick="showSection('students')">👥 Students</a>
+            <a class="nav-item" onclick="showSection('detail')">📄 Detail</a>
+            <a class="nav-item" onclick="showSection('grades')">📈 Grades</a>
+            <a class="nav-item" onclick="showSection('attendance')">📅 Attendance</a>
+            <a class="nav-item" onclick="showSection('announcements')">📢 Announcements</a>
+            <a class="nav-item" onclick="showSection('notifications')">🔔 Notifications</a>
+            <a class="nav-item" onclick="showSection('certificates')">🎓 Certificates</a>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- OVERVIEW SECTION -->
+            <section id="overview" class="section active">
+                <h2>📋 Overview</h2>
+
+                <div class="alert alert-info">
+                    <strong>ℹ️ Informasi P</strong>enting:</strong><br>
+                    Tutorial ini menggunakan <strong>Ngrok</strong> untuk mengakses Laravel backend API.<br>
+                    <strong>Base URL:</strong> <code>https://loraine-seminiferous-snappily.ngrok-free.dev</code>
+                </div>
+
+                <h3>🎯 Apa yang Akan Dibuat?</h3>
+                <div</h3> class="grid">
+                    <div class="card">
+                        <h4>📊 Dashboard</h4>
+                        <p>Overview statistik, daftar anak, charts, dan recent activities</p>
+                    </div>
+                    <div class="card">
+                        <h4>👥 Students List</h4>
+                        <p>Daftar anak dengan search dan filter</p>
+                    </div>
+                    <div class="card">
+                        <h4>📄 Student Detail</h4>
+                        <p>Detail lengkap: courses, grades, submissions, attendance</p>
+                    </div>
+                    <div class="card">
+                        <h4>📈 Grades View</h4>
+                        <p>Lihat nilai per course dengan grade components</p>
+                    </div>
+                    <div class="card">
+                        <h4>📅 Attendance</h4>
+                        <p>Monitor kehadiran anak per course</p>
+                    </div>
+                    <div class="card">
+                        <h4>📢 Announcements</h4>
+                        <p>Lihat pengumuman dari instructor/admin</p>
+                    </div>
+                    <div class="card">
+                        <h4>🔔 Notifications</h4>
+                        <p>Real-time notifications dan alerts</p>
+                    </div>
+                    <div class="card">
+                        <h4>🎓 Certificates</h4>
+                        <p>Lihat dan download sertifikat anak</p>
+                    </div>
+                </div>
+
+                <h3>🛠️ Tech Stack</h3>
+                <ul>
+                    <li><strong>Laravel Blade:</strong> Template engine</li>
+                    <li><strong>Bootstrap 5.3:</strong> UI framework</li>
+                    <li><strong>Chart.js:</strong> Data visualization</li>
+                    <li><strong>Vanilla JavaScript:</strong> API calls dengan Fetch API</li>
+                    <li><strong>Ngrok:</strong> Backend API tunneling</li>
+                </ul>
+
+                <h3>📁 Struktur Folder</h3>
+                <div class="code-block">
+                    <div class="code-label">Project Structure</div>
+                    <pre>
+resources/views/
+├── layouts/
+│   └── parent.blade.php          # Base layout
+└── parent/
+    ├── dashboard.blade.php       # Main dashboard
+    ├── students.blade.php        # Students list
+    ├── student-detail.blade.php  # Student detail
+    ├── grades.blade.php          # Grades view
+    ├── attendance.blade.php      # Attendance tracking
+    ├── announcements.blade.php   # Announcements
+    ├── notifications.blade.php   # Notifications
+    └── certificates.blade.php    # Certificates
+
+public/js/parent/
+└── api.js                        # API helper
+
+routes/
+└── web.php                       # Web routes</pre>
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>✅ Prerequisites:</strong>
+                    Backend API sudah running dan accessible via ngrok. Token authentication sudah setup di localStorage.
+                </div>
+            </section>
+
+            <!-- SETUP SECTION -->
+            <section id="setup" class="section">
+                <h2>⚙️ Setup & Configuration</h2>
+
+                <h3>Step 1: Web Routes</h3>
+                <p>Buat routes untuk parent dashboard pages.</p>
+
+                <div class="code-block">
+                    <div class="code-label">routes/web.php</div>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                    <pre>
+&lt;?php
+
+use Illuminate\Support\Facades\Route;
+
+// Parent Dashboard Routes
+Route::prefix('parent')->name('parent.')->group(function () {
+
+    Route::get('/dashboard', function () {
+        return view('parent.dashboard');
+    })->name('dashboard');
+
+    Route::get('/students', function () {
+        return view('parent.students');
+    })->name('students');
+
+    Route::get('/students/{id}', function ($id) {
+        return view('parent.student-detail', ['studentId' => $id]);
+    })->name('student.detail');
+
+    Route::get('/grades', function () {
+        return view('parent.grades');
+    })->name('grades');
+
+    Route::get('/attendance', function () {
+        return view('parent.attendance');
+    })->name('attendance');
+
+    Route::get('/announcements', function () {
+        return view('parent.announcements');
+    })->name('announcements');
+
+    Route::get('/notifications', function () {
+        return view('parent.notifications');
+    })->name('notifications');
+
+    Route::get('/certificates', function () {
+        return view('parent.certificates');
+    })->name('certificates');
+});</pre>
+                </div>
+
+                <div class="alert alert-warning">
+                    <strong>⚠️ Production Note:</strong> Tambahkan middleware <code>auth:sanctum</code> pada route group untuk protect halaman.
+                </div>
+            </section>
+
+            <!-- API SECTION -->
+            <section id="api" class="section">
+                <h2>🔌 API Helper</h2>
+
+                <h3>📡 Available Endpoints</h3>
+                <p>API endpoints yang tersedia dari backend melalui ngrok:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Endpoint</th>
+                            <th>Description</th>
+                        </tr></th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>GET</strong></td>
+                            <td><code>/api/user</code></td>
+                            <td>Get current authenticated user</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GET</strong></td>
+                            <td><code>/api/v1/parents/{id}/students</code></td>
+                            <td>Get parent's children list</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GET</strong></td>
+                            <td><code>/api/v1/students/{id}</code></td>
+                            <td>Get student detail</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GET</strong></td>
+                            <td><code>/api/v1/students/{id}/enrollments</code></td>
+                            <td>Get student's enrollments</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GET</strong></td>
+                            <td><code>/api/v1/grades/student?student_id={id}</code></td>
+                            <td>Get student's grades</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GET</strong></td>
+                            <td><code>/api/v1/attendance/students/{id}/summary</code></td>
+                            <td>Get student attendance summary</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GET</strong></td>
+                            <td><code>/api/v1/announcements/active</code></td>
+                            <td>Get active announcements</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GET</strong></td>
+                            <td><code>/api/v1/notifications</code></td>
+                            <td>Get user notifications</td>
+                        </tr>
+                        <tr>
+                            <td><strong>POST</strong></td>
+                            <td><code>/api/v1/notifications/{id}/read</code></td>
+                            <td>Mark notification as read</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GET</strong></td>
+                            <td><code>/api/v1/certificates?student_id={id}</code></td>
+                            <td>Get student certificates</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>🔐 API Helper JavaScript</h3>
+                <p>Buat file helper untuk semua API calls dengan ngrok integration.</p>
+
+                <div class="code-block">
+                    <div class="code-label">public/js/parent/api.js</div>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                    <pre>
+/**
+ * Parent Dashboard API Helper
+ * Handles all API calls with Ngrok authentication
+ */
+
+const NGROK_BASE = 'https://loraine-seminiferous-snappily.ngrok-free.dev';
+const API_BASE = NGROK_BASE + '/api/v1';
+
+// Get token from localStorage
+function getToken() {
+    return localStorage.getItem('auth_token');
+}
+
+// Default headers with auth and ngrok bypass
+function getHeaders() {
+    return {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${getToken()}`,
+        'ngrok-skip-browser-warning': 'true' // Bypass ngrok browser warning
+    };
+}
+
+// Handle response and errors
+async function handleResponse(response) {
+    if (!response.ok) {
+        if (response.status === 401) {
+            localStorage.removeItem('auth_token');
+            window.location.href = '/login';
+            throw new Error('Unauthorized - redirecting to login');
+        }
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+    }
+    return await response.json();
+}
+
+// API Functions
+const ParentAPI = {
+
+    // Get current authenticated user
+    async getCurrentUser() {
+        const res = await fetch(NGROK_BASE + '/api/user', {
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+
+    // Get parent's students/children
+    async getStudents(parentId) {
+        const res = await fetch(`${API_BASE}/parents/${parentId}/students`, {
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+
+    // Get student detail by ID
+    async getStudent(studentId) {
+        const res = await fetch(`${API_BASE}/students/${studentId}`, {
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+
+    // Get student's enrollments
+    async getEnrollments(studentId) {
+        const res = await fetch(`${API_BASE}/students/${studentId}/enrollments`, {
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+
+    // Get student's submissions
+    async getSubmissions(studentId) {
+        const res = await fetch(`${API_BASE}/students/${studentId}/submissions`, {
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+
+    // Get student's grades
+    async getGrades(studentId) {
+        const res = await fetch(`${API_BASE}/grades/student?student_id=${studentId}`, {
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+
+    // Get student attendance summary
+    async getAttendanceSummary(studentId, courseId = null) {
+        let url = `${API_BASE}/attendance/students/${studentId}/summary`;
+        if (courseId) url += `?course_id=${courseId}`;
+
+        const res = await fetch(url, {
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+
+    // Get active announcements
+    async getAnnouncements(page = 1) {
+        const res = await fetch(`${API_BASE}/announcements/active?page=${page}`, {
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+
+    // Get user notifications
+    async getNotifications(page = 1) {
+        const res = await fetch(`${API_BASE}/notifications?page=${page}`, {
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+
+    // Mark notification as read
+    async markNotificationRead(notificationId) {
+        const res = await fetch(`${API_BASE}/notifications/${notificationId}/read`, {
+            method: 'POST',
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+
+    // Get notification counts
+    async getNotificationCounts() {
+        const res = await fetch(`${API_BASE}/notifications/counts`, {
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+
+    // Get student certificates
+    async getCertificates(studentId) {
+        const res = await fetch(`${API_BASE}/certificates?student_id=${studentId}`, {
+            headers: getHeaders()
+        });
+        return handleResponse(res);
+    },
+
+    // Verify certificate by code
+    async verifyCertificate(code) {
+        const res = await fetch(`${API_BASE}/certificates/verify/${code}`, {
+            headers: {
+                'Accept': 'application/json',
+                'ngrok-skip-browser-warning': 'true'
+            }
+        });
+        return handleResponse(res);
+    }
+};
+
+// Export for use in Blade templates
+if (typeof window !== 'undefined') {
+    window.ParentAPI = ParentAPI;
+}</pre>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>ℹ️ Ngrok Header:</strong> Header <code>ngrok-skip-browser-warning: true</code> digunakan untuk bypass warning page ngrok saat development.
+                </div>
+
+                <h3>📊 Example API Response</h3>
+
+                <h4>Get Students Response:</h4>
+                <div class="code-block">
+                    <div class="code-label">JSON Response</div>
+                    <pre>
+[
+    {
+        "id": 1,
+        "full_name": "Ahmad Fauzi",
+        "gender": "male",
+        "birth_date": "2010-05-15",
+        "status": "active",
+        "parent_id": 1,
+        "enrollments": [
+            {
+                "id": 1,
+                "course_id": 3,
+                "status": "active",
+                "enrolled_at": "2024-02-01",
+                "course": {
+                    "id": 3,
+                    "title": "Matematika Dasar",
+                    "instructor": {
+                        "id": 2,
+                        "full_name": "Budi Santoso"
+                    }
+                }
+            }
+        ]
+    }
+]</pre>
+                </div>
+            </section>
+
+            <!-- LAYOUT SECTION -->
+            <section id="layout" class="section">
+                <h2>🎨 Base Layout</h2>
+
+                <p>Layout template dengan sidebar navigation, Bootstrap 5.3, dan notification badge.</p>
+
+                <div class="code-block">
+                    <div class="code-label">resources/views/layouts/parent.blade.php</div>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                    <pre>
+&lt;!DOCTYPE html&gt;
+&lt;html lang="id"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;meta name="csrf-token" content="{{ csrf_token() }}"&gt;
+    &lt;title&gt;@yield('title', 'Dashboard') - Parent Dashboard&lt;/title&gt;
+
+    &lt;!-- Bootstrap 5.3 CSS --&gt;
+    &lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"&gt;
+
+    &lt;!-- Bootstrap Icons --&gt;
+    &lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"&gt;
+
+    &lt;style&gt;
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f8fafc;
+        }
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+            min-height: 100vh;
+            position: sticky;
+            top: 0;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            margin-bottom: 0.25rem;
+        }
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            color: white;
+            background: rgba(255,255,255,0.15);
+        }
+        .notification-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.7rem;
+        }
+    &lt;/style&gt;
+    @yield('extra-css')
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="container-fluid"&gt;
+        &lt;div class="row"&gt;
+            &lt;!-- Sidebar --&gt;
+            &lt;nav class="col-md-3 col-lg-2 d-md-block sidebar p-3"&gt;
+                &lt;div class="position-sticky"&gt;
+                    &lt;div class="text-center mb-4 pt-3"&gt;
+                        &lt;h4 class="text-white fw-bold"&gt;SmartDev LMS&lt;/h4&gt;
+                        &lt;p class="text-white-50 small"&gt;Parent Dashboard&lt;/p&gt;
+                    &lt;/div&gt;
+
+                    &lt;ul class="nav flex-column"&gt;
+                        &lt;li class="nav-item"&gt;
+                            &lt;a class="nav-link {{ request()-&gt;routeIs('parent.dashboard') ? 'active' : '' }}"
+                               href="{{ route('parent.dashboard') }}"&gt;
+                                &lt;i class="bi bi-speedometer2 me-2"&gt;&lt;/i&gt; Dashboard
+                            &lt;/a&gt;
+                        &lt;/li&gt;
+                        &lt;li class="nav-item"&gt;
+                            &lt;a class="nav-link {{ request()-&gt;routeIs('parent.students*') ? 'active' : '' }}"
+                               href="{{ route('parent.students') }}"&gt;
+                                &lt;i class="bi bi-people me-2"&gt;&lt;/i&gt; Anak Saya
+                            &lt;/a&gt;
+                        &lt;/li&gt;
+                        &lt;li class="nav-item"&gt;
+                            &lt;a class="nav-link {{ request()-&gt;routeIs('parent.grades') ? 'active' : '' }}"
+                               href="{{ route('parent.grades') }}"&gt;
+                                &lt;i class="bi bi-graph-up me-2"&gt;&lt;/i&gt; Nilai
+                            &lt;/a&gt;
+                        &lt;/li&gt;
+                        &lt;li class="nav-item"&gt;
+                            &lt;a class="nav-link {{ request()-&gt;routeIs('parent.attendance') ? 'active' : '' }}"
+                               href="{{ route('parent.attendance') }}"&gt;
+                                &lt;i class="bi bi-calendar-check me-2"&gt;&lt;/i&gt; Kehadiran
+                            &lt;/a&gt;
+                        &lt;/li&gt;
+                        &lt;li class="nav-item position-relative"&gt;
+                            &lt;a class="nav-link {{ request()-&gt;routeIs('parent.notifications') ? 'active' : '' }}"
+                               href="{{ route('parent.notifications') }}"&gt;
+                                &lt;i class="bi bi-bell me-2"&gt;&lt;/i&gt; Notifikasi
+                                &lt;span id="notifBadge" class="notification-badge d-none"&gt;0&lt;/span&gt;
+                            &lt;/a&gt;
+                        &lt;/li&gt;
+                        &lt;li class="nav-item"&gt;
+                            &lt;a class="nav-link" href="#" onclick="event.preventDefault(); logout();"&gt;
+                                &lt;i class="bi bi-box-arrow-right me-2"&gt;&lt;/i&gt; Logout
+                            &lt;/a&gt;
+                        &lt;/li&gt;
+                    &lt;/ul&gt;
+                &lt;/div&gt;
+            &lt;/nav&gt;
+
+            &lt;!-- Main Content --&gt;
+            &lt;main class="col-md-9 ms-sm-auto col-lg-10 px-4 py-4"&gt;
+                @yield('content')
+            &lt;/main&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Bootstrap JS --&gt;
+    &lt;script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"&gt;&lt;/script&gt;
+
+    &lt;!-- Chart.js --&gt;
+    &lt;script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"&gt;&lt;/script&gt;
+
+    &lt;!-- Base Config with Ngrok --&gt;
+    &lt;script&gt;
+        // Ngrok Configuration
+        const NGROK_BASE = 'https://loraine-seminiferous-snappily.ngrok-free.dev';
+        const API_BASE = NGROK_BASE + '/api/v1';
+        const API_TOKEN = localStorage.getItem('auth_token');
+
+        function logout() {
+            if(confirm('Apakah Anda yakin ingin logout?')) {
+                localStorage.removeItem('auth_token');
+                window.location.href = '/login';
+            }
+        }
+
+        // Check unread notifications
+        async function checkNotifications() {
+            if (!API_TOKEN) return;
+
+            try {
+                const response = await fetch(API_BASE + '/notifications/counts', {
+                    headers: {
+                        'Authorization': 'Bearer ' + API_TOKEN,
+                        'Accept': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    const badge = document.getElementById('notifBadge');
+                    if (data.unread &gt; 0) {
+                        badge.textContent = data.unread;
+                        badge.classList.remove('d-none');
+                    } else {
+                        badge.classList.add('d-none');
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking notifications:', error);
+            }
+        }
+
+        // Initialize
+        if (API_TOKEN) {
+            checkNotifications();
+            setInterval(checkNotifications, 60000); // Check every minute
+        }
+    &lt;/script&gt;
+
+    @yield('extra-js')
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>✅ Layout Complete!</strong> Base template dengan sidebar navigation, Bootstrap 5.3, dan real-time notification badge sudah siap.
+                </div>
+            </section>
+
+            <!-- DASHBOARD SECTION -->
+            <section id="dashboard" class="section">
+                <h2>📊 Dashboard Page</h2>
+
+                <p>Halaman dashboard utama dengan statistics cards, students list, charts, dan recent announcements.</p>
+
+                <div class="alert alert-info">
+                    <strong>💡 Key Features:</strong>
+                    <ul>
+                        <li>Statistics: Total anak, enrollments, rata-rata nilai, kehadiran</li>
+                        <li>Students cards dengan link ke detail</li>
+                        <li>Doughnut chart untuk enrollments overview</li>
+                        <li>Recent announcements list</li>
+                    </ul>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-label">resources/views/parent/dashboard.blade.php</div>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                    <pre>
+@extends('layouts.parent')
+
+@section('title', 'Dashboard')
+
+@section('content')
+&lt;div class="d-flex justify-content-between align-items-center mb-4"&gt;
+    &lt;div&gt;
+        &lt;h2 class="fw-bold mb-1"&gt;Dashboard&lt;/h2&gt;
+        &lt;p class="text-muted mb-0"&gt;Selamat datang kembali!&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;button class="btn btn-primary" onclick="location.reload()"&gt;
+        &lt;i class="bi bi-arrow-clockwise me-1"&gt;&lt;/i&gt; Refresh
+    &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;!-- Statistics Cards --&gt;
+&lt;div class="row g-3 mb-4"&gt;
+    &lt;div class="col-md-3"&gt;
+        &lt;div class="card"&gt;
+            &lt;div class="card-body text-center"&gt;
+                &lt;h6 class="text-muted mb-2"&gt;Total Anak&lt;/h6&gt;
+                &lt;h2 id="totalStudents" class="fw-bold text-primary"&gt;-&lt;/h2&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="col-md-3"&gt;
+        &lt;div class="card"&gt;
+            &lt;div class="card-body text-center"&gt;
+                &lt;h6 class="text-muted mb-2"&gt;Total Enrollments&lt;/h6&gt;
+                &lt;h2 id="totalEnrollments" class="fw-bold text-success"&gt;-&lt;/h2&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="col-md-3"&gt;
+        &lt;div class="card"&gt;
+            &lt;div class="card-body text-center"&gt;
+                &lt;h6 class="text-muted mb-2"&gt;Rata-rata Nilai&lt;/h6&gt;
+                &lt;h2 id="avgGrade" class="fw-bold text-warning"&gt;-&lt;/h2&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="col-md-3"&gt;
+        &lt;div class="card"&gt;
+            &lt;div class="card-body text-center"&gt;
+                &lt;h6 class="text-muted mb-2"&gt;Kehadiran Avg&lt;/h6&gt;
+                &lt;h2 id="avgAttendance" class="fw-bold text-info"&gt;-&lt;/h2&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Students List --&gt;
+&lt;div class="card mb-4"&gt;
+    &lt;div class="card-header bg-white"&gt;
+        &lt;h5 class="mb-0 fw-bold"&gt;Anak-Anak Saya&lt;/h5&gt;
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;div id="studentsLoading" class="text-center py-5"&gt;
+            &lt;div class="spinner-border text-primary"&gt;&lt;/div&gt;
+            &lt;p class="mt-2 text-muted"&gt;Memuat data...&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div id="studentsList" class="row g-3" style="display:none"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Charts and Announcements --&gt;
+&lt;div class="row g-4"&gt;
+    &lt;div class="col-md-6"&gt;
+        &lt;div class="card"&gt;
+            &lt;div class="card-header bg-white"&gt;
+                &lt;h5 class="mb-0 fw-bold"&gt;Enrollments Overview&lt;/h5&gt;
+            &lt;/div&gt;
+            &lt;div class="card-body"&gt;
+                &lt;canvas id="progressChart"&gt;&lt;/canvas&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="col-md-6"&gt;
+        &lt;div class="card"&gt;
+            &lt;div class="card-header bg-white"&gt;
+                &lt;h5 class="mb-0 fw-bold"&gt;Recent Announcements&lt;/h5&gt;
+            &lt;/div&gt;
+            &lt;div class="card-body"&gt;
+                &lt;div id="recentAnnouncements"&gt;Loading...&lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+@endsection
+
+@section('extra-js')
+&lt;script src="{{ asset('js/parent/api.js') }}"&gt;&lt;/script&gt;
+&lt;script&gt;
+let parentId = null;
+
+async function loadDashboard() {
+    try {
+        const user = await ParentAPI.getCurrentUser();
+        parentId = user.parent?.id;
+
+        if (!parentId) throw new Error('Parent data not found');
+
+        const students = await ParentAPI.getStudents(parentId);
+
+        await updateStats(students);
+        renderStudents(students);
+        loadChart(students);
+        loadAnnouncements();
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Gagal memuat data: ' + error.message);
+    }
+}
+
+async function updateStats(students) {
+    let totalEnrollments = 0;
+    students.forEach(s =&gt; {
+        totalEnrollments += s.enrollments?.length || 0;
+    });
+
+    document.getElementById('totalStudents').textContent = students.length;
+    document.getElementById('totalEnrollments').textContent = totalEnrollments;
+    document.getElementById('avgGrade').textContent = 'N/A';
+    document.getElementById('avgAttendance').textContent = 'N/A';
+}
+
+function renderStudents(students) {
+    const container = document.getElementById('studentsList');
+    container.innerHTML = students.map(s =&gt; `
+        &lt;div class="col-md-4"&gt;
+            &lt;div class="card"&gt;
+                &lt;div class="card-body"&gt;
+                    &lt;h5&gt;${s.full_name}&lt;/h5&gt;
+                    &lt;p class="text-muted"&gt;${s.enrollments?.length || 0} Courses&lt;/p&gt;
+                    &lt;a href="/parent/students/${s.id}" class="btn btn-sm btn-primary w-100"&gt;
+                        View Detail
+                    &lt;/a&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    `).join('');
+
+    document.getElementById('studentsLoading').style.display = 'none';
+    container.style.display = 'flex';
+}
+
+function loadChart(students) {
+    const ctx = document.getElementById('progressChart');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: students.map(s =&gt; s.full_name),
+            datasets: [{
+                data: students.map(s =&gt; s.enrollments?.length || 0),
+                backgroundColor: ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444']
+            }]
+        }
+    });
+}
+
+async function loadAnnouncements() {
+    try {
+        const data = await ParentAPI.getAnnouncements(1);
+        const container = document.getElementById('recentAnnouncements');
+
+        if (!data.data?.length) {
+            container.innerHTML = '&lt;p class="text-muted"&gt;No announcements&lt;/p&gt;';
+            return;
+        }
+
+        container.innerHTML = data.data.slice(0, 3).map(a =&gt; `
+            &lt;div class="mb-3 pb-3 border-bottom"&gt;
+                &lt;h6&gt;${a.title}&lt;/h6&gt;
+                &lt;p class="text-muted small"&gt;${a.content.substring(0, 80)}...&lt;/p&gt;
+            &lt;/div&gt;
+        `).join('');
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadDashboard);
+&lt;/script&gt;
+@endsection</pre>
+                </div>
+            </section>
+
+            <!-- STUDENTS SECTION -->
+            <section id="students" class="section">
+                <h2>👥 Students List Page</h2>
+
+                <p>Halaman daftar anak dengan fitur search, filter status, dan sorting.</p>
+
+                <div class="code-block">
+                    <div class="code-label">resources/views/parent/students.blade.php - Key Points</div>
+                    <pre>
+@extends('layouts.parent')
+
+@section('title', 'Anak Saya')
+
+@section('content')
+&lt;!-- Search and Filter --&gt;
+&lt;div class="card mb-4"&gt;
+    &lt;div class="card-body"&gt;
+        &lt;div class="row g-3"&gt;
+            &lt;div class="col-md-6"&gt;
+                &lt;input type="text" id="searchInput" class="form-control"
+                       placeholder="🔍 Cari nama anak..." onkeyup="filterStudents()"&gt;
+            &lt;/div&gt;
+            &lt;div class="col-md-3"&gt;
+                &lt;select class="form-select" id="statusFilter" onchange="filterStudents()"&gt;
+                    &lt;option value="all"&gt;Semua Status&lt;/option&gt;
+                    &lt;option value="active"&gt;Active&lt;/option&gt;
+                    &lt;option value="inactive"&gt;Inactive&lt;/option&gt;
+                &lt;/select&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="studentsList" class="row g-4"&gt;&lt;/div&gt;
+@endsection
+
+@section('extra-js')
+&lt;script src="{{ asset('js/parent/api.js') }}"&gt;&lt;/script&gt;
+&lt;script&gt;
+let allStudents = [];
+
+async function loadStudents() {
+    const user = await ParentAPI.getCurrentUser();
+    const parentId = user.parent?.id;
+    allStudents = await ParentAPI.getStudents(parentId);
+    renderStudents();
+}
+
+function filterStudents() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const status = document.getElementById('statusFilter').value;
+
+    const filtered = allStudents.filter(s =&gt; {
+        const matchName = s.full_name.toLowerCase().includes(query);
+        const matchStatus = status === 'all' || s.status === status;
+        return matchName &amp;&amp; matchStatus;
+    });
+
+    renderStudents(filtered);
+}
+
+function renderStudents(students = allStudents) {
+    // Render logic here
+}
+
+document.addEventListener('DOMContentLoaded', loadStudents);
+&lt;/script&gt;
+@endsection</pre>
+                </div>
+            </section>
+
+            <!-- DETAIL SECTION -->
+            <section id="detail" class="section">
+                <h2>📄 Student Detail Page</h2>
+
+                <p>Halaman detail anak dengan tabs untuk courses, grades, dan submissions.</p>
+
+                <div class="code-block">
+                    <div class="code-label">resources/views/parent/student-detail.blade.php - Core Structure</div>
+                    <pre>
+@extends('layouts.parent')
+
+@section('title', 'Detail Anak')
+
+@section('content')
+&lt;div class="row"&gt;
+    &lt;!-- Profile Card --&gt;
+    &lt;div class="col-md-4"&gt;
+        &lt;div class="card"&gt;
+            &lt;div class="card-body text-center"&gt;
+                &lt;div id="studentProfile"&gt;&lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Tabs --&gt;
+    &lt;div class="col-md-8"&gt;
+        &lt;ul class="nav nav-tabs"&gt;
+            &lt;li class="nav-item"&gt;
+                &lt;button class="nav-link active" data-bs-toggle="tab" data-bs-target="#courses"&gt;
+                    Courses
+                &lt;/button&gt;
+            &lt;/li&gt;
+            &lt;li class="nav-item"&gt;
+                &lt;button class="nav-link" data-bs-toggle="tab" data-bs-target="#grades"&gt;
+                    Grades
+                &lt;/button&gt;
+            &lt;/li&gt;
+            &lt;li class="nav-item"&gt;
+                &lt;button class="nav-link" data-bs-toggle="tab" data-bs-target="#submissions"&gt;
+                    Submissions
+                &lt;/button&gt;
+            &lt;/li&gt;
+        &lt;/ul&gt;
+
+        &lt;div class="tab-content"&gt;
+            &lt;div class="tab-pane fade show active" id="courses"&gt;
+                &lt;div id="enrollmentsList"&gt;&lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="tab-pane fade" id="grades"&gt;
+                &lt;div id="gradesList"&gt;&lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="tab-pane fade" id="submissions"&gt;
+                &lt;div id="submissionsList"&gt;&lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+@endsection
+
+@section('extra-js')
+&lt;script src="{{ asset('js/parent/api.js') }}"&gt;&lt;/script&gt;
+&lt;script&gt;
+const studentId = {{ $studentId }};
+
+async function loadStudentDetail() {
+    const student = await ParentAPI.getStudent(studentId);
+    const enrollments = await ParentAPI.getEnrollments(studentId);
+    const grades = await ParentAPI.getGrades(studentId);
+    const submissions = await ParentAPI.getSubmissions(studentId);
+
+    // Render each section
+    renderProfile(student);
+    renderEnrollments(enrollments);
+    renderGrades(grades.data || grades);
+    renderSubmissions(submissions);
+}
+
+document.addEventListener('DOMContentLoaded', loadStudentDetail);
+&lt;/script&gt;
+@endsection</pre>
+                </div>
+            </section>
+
+            <!-- GRADES SECTION -->
+            <section id="grades" class="section">
+                <h2>📈 Grades Page</h2>
+
+                <p>Halaman untuk melihat nilai semua anak dengan filter per student dan per course.</p>
+
+                <div class="alert alert-info">
+                    <strong>💡 Features:</strong> Student selector, course filter, statistics (avg, max, min), grades table dengan</strong> grade components.
+                </div>
+
+                <div class="code-block">
+                    <div class="code-label">Key JavaScript Logic</div>
+                    <pre>
+async function loadGrades() {
+    const studentId = document.getElementById('studentFilter').value;
+    const data = await ParentAPI.getGrades(studentId);
+    const grades = data.data || data;
+
+    // Calculate statistics
+    if (grades.length &gt; 0) {
+        const scores = grades.map(g =&gt; parseFloat(g.score));
+        const avg = (scores.reduce((a, b) =&gt; a + b) / scores.length).toFixed(1);
+        const max = Math.max(...scores);
+        const min = Math.min(...scores);
+
+        document.getElementById('avgGrade').textContent = avg;
+        document.getElementById('maxGrade').textContent = max;
+        document.getElementById('minGrade').textContent = min;
+        document.getElementById('totalGrades').textContent = grades.length;
+    }
+
+    // Render grades table
+    renderGradesTable(grades);
+}
+
+function renderGradesTable(grades) {
+    const html = `
+        &lt;table class="table"&gt;
+            &lt;thead&gt;
+                &lt;tr&gt;
+                    &lt;th&gt;Course&lt;/th&gt;
+                    &lt;th&gt;Component&lt;/th&gt;
+                    &lt;th&gt;Score&lt;/th&gt;
+                    &lt;th&gt;Feedback&lt;/th&gt;
+                &lt;/tr&gt;
+            &lt;/thead&gt;
+            &lt;tbody&gt;
+                ${grades.map(g =&gt; `
+                    &lt;tr&gt;
+                        &lt;td&gt;${g.enrollment?.course?.title || 'N/A'}&lt;/td&gt;
+                        &lt;td&gt;${g.grade_component?.name || 'N/A'}&lt;/td&gt;
+                        &lt;td&gt;&lt;strong&gt;${g.score}&lt;/strong&gt;&lt;/td&gt;
+                        &lt;td&gt;${g.feedback || '-'}&lt;/td&gt;
+                    &lt;/tr&gt;
+                `).join('')}
+            &lt;/tbody&gt;
+        &lt;/table&gt;
+    `;
+
+    document.getElementById('gradesList').innerHTML = html;
+}</pre>
+                </div>
+            </section>
+
+            <!-- ATTENDANCE SECTION -->
+            <section id="attendance" class="section">
+                <h2>📅 Attendance Page</h2>
+
+                <p>Monitor kehadiran anak dengan summary per course dan detail attendance records.</p>
+
+                <div class="code-block">
+                    <div class="code-label">Attendance API Call</div>
+                    <pre>
+// Get attendance summary for student
+async function loadAttendance() {
+    const studentId = document.getElementById('studentFilter').value;
+    const data = await ParentAPI.getAttendanceSummary(studentId);
+
+    if (data.summary &amp;&amp; data.summary.length &gt; 0) {
+        renderAttendanceSummary(data.summary);
+    } else {
+        document.getElementById('attendanceList').innerHTML =
+            '&lt;p class="text-muted"&gt;Belum ada data kehadiran&lt;/p&gt;';
+    }
+}
+
+function renderAttendanceSummary(summary) {
+    const html = summary.map(item =&gt; `
+        &lt;div class="card mb-3"&gt;
+            &lt;div class="card-body"&gt;
+                &lt;h5&gt;${item.course_title}&lt;/h5&gt;
+                &lt;div class="row mt-3"&gt;
+                    &lt;div class="col"&gt;
+                        &lt;small class="text-muted"&gt;Present&lt;/small&gt;
+                        &lt;h4 class="text-success"&gt;${item.present}&lt;/h4&gt;
+                    &lt;/div&gt;
+                    &lt;div class="col"&gt;
+                        &lt;small class="text-muted"&gt;Absent&lt;/small&gt;
+                        &lt;h4 class="text-danger"&gt;${item.absent}&lt;/h4&gt;
+                    &lt;/div&gt;
+                    &lt;div class="col"&gt;
+                        &lt;small class="text-muted"&gt;Percentage&lt;/small&gt;
+                        &lt;h4 class="text-primary"&gt;${item.percentage}%&lt;/h4&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    `).join('');
+
+    document.getElementById('attendanceList').innerHTML = html;
+}</pre>
+                </div>
+            </section>
+
+            <!-- ANNOUNCEMENTS SECTION -->
+            <section id="announcements" class="section">
+                <h2>📢 Announcements Page</h2>
+
+                <p>Menampilkan pengumuman global dan per-course dengan pagination.</p>
+
+                <div class="code-block">
+                    <div class="code-label">Announcements Implementation</div>
+                    <pre>
+async function loadAnnouncements(page = 1) {
+    const data = await ParentAPI.getAnnouncements(page);
+
+    if (!data.data || data.data.length === 0) {
+        document.getElementById('announcementsList').innerHTML =
+            '&lt;p class="text-muted text-center"&gt;Belum ada pengumuman&lt;/p&gt;';
+        return;
+    }
+
+    const html = data.data.map(announcement =&gt; `
+        &lt;div class="card mb-3"&gt;
+            &lt;div class="card-body"&gt;
+                &lt;div class="d-flex justify-content-between align-items-start mb-2"&gt;
+                    &lt;h5&gt;${announcement.title}&lt;/h5&gt;
+                    &lt;span class="badge bg-primary"&gt;${announcement.scope}&lt;/span&gt;
+                &lt;/div&gt;
+                &lt;p&gt;${announcement.content}&lt;/p&gt;
+                &lt;small class="text-muted"&gt;
+                    &lt;i class="bi bi-calendar"&gt;&lt;/i&gt;
+                    ${new Date(announcement.published_at).toLocaleDateString('id-ID')}
+                &lt;/small&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    `).join('');
+
+    document.getElementById('announcementsList').innerHTML = html;
+
+    // Render pagination if needed
+    if (data.meta) {
+        renderPagination(data.meta);
+    }
+}</pre>
+                </div>
+            </section>
+
+            <!-- NOTIFICATIONS SECTION -->
+            <section id="notifications" class="section">
+                <h2>🔔 Notifications Page</h2>
+
+                <p>Real-time notifications dengan mark as read functionality.</p>
+
+                <div class="code-block">
+                    <div class="code-label">Notifications with Mark as Read</div>
+                    <pre>
+async function loadNotifications() {
+    const data = await ParentAPI.getNotifications(1);
+
+    const html = data.data.map(notif =&gt; `
+        &lt;div class="card mb-2 ${notif.is_read ? '' : 'border-primary'}"&gt;
+            &lt;div class="card-body"&gt;
+                &lt;div class="d-flex justify-content-between"&gt;
+                    &lt;div&gt;
+                        &lt;h6&gt;${notif.title}&lt;/h6&gt;
+                        &lt;p class="mb-0"&gt;${notif.message}&lt;/p&gt;
+                        &lt;small class="text-muted"&gt;
+                            ${new Date(notif.created_at).toLocaleString('id-ID')}
+                        &lt;/small&gt;
+                    &lt;/div&gt;
+                    ${!notif.is_read ? `
+                        &lt;button class="btn btn-sm btn-primary"
+                                onclick="markAsRead(${notif.id})"&gt;
+                            Mark as Read
+                        &lt;/button&gt;
+                    ` : ''}
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    `).join('');
+
+    document.getElementById('notificationsList').innerHTML = html;
+}
+
+async function markAsRead(notificationId) {
+    await ParentAPI.markNotificationRead(notificationId);
+    loadNotifications(); // Reload
+}</pre>
+                </div>
+            </section>
+
+            <!-- CERTIFICATES SECTION -->
+            <section id="certificates" class="section">
+                <h2>🎓 Certificates Page</h2>
+
+                <p>Lihat dan download sertifikat anak dengan verification.</p>
+
+                <div class="code-block">
+                    <div class="code-label">Certificates Implementation</div>
+                    <pre>
+async function loadCertificates() {
+    const studentId = document.getElementById('studentFilter').value;
+    const data = await ParentAPI.getCertificates(studentId);
+
+    const html = data.data.map(cert =&gt; `
+        &lt;div class="card"&gt;
+            &lt;div class="card-body"&gt;
+                &lt;h5&gt;${cert.course?.title || 'Certificate'}&lt;/h5&gt;
+                &lt;p&gt;Code: ${cert.certificate_code}&lt;/p&gt;
+                &lt;a href="${cert.file_path}" class="btn btn-primary"&gt;
+                    Download
+                &lt;/a&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    `).join('');
+
+    document.getElementById('certificatesList').innerHTML = html;
+}</pre>
+                </div>
+            </section>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>&copy; 2024 SmartDev LMS - Parent Dashboard Complete Guide</p>
+            <p class="small">Dibuat dengan ❤️ menggunakan Laravel Blade + Bootstrap 5.3 + Ngrok</p>
+        </div>
+    </div>
+
+    <script>
+        // Navigation functionality
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Show selected section
+            const selectedSection = document.getElementById(sectionId);
+            if (selectedSection) {
+                selectedSection.classList.add('active');
+            }
+
+            // Add active class to clicked nav item
+            event?.target?.classList.add('active');
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Copy code functionality
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            const code = codeBlock.querySelector('pre').textContent.trim();
+
+            navigator.clipboard.writeText(code)
+                .then(() => {
+                    const originalText = button.textContent;
+                    button.textContent = '✅ Copied!';
+                    button.style.background = '#10b981';
+
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.style.background = '';
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy:', err);
+                    alert('Failed to copy code');
+                });
+        }
+
+        // Log welcome message
+        console.log('%c📱 Parent Dashboard Complete Guide', 'font-size: 20px; font-weight: bold; color: #6366f1;');
+        console.log('%cNgrok Integration Ready', 'font-size: 14px; color: #8b5cf6;');
+    </script>
+</body>
+</html>

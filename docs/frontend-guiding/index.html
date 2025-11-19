@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Development Guide - SmartDev LMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 3rem 2rem;
+        }
+
+        .intro {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .intro h2 {
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+
+        .intro p {
+            color: #64748b;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .tutorials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .tutorial-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .tutorial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(99, 102, 241, 0.2);
+            border-color: #6366f1;
+        }
+
+        .tutorial-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tutorial-card h3 {
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+            font-size: 1.5rem;
+        }
+
+        .tutorial-card p {
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .tutorial-card .badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .badge-new {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-important {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #6366f1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .label {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        .features {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .features h3 {
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+
+        .features ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .features li {
+            color: #64748b;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .features li::before {
+            content: "✓";
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: #10b981;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .footer {
+            background: #1e293b;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .footer a {
+            color: #8b5cf6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer a:hover {
+            color: #6366f1;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+
+            .container {
+                border-radius: 0;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .content {
+                padding: 2rem 1rem;
+            }
+
+            .tutorials-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .version-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header" style="position: relative;">
+            <div class="version-badge">v1.0.0</div>
+            <h1>🎓 Frontend Development Guide</h1>
+            <p>SmartDev LMS - Complete Tutorial Collection</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Introduction -->
+            <div class="intro">
+                <h2>Selamat Datang!</h2>
+                <p>Koleksi tutorial lengkap untuk mengembangkan frontend SmartDev LMS.<br>
+                Dari authentication hingga dashboard yang kompleks.</p>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="number">3</div>
+                    <div class="label">Tutorial Lengkap</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">100%</div>
+                    <div class="label">Praktis & Applicable</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">∞</div>
+                    <div class="label">Kemungkinan Kreasi</div>
+                </div>
+            </div>
+
+            <!-- Tutorials Grid -->
+            <div class="tutorials-grid">
+                <!-- Tutorial 1: Login -->
+                <a href="login-guide.html" class="tutorial-card">
+                    <div class="tutorial-icon">🔐</div>
+                    <h3>Login System</h3>
+                    <p>Tutorial lengkap membuat sistem login dengan Laravel Sanctum authentication, form validation, dan error handling.</p>
+                    <div>
+                        <span class="badge">Authentication</span>
+                        <span class="badge">Sanctum</span>
+                    </div>
+                </a>
+
+                <!-- Tutorial 2: Registration -->
+                <a href="regist-guide.html" class="tutorial-card">
+                    <div class="tutorial-icon">📝</div>
+                    <h3>Registration System</h3>
+                    <p>Panduan membuat form registrasi calon siswa dengan upload dokumen, validasi, dan approval workflow.</p>
+                    <div>
+                        <span class="badge">Forms</span>
+                        <span class="badge">Upload</span>
+                    </div>
+                </a>
+
+                <!-- Tutorial 3: Parent Dashboard -->
+                <a href="parent-dashboard-tutorial.html" class="tutorial-card">
+                    <div class="tutorial-icon">👨‍👩‍👧‍👦</div>
+                    <h3>Parent Dashboard</h3>
+                    <p>Tutorial membangun dashboard orang tua yang modern dengan monitoring progress anak, grades, dan submissions.</p>
+                    <div>
+                        <span class="badge badge-new">New!</span>
+                        <span class="badge">Dashboard</span>
+                        <span class="badge">Charts</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Features Overview -->
+            <div class="features">
+                <h3>📦 Apa yang Anda Dapatkan?</h3>
+                <ul>
+                    <li>Step-by-step implementation guide</li>
+                    <li>Ready-to-use code snippets</li>
+                    <li>Modern & responsive design</li>
+                    <li>Bootstrap 5 framework</li>
+                    <li>REST API integration</li>
+                    <li>Chart.js visualizations</li>
+                    <li>Error handling best practices</li>
+                    <li>Production-ready solutions</li>
+                </ul>
+            </div>
+
+            <!-- Quick Start -->
+            <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+                <h3 style="color: #92400e; margin-bottom: 0.75rem;">⚡ Quick Start</h3>
+                <p style="color: #78350f; margin-bottom: 1rem;">Mulai dengan tutorial yang sesuai dengan kebutuhan Anda:</p>
+                <ol style="color: #78350f; margin-left: 1.5rem; line-height: 1.8;">
+                    <li><strong>Baru memulai?</strong> Mulai dari <a href="login-guide.html" style="color: #6366f1;">Login System</a></li>
+                    <li><strong>Sudah punya auth?</strong> Lanjut ke <a href="parent-dashboard-tutorial.html" style="color: #6366f1;">Parent Dashboard</a></li>
+                    <li><strong>Perlu form kompleks?</strong> Cek <a href="regist-guide.html" style="color: #6366f1;">Registration System</a></li>
+                </ol>
+            </div>
+
+            <!-- Tech Stack -->
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h3 style="color: #1e293b; margin-bottom: 1.5rem;">🛠️ Tech Stack</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center;">
+                    <span style="background: #fee2e2; color: #991b1b; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600;">HTML5</span>
+                    <span style="background: #dbeafe; color: #1e40af; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600;">CSS3</span>
+                    <span style="background: #fef3c7; color: #92400e; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600;">JavaScript</span>
+                    <span style="background: #f3e8ff; color: #6b21a8; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600;">Bootstrap 5</span>
+                    <span style="background: #d1fae5; color: #065f46; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600;">Laravel</span>
+                    <span style="background: #dbeafe; color: #1e40af; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600;">Chart.js</span>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <div style="text-align: center;">
+                <a href="parent-dashboard-tutorial.html" class="cta-button">
+                    🚀 Mulai Sekarang
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p style="margin-bottom: 0.5rem;">&copy; 2024 SmartDev LMS Development Guide</p>
+            <p style="font-size: 0.9rem; opacity: 0.8;">Dibuat dengan ❤️ untuk membantu development yang lebih baik</p>
+            <p style="margin-top: 1rem;">
+                <a href="https://laravel.com/docs" target="_blank">Laravel Docs</a> •
+                <a href="https://getbootstrap.com" target="_blank">Bootstrap</a> •
+                <a href="https://www.chartjs.org" target="_blank">Chart.js</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Add smooth scroll for same-page links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Add animation on scroll
+        const cards = document.querySelectorAll('.tutorial-card');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, index * 100);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        cards.forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.5s ease';
+            observer.observe(card);
+        });
+
+        // Log page view
+        console.log('%c🎓 SmartDev LMS Frontend Guide', 'font-size: 20px; font-weight: bold; color: #6366f1;');
+        console.log('%cSelamat belajar! 🚀', 'font-size: 14px; color: #8b5cf6;');
+    </script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+@startuml Activity-Diagram-Registration
+!theme plain
+title SmartDev LMS - Activity Diagram\nStudent Registration Process
+
+|Calon siswa|
+start
+:Mengisi Form Registrasi;
+note right
+- Name, Email, Password
+- Phone, Address
+- Birth Date, Gender
+end note
+:Submit Registration Form;
+
+|System|
+:Validate Input Data;
+note right
+- Check required fields
+- Validate email format
+- Check password strength
+end note
+
+if (Data Valid?) then (yes)
+  :Create User Account;
+  note right
+  - role: 'calon_siswa'
+  - Store in users table
+  end note
+  :Create Registration Record;
+  note right
+  - Store in student_registrations
+  - status: 'pending'
+  end note
+  :Return Registration Success;
+else (no)
+  |Calon siswa|
+  :Display Validation Errors;
+  stop
+endif
+
+|Calon siswa|
+:Receive Registration Confirmation;
+:Upload Documents;
+note right
+Required files:
+- KTP (jpg,png,pdf)
+- Ijazah (jpg,png,pdf)  
+- Photo (jpg,png)
+end note
+
+|System|
+:Validate File Types;
+if (Files Valid?) then (yes)
+  :Store Files to Storage;
+  note right
+  Path: storage/app/public/documents/
+  end note
+  :Update Registration Record;
+  note right
+  - Save file paths
+  - Update uploaded_at
+  end note
+  :Return Upload Success;
+else (no)
+  |Calon siswa|
+  :Display File Errors;
+  stop
+endif
+
+|Calon siswa|
+:Receive Upload Confirmation;
+
+|System|
+:Add to Pending Queue;
+note right
+status: 'pending'
+awaiting admin review
+end note
+
+|Admin|
+:Access Admin Dashboard;
+:View Pending Registrations;
+note right
+GET /api/pending-registrations
+end note
+
+|System|
+:Display Pending List;
+
+|Admin|
+:Select Registration to Review;
+
+|System|
+:Display Registration Details;
+note right
+- Student information
+- Document files
+- Registration timestamp
+end note
+
+|Admin|
+:Review Documents;
+note right
+- Check KTP validity
+- Verify Ijazah authenticity
+- Confirm photo quality
+end note
+
+if (Documents Acceptable?) then (approve)
+  :Click Approve Button;
+  :Submit Approval;
+  note right
+  POST /api/approve-registration
+  Input: registration_id, admin_id
+  end note
+  
+  |System|
+  :Update Registration Status;
+  note right
+  - status: 'approved'
+  - approved_by: admin_id
+  - approved_at: timestamp
+  end note
+  :Update User Role;
+  note right
+  Change role from 'calon_siswa' to 'student'
+  end note
+  :Send Approval Notification;
+  note right
+  - Email to student
+  - Success message to admin
+  end note
+  
+  |Calon siswa|
+  :Receive Approval Notification;
+  :Access LMS as Student;
+  stop
+  
+else (reject)
+  |Admin|
+  :Click Reject Button;
+  :Enter Rejection Reason;
+  :Submit Rejection;
+  note right
+  POST /api/reject-registration
+  Input: registration_id, rejection_reason, admin_id
+  end note
+  
+  |System|
+  :Update Registration Status;
+  note right
+  - status: 'rejected'
+  - rejection_reason: admin input
+  - rejected_by: admin_id
+  - rejected_at: timestamp
+  end note
+  :Send Rejection Notification;
+  note right
+  - Email to student with reason
+  - Confirmation to admin
+  end note
+  
+  |Calon siswa|
+  :Receive Rejection Notification;
+  :Can Re-apply with Corrections;
+  stop
+endif
+
+@enduml

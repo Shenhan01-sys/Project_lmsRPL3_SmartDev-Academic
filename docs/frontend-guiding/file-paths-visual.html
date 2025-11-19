@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📁 File Paths Visual Guide - LMS Frontend</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            overflow-x: auto;
+        }
+
+        .tab-button {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+
+        .tab-button:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            background: white;
+            border-bottom-color: #667eea;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+        }
+
+        h2 {
+            color: #667eea;
+            margin: 2rem 0 1rem 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        h3 {
+            color: #764ba2;
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .file-path {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s;
+        }
+
+        .file-path:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+
+        .file-path code {
+            flex: 1;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            color: #495057;
+            background: none;
+            padding: 0;
+        }
+
+        .copy-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-left: 1rem;
+            white-space: nowrap;
+        }
+
+        .copy-button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .copy-button.copied {
+            background: #28a745;
+        }
+
+        .file-group {
+            margin-bottom: 2rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .badge-primary { background: #667eea; color: white; }
+        .badge-success { background: #28a745; color: white; }
+        .badge-warning { background: #ffc107; color: #000; }
+        .badge-info { background: #17a2b8; color: white; }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .command-box {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .command-box pre {
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .command-box .copy-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        table th, table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 2rem;
+            text-align: center;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab-button {
+                flex: 1 1 50%;
+            }
+
+            .content {
+                padding: 1rem;
+            }
+
+            .file-path {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .copy-button {
+                margin-left: 0;
+                margin-top: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📁 File Paths Visual Guide</h1>
+            <p>Panduan lengkap dimana meletakkan setiap file untuk LMS Frontend</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('parent')">👨‍👩‍👧‍👦 Parent</button>
+            <button class="tab-button" onclick="showTab('instructor')">👨‍🏫 Instructor</button>
+            <button class="tab-button" onclick="showTab('student')">🎓 Student</button>
+            <button class="tab-button" onclick="showTab('auth')">🔐 Auth</button>
+            <button class="tab-button" onclick="showTab('commands')">⚡ Commands</button>
+        </div>
+
+        <div class="content">
+            <!-- Parent Dashboard Tab -->
+            <div id="parent" class="tab-content active">
+                <div class="info-box">
+                    <strong>📂 Project Root:</strong> <code>C:\Users\hansg\OneDrive\Desktop\lmsRPL3</code>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-card">
+                        <h4>11</h4>
+                        <p>Total Files</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>8</h4>
+                        <p>View Files</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>3</h4>
+                        <p>Asset Files</p>
+                    </div>
+                </div>
+
+                <h2>🎯 File Utama</h2>
+                <div class="file-group">
+                    <h3>1. Layout Template <span class="badge badge-primary">Blade</span></h3>
+                    <div class="file-path">
+                        <code>resources/views/layouts/parent.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/layouts/parent.blade.php')">Copy Path</button>
+                    </div>
+
+                    <h3>2. CSS Styling <span class="badge badge-info">CSS</span></h3>
+                    <div class="file-path">
+                        <code>public/css/parent/dashboard.css</code>
+                        <button class="copy-button" onclick="copyPath(this, 'public/css/parent/dashboard.css')">Copy Path</button>
+                    </div>
+
+                    <h3>3. API Helper <span class="badge badge-warning">JavaScript</span></h3>
+                    <div class="file-path">
+                        <code>public/js/parent/api.js</code>
+                        <button class="copy-button" onclick="copyPath(this, 'public/js/parent/api.js')">Copy Path</button>
+                    </div>
+                </div>
+
+                <h2>📄 View Files</h2>
+                <div class="file-group">
+                    <h3>Dashboard</h3>
+                    <div class="file-path">
+                        <code>resources/views/parent/dashboard.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/parent/dashboard.blade.php')">Copy</button>
+                    </div>
+
+                    <h3>Students Pages</h3>
+                    <div class="file-path">
+                        <code>resources/views/parent/students/index.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/parent/students/index.blade.php')">Copy</button>
+                    </div>
+                    <div class="file-path">
+                        <code>resources/views/parent/students/show.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/parent/students/show.blade.php')">Copy</button>
+                    </div>
+
+                    <h3>Other Pages</h3>
+                    <div class="file-path">
+                        <code>resources/views/parent/grades.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/parent/grades.blade.php')">Copy</button>
+                    </div>
+                    <div class="file-path">
+                        <code>resources/views/parent/attendance.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/parent/attendance.blade.php')">Copy</button>
+                    </div>
+                    <div class="file-path">
+                        <code>resources/views/parent/announcements.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/parent/announcements.blade.php')">Copy</button>
+                    </div>
+                    <div class="file-path">
+                        <code>resources/views/parent/notifications.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/parent/notifications.blade.php')">Copy</button>
+                    </div>
+                    <div class="file-path">
+                        <code>resources/views/parent/certificates.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/parent/certificates.blade.php')">Copy</button>
+                    </div>
+                </div>
+
+                <div class="success-box">
+                    <strong>✅ Folder yang Perlu Dibuat:</strong>
+                    <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                        <li><code>mkdir resources/views/parent</code></li>
+                        <li><code>mkdir resources/views/parent/students</code></li>
+                        <li><code>mkdir public/css/parent</code></li</li>>
+                        <li><code>mkdir public/js/parent</code></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Instructor Dashboard Tab -->
+            <div id="instructor" class="tab-content">
+                <div class="info-box">
+                    <strong>📂 Project Root:</strong> <code>C:\Users\hansg\OneDrive\Desktop\lmsRPL3</code>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-card">
+                        <h4>17</h4>
+                        <p>Total Files</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>14</h4>
+                        <p>View Files</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>3</h4>
+                        <p>Asset Files</p>
+                    </div>
+                </div>
+
+                <h2>🎯 File Utama</h2>
+                <div class="file-group">
+                    <h3>1. Layout Template <span class="badge badge-primary">Blade</span></h3>
+                    <div class="file-path">
+                        <code>resources/views/layouts/instructor.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/layouts/instructor.blade.php')">Copy Path</button>
+                    </div>
+
+                    <h3>2. CSS Styling <span class="badge badge-info">CSS</span></h3>
+                    <div class="file-path">
+                        <code>public/css/instructor/dashboard.css</code>
+                        <button class="copy-button" onclick="copyPath(this, 'public/css/instructor/dashboard.css')">Copy Path</button>
+                    </div>
+
+                    <h3>3. API Helper <span class="badge badge-warning">JavaScript</span></h3>
+                    <div class="file-path">
+                        <code>public/js/instructor/api.js</code>
+                        <button class="copy-button" onclick="copyPath(this, 'public/js/instructor/api.js')">Copy Path</button>
+                    </div>
+                </div>
+
+                <h2>📄 View Files</h2>
+                <div class="file-group">
+                    <h3>Dashboard</h3>
+                    <div class="file-path">
+                        <code>resources/views/instructor/dashboard.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/instructor/dashboard.blade.php')">Copy</button>
+                    </div>
+
+                    <h3>Courses (4 files)</h3>
+                    <div class="file-path">
+                        <code>resources/views/instructor/courses/index.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/instructor/courses/index.blade.php')">Copy</button>
+                    </div>
+                    <div class="file-path">
+                        <code>resources/views/instructor/courses/create.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/instructor/courses/create.blade.php')">Copy</button>
+                    </div>
+                    <div class="file-path">
+                        <code>resources/views/instructor/courses/edit.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/instructor/courses/edit.blade.php')">Copy</button>
+                    </div>
+                    <div class="file-path">
+                        <code>resources/views/instructor/courses/show.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/instructor/courses/show.blade.php')">Copy</button>
+                    </div>
+
+                    <h3>Assignments (3 files)</h3>
+                    <div class="file-path">
+                        <code>resources/views/instructor/assignments/index.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/instructor/assignments/index.blade.php')">Copy</button>
+                    </div>
+                    <div class="file-path">
+                        <code>resources/views/instructor/assignments/create.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/instructor/assignments/create.blade.php')">Copy</button>
+                    </div>
+                    <div class="file-path">
+                        <code>resources/views/instructor/assignments/submissions.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/instructor/assignments/submissions.blade.php')">Copy</button>
+                    </div>
+
+                    <h3>Grading</h3>
+                    <div class="file-path">
+                        <code>resources/views/instructor/grading/index.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/instructor/grading/index.blade.php')">Copy</button>
+                    </div>
+
+                    <h3>Attendance (2 files)</h3>
+                    <div class="file-path">
+                        <code>resources/views/instructor/attendance/index.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/instructor/attendance/index.blade.php')">Copy</button>
+                    </div>
+                    <div class="file-path">
+                        <code>resources/views/instructor/attendance/create.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/instructor/attendance/create.blade.php')">Copy</button>
+                    </div>
+
+                    <h3>Students</h3>
+                    <div class="file-path">
+                        <code>resources/views/instructor/students/index.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/instructor/students/index.blade.php')">Copy</button>
+                    </div>
+
+                    <h3>Announcements (2 files)</h3>
+                    <div class="file-path">
+                        <code>resources/views/instructor/announcements/index.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/instructor/announcements/index.blade.php')">Copy</button>
+                    </div>
+                    <div class="file-path">
+                        <code>resources/views/instructor/announcements/create.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/instructor/announcements/create.blade.php')">Copy</button>
+                    </div>
+
+                    <h3>Certificates</h3>
+                    <div class="file-path">
+                        <code>resources/views/instructor/certificates/index.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/instructor/certificates/index.blade.php')">Copy</button>
+                    </div>
+                </div>
+
+                <div class="success-box">
+                    <strong>✅ Folder yang Perlu Dibuat:</strong> 11 folders
+                </div>
+            </div>
+
+            <!-- Student Dashboard Tab -->
+            <div id="student" class="tab-content">
+                <div class="info-box">
+                    <strong>📂 Project Root:</strong> <code>C:\Users\hansg\OneDrive\Desktop\lmsRPL3</code>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-card">
+                        <h4>13</h4>
+                        <p>Total Files</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>10</h4>
+                        <p>View Files</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>3</h4>
+                        <p>Asset Files</p>
+                    </div>
+                </div>
+
+                <h2>🎯 File Utama</h2>
+                <div class="file-group">
+                    <h3>1. Layout Template <span class="badge badge-primary">Blade</span></h3>
+                    <div class="file-path">
+                        <code>resources/views/layouts/student.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/layouts/student.blade.php')">Copy Path</button>
+                    </div>
+
+                    <h3>2. CSS Styling <span class="badge badge-info">CSS</span></h3>
+                    <div class="file-path">
+                        <code>public/css/student/dashboard.css</code>
+                        <button class="copy-button" onclick="copyPath(this, 'public/css/student/dashboard.css')">Copy Path</button>
+                    </div>
+
+                    <h3>3. API Helper <span class="badge badge-warning">JavaScript</span></h3>
+                    <div class="file-path">
+                        <code>public/js/student/api.js</code>
+                        <button class="copy-button" onclick="copyPath(this, 'public/js/student/api.js')">Copy Path</button>
+                    </div>
+                </div>
+
+                <h2>📄 View Files</h2>
+                <div class="file-group">
+                    <h3>Dashboard</h3>
+                    <div class="file-path">
+                        <code>resources/views/student/dashboard.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/student/dashboard.blade.php')">Copy</button>
+                    </div>
+
+                    <h3>Courses (2 files)</h3>
+                    <div class="file-path">
+                        <code>resources/views/student/courses/index.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/student/courses/index.blade.php')">Copy</button>
+                    </div>
+                    <div class="file-path">
+                        <code>resources/views/student/courses/show.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/student/courses/show.blade.php')">Copy</button>
+                    </div>
+
+                    <h3>Assignments (2 files)</h3>
+                    <div class="file-path">
+                        <code>resources/views/student/assignments/index.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/student/assignments/index.blade.php')">Copy</button>
+                    </div>
+                    <div class="file-path">
+                        <code>resources/views/student/assignments/show.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/student/assignments/show.blade.php')">Copy</button>
+                    </div>
+
+                    <h3>My Grades</h3>
+                    <div class="file-path">
+                        <code>resources/views/student/grades/index.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/student/grades/index.blade.php')">Copy</button>
+                    </div>
+
+                    <h3>My Attendance</h3>
+                    <div class="file-path">
+                        <code>resources/views/student/attendance/index.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/student/attendance/index.blade.php')">Copy</button>
+                    </div>
+
+                    <h3>My Certificates</h3>
+                    <div class="file-path">
+                        <code>resources/views/student/certificates/index.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/student/certificates/index.blade.php')">Copy</button>
+                    </div>
+
+                    <h3>Profile & Notifications</h3>
+                    <div class="file-path">
+                        <code>resources/views/student/profile.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/student/profile.blade.php')">Copy</button>
+                    </div>
+                    <div class="file-path">
+                        <code>resources/views/student/notifications.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/student/notifications.blade.php')">Copy</button>
+                    </div>
+                </div>
+
+                <div class="success-box">
+                    <strong>✅ Folder yang Perlu Dibuat:</strong>
+                    <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                        <li><code>mkdir resources/views/student</code></li>
+                        <li><code>mkdir resources/views/student/courses</code></li>
+                        <li><code>mkdir resources/views/student/assignments</code></li>
+                        <li><code>mkdir resources/views/student/grades</code></li>
+                        <li><code>mkdir resources/views/student/attendance</code></li>
+                        <li><code>mkdir resources/views/student/certificates</code></li>
+                        <li><code>mkdir public/css/student</code></li>
+                        <li><code>mkdir public/js/student</code></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Auth Tab -->
+            <div id="auth" class="tab-content">
+                <div class="info-box">
+                    <strong>📂 Project Root:</strong> <code>C:\Users\hansg\OneDrive\Desktop\lmsRPL3</code>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-card">
+                        <h4>4</h4>
+                        <p>Total Files</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>2</h4>
+                        <p>View Files</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>2</h4>
+                        <p>Asset Files</p>
+                    </div>
+                </div>
+
+                <h2>🔐 Authentication Files</h2>
+                <div class="file-group">
+                    <h3>View Files</h3>
+                    <div class="file-path">
+                        <code>resources/views/auth/login.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/auth/login.blade.php')">Copy</button>
+                    </div>
+                    <div class="file-path">
+                        <code>resources/views/auth/register.blade.php</code>
+                        <button class="copy-button" onclick="copyPath(this, 'resources/views/auth/register.blade.php')">Copy</button>
+                    </div>
+
+                    <h3>Asset Files</h3>
+                    <div class="file-path">
+                        <code>public/css/auth.css</code>
+                        <button class="copy-button" onclick="copyPath(this, 'public/css/auth.css')">Copy</button>
+                    </div>
+                    <div class="file-path">
+                        <code>public/js/auth.js</code>
+                        <button class="copy-button" onclick="copyPath(this, 'public/js/auth.js')">Copy</button>
+                    </div>
+                </div>
+
+                <div class="success-box">
+                    <strong>✅ Folder yang Perlu Dibuat:</strong>
+                    <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                        <li><code>mkdir resources/views/auth</code></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Commands Tab -->
+            <div id="commands" class="tab-content">
+                <h2>⚡ Quick Setup Commands</h2>
+
+                <div class="warning-box">
+                    <strong>⚠️ Jalankan dari Project Root:</strong>
+                    <code>C:\Users\hansg\OneDrive\Desktop\lmsRPL3</code>
+                </div>
+
+                <h3>Windows PowerShell (Recommended)</h3>
+                <div class="command-box">
+                    <button class="copy-button" onclick="copyCommand(this)">Copy All</button>
+                    <pre># Masuk ke project root
+cd C:\Users\hansg\OneDrive\Desktop\lmsRPL3
+
+# Buat semua folder sekaligus
+New-Item -Path "resources/views/layouts" -ItemType Directory -Force
+New-Item -Path "resources/views/auth" -ItemType Directory -Force
+New-Item -Path "resources/views/parent/students" -ItemType Directory -Force
+New-Item -Path "resources/views/instructor/courses" -ItemType Directory -Force
+New-Item -Path "resources/views/instructor/assignments" -ItemType Directory -Force
+New-Item -Path "resources/views/instructor/grading" -ItemType Directory -Force
+New-Item -Path "resources/views/instructor/attendance" -ItemType Directory -Force
+New-Item -Path "resources/views/instructor/students" -ItemType Directory -Force
+New-Item -Path "resources/views/instructor/announcements" -ItemType Directory -Force
+New-Item -Path "resources/views/instructor/certificates" -ItemType Directory -Force
+New-Item -Path "resources/views/student/courses" -ItemType Directory -Force
+New-Item -Path "resources/views/student/assignments" -ItemType Directory -Force
+New-Item -Path "resources/views/student/grades" -ItemType Directory -Force
+New-Item -Path "resources/views/student/attendance" -ItemType Directory -Force
+New-Item -Path "resources/views/student/certificates" -ItemType Directory -Force
+New-Item -Path "public/css/parent" -ItemType Directory -Force
+New-Item -Path "public/css/instructor" -ItemType Directory -Force
+New-Item -Path "public/css/student" -ItemType Directory -Force
+New-Item -Path "public/js/parent" -ItemType Directory -Force
+New-Item -Path "public/js/instructor" -ItemType Directory -Force
+New-Item -Path "public/js/student" -ItemType Directory -Force
+
+Write-Host "✅ Semua folder sudah dibuat!" -ForegroundColor Green</pre>
+                </div>
+
+                <h3>Git Bash / Linux</h3>
+                <div class="command-box">
+                    <button class="copy-button" onclick="copyCommand(this)">Copy All</button>
+                    <pre>cd /c/Users/hansg/OneDrive/Desktop/lmsRPL3
+
+mkdir -p resources/views/{layouts,auth,parent/students,instructor/{courses,assignments,grading,attendance,students,announcements,certificates},student/{courses,assignments,grades,attendance,certificates}}
+mkdir -p public/{css,js}/{parent,instructor,student}
+
+echo "✅ Semua folder sudah dibuat!"</pre>
+                </div>
+
+                <h3>Create Controllers</h3>
+                <div class="command-box">
+                    <button class="copy-button" onclick="copyCommand(this)">Copy All</button>
+                    <pre>php artisan make:controller ParentController
+php artisan make:controller InstructorController
+php artisan make:controller StudentController
+php artisan make:controller AuthController
+
+echo "✅ Controllers created!"</pre>
+                </div>
+
+                <h3>Verify Installation</h3>
+                <div class="command-box">
+                    <button class="copy-button" onclick="copyCommand(this)">Copy All</button>
+                    <pre># Windows PowerShell
+Test-Path "resources/views/parent"       # Should return: True
+Test-Path "resources/views/instructor"   # Should return: True
+Test-Path "resources/views/student"      # Should return: True
+Test-Path "public/css/parent"            # Should return: True
+Test-Path "public/js/parent"             # Should return: True
+
+# Check file counts
+(Get-ChildItem "resources/views/parent" -Recurse -File).Count        # Should be: 8
+(Get-ChildItem "resources/views/instructor" -Recurse -File).Count    # Should be: 14
+(Get-ChildItem "resources/views/student" -Recurse -File).Count       # Should be: 10</pre>
+                </div>
+
+                <h3>Clear Cache & Run Server</h3>
+                <div class="command-box">
+                    <button class="copy-button" onclick="copyCommand(this)">Copy All</button>
+                    <pre>php artisan cache:clear
+php artisan view:clear
+php artisan route:clear
+php artisan serve</pre>
+                </div>
+
+                <div class="success-box">
+                    <strong>✅ After Setup:</strong>
+                    <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                        <li>Open browser: <code>http://localhost:8000</code></li>
+                        <li>Test login: <code>http://localhost:8000/login</code></li>
+                        <li>Test parent: <code>http://localhost:8000/parent/dashboard</code></li>
+                        <li>Test instructor: <code>http://localhost:8000/instructor/dashboard</code></li>
+                        <li>Test student: <code>http://localhost:8000/student/dashboard</code></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>📚 LMS Frontend Implementation Guide</strong></p>
+            <p>Total Files: 45 | Total Dashboards: 3 | Estimated Time: 2-4 hours</p>
+            <p style="margin-top: 1rem;">For detailed implementation, see the guide files in <code>docs/frontend-guiding/</code></p>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabId).classList.add('active');
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function copyPath(button, path) {
+            navigator.clipboard.writeText(path).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '✓ Copied!';
+                button.classList.add('copied');
+
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy path');
+            });
+        }
+
+        function copyCommand(button) {
+            const commandBox = button.parentElement;
+            const code = commandBox.querySelector('pre').textContent;
+
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '✓ Copied!';
+                button.classList.add('copied');
+
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy commands');
+            });
+        }
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '1':
+                        e.preventDefault();
+                        document.querySelector('.tab-button:nth-child(1)').click();
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        document.querySelector('.tab-button:nth-child(2)').click();
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        document.querySelector('.tab-button:nth-child(3)').click();
+                        break;
+                    case '4':
+                        e.preventDefault();
+                        document.querySelector('.tab-button:nth-child(4)').click();
+                        break;
+                    case '5':
+                        e.preventDefault();
+                        document.querySelector('.tab-button:nth-child(5)').click();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

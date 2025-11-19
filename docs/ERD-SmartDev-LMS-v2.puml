@@ -1,0 +1,531 @@
+@startuml SmartDev_Academic_LMS_ERD_v2
+
+' =====================================================
+' SmartDev Academic LMS - Entity Relationship Diagram
+' Version: 2.0 (Modified with New Features)
+' Last Updated: 2024
+' Changes: Added Attendance, Announcements, Notifications, Certificates
+'          Refactored: submissions, grades to use enrollment_id
+' =====================================================
+
+!define PRIMARY_KEY(x) <u>x</u>
+!define FOREIGN_KEY(x) <i>x</i>
+!define UNIQUE(x) <<unique>> x
+
+skinparam linetype ortho
+skinparam roundcorner 10
+skinparam shadowing true
+skinparam dpi 300
+skinparam backgroundColor #FFFFFF
+skinparam classBackgroundColor #F0F8FF
+skinparam classBorderColor #4682B4
+skinparam arrowColor #4682B4
+skinparam noteBorderColor #FF6B6B
+skinparam noteBackgroundColor #FFE5E5
+
+' ===== AUTHENTICATION & USER MANAGEMENT =====
+
+entity "users" as users {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  name : VARCHAR(255)
+  email : VARCHAR(255) UNIQUE
+  password : VARCHAR(255)
+  role : ENUM('admin', 'instructor', 'student', 'parent')
+  level : ENUM('SMP', 'SMA') NULL
+  email_verified_at : TIMESTAMP NULL
+  remember_token : VARCHAR(100) NULL
+  photo_path : VARCHAR(255) NULL
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "students" as students {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(user_id) : BIGINT UNIQUE
+  FOREIGN_KEY(parent_id) : BIGINT NULL
+  student_number : VARCHAR(255) UNIQUE
+  full_name : VARCHAR(255)
+  email : VARCHAR(255) UNIQUE
+  phone : VARCHAR(255) NULL
+  date_of_birth : DATE NULL
+  place_of_birth : VARCHAR(255) NULL
+  gender : ENUM('male', 'female') NULL
+  address : TEXT NULL
+  emergency_contact_name : VARCHAR(255) NULL
+  emergency_contact_phone : VARCHAR(255) NULL
+  enrollment_year : YEAR NULL
+  current_grade : VARCHAR(255) NULL
+  status : ENUM('active', 'inactive', 'graduated', 'dropped')
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "instructors" as instructors {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(user_id) : BIGINT UNIQUE
+  instructor_code : VARCHAR(255) UNIQUE
+  full_name : VARCHAR(255)
+  email : VARCHAR(255) UNIQUE
+  phone : VARCHAR(255) NULL
+  specialization : VARCHAR(255) NULL
+  education_level : VARCHAR(255) NULL
+  experience_years : INT NULL
+  bio : TEXT NULL
+  status : ENUM('active', 'inactive')
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "parents" as parents {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(user_id) : BIGINT UNIQUE
+  full_name : VARCHAR(255)
+  email : VARCHAR(255) NULL
+  phone : VARCHAR(255) NULL
+  relationship : ENUM('father', 'mother', 'guardian') NULL
+  occupation : VARCHAR(255) NULL
+  address : TEXT NULL
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "student_registrations" as student_registrations {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(user_id) : BIGINT NULL
+  full_name : VARCHAR(255)
+  email : VARCHAR(255) UNIQUE
+  phone : VARCHAR(20) NULL
+  date_of_birth : DATE NULL
+  place_of_birth : VARCHAR(255) NULL
+  gender : ENUM('L', 'P') NULL
+  address : TEXT NULL
+  parent_name : VARCHAR(255) NULL
+  parent_phone : VARCHAR(20) NULL
+  parent_address : TEXT NULL
+  ktp_orang_tua_path : VARCHAR(255) NULL
+  ijazah_path : VARCHAR(255) NULL
+  foto_siswa_path : VARCHAR(255) NULL
+  bukti_pembayaran_path : VARCHAR(255) NULL
+  registration_status : ENUM('pending_documents', 'pending_payment', 'pending_approval', 'approved', 'rejected')
+  rejection_reason : TEXT NULL
+  submitted_at : TIMESTAMP NULL
+  approved_at : TIMESTAMP NULL
+  approval_notes : TEXT NULL
+  FOREIGN_KEY(approved_by) : BIGINT NULL
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' ===== ACADEMIC MANAGEMENT =====
+
+entity "courses" as courses {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(instructor_id) : BIGINT NULL
+  course_code : VARCHAR(255) UNIQUE
+  course_name : VARCHAR(255)
+  description : TEXT NULL
+  credits : INT NULL
+  max_students : INT NULL
+  status : ENUM('active', 'inactive', 'archived')
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "enrollments" as enrollments {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(student_id) : BIGINT
+  FOREIGN_KEY(course_id) : BIGINT
+  enrollment_date : DATE
+  status : ENUM('active', 'completed', 'dropped', 'failed')
+  final_grade : DECIMAL(5,2) NULL
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+  --
+  UNIQUE(student_id, course_id)
+}
+
+note right of enrollments
+  **CENTRAL HUB**
+  All student-course operations
+  must reference enrollment_id
+  to ensure data integrity
+end note
+
+entity "course_modules" as course_modules {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(course_id) : BIGINT
+  title : VARCHAR(255)
+  description : TEXT NULL
+  order : INT
+  is_active : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "materials" as materials {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(course_module_id) : BIGINT
+  title : VARCHAR(255)
+  description : TEXT NULL
+  file_path : VARCHAR(255)
+  file_type : VARCHAR(255)
+  file_size : BIGINT NULL
+  download_count : INT DEFAULT 0
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "assignments" as assignments {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(course_id) : BIGINT
+  FOREIGN_KEY(course_module_id) : BIGINT NULL
+  title : VARCHAR(255)
+  description : TEXT NULL
+  due_date : DATETIME NULL
+  max_score : DECIMAL(8,2)
+  status : ENUM('draft', 'published', 'closed')
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "submissions" as submissions {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(enrollment_id) : BIGINT
+  FOREIGN_KEY(assignment_id) : BIGINT
+  submission_date : DATETIME
+  file_path : VARCHAR(255) NULL
+  submission_text : TEXT NULL
+  status : ENUM('submitted', 'graded', 'late', 'resubmit')
+  score : DECIMAL(5,2) NULL
+  feedback : TEXT NULL
+  graded_at : TIMESTAMP NULL
+  FOREIGN_KEY(graded_by) : BIGINT NULL
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+  --
+  UNIQUE(enrollment_id, assignment_id)
+}
+
+note right of submissions
+  **REFACTORED**
+  Changed from student_id
+  to enrollment_id for
+  automatic enrollment validation
+end note
+
+' ===== GRADING SYSTEM =====
+
+entity "grade_components" as grade_components {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(course_id) : BIGINT
+  name : VARCHAR(255)
+  description : TEXT NULL
+  weight : DECIMAL(5,2)
+  max_score : DECIMAL(8,2)
+  component_type : ENUM('assignment', 'quiz', 'exam', 'project', 'attendance')
+  is_active : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "grades" as grades {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(enrollment_id) : BIGINT
+  FOREIGN_KEY(grade_component_id) : BIGINT
+  FOREIGN_KEY(graded_by) : BIGINT NULL
+  score : DECIMAL(8,2)
+  max_score : DECIMAL(8,2)
+  notes : TEXT NULL
+  graded_at : TIMESTAMP NULL
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+  --
+  UNIQUE(enrollment_id, grade_component_id)
+}
+
+note right of grades
+  **REFACTORED**
+  Changed from student_id
+  to enrollment_id for
+  consistency and integrity
+end note
+
+' ===== ATTENDANCE SYSTEM (NEW) =====
+
+entity "attendance_sessions" as attendance_sessions {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(course_id) : BIGINT
+  FOREIGN_KEY(created_by) : BIGINT
+  session_name : VARCHAR(255)
+  session_date : DATE
+  start_time : TIME NULL
+  end_time : TIME NULL
+  deadline : DATETIME
+  status : ENUM('scheduled', 'open', 'closed')
+  notes : TEXT NULL
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+note right of attendance_sessions
+  **NEW FEATURE**
+  Lifecycle:
+  scheduled → open → closed
+
+  Auto-mark absent after deadline
+end note
+
+entity "attendance_records" as attendance_records {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(enrollment_id) : BIGINT
+  FOREIGN_KEY(attendance_session_id) : BIGINT
+  status : ENUM('pending', 'present', 'sick', 'permission', 'absent')
+  check_in_time : TIMESTAMP NULL
+  check_in_method : ENUM('manual', 'qr', 'location') NULL
+  latitude : DECIMAL(10,8) NULL
+  longitude : DECIMAL(11,8) NULL
+  notes : TEXT NULL
+  supporting_doc_path : VARCHAR(255) NULL
+  FOREIGN_KEY(reviewed_by) : BIGINT NULL
+  reviewed_at : TIMESTAMP NULL
+  review_notes : TEXT NULL
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+  --
+  UNIQUE(enrollment_id, attendance_session_id)
+}
+
+note right of attendance_records
+  **NEW FEATURE**
+  Status workflow:
+  - pending (default)
+  - present (check-in)
+  - sick/permission (needs review)
+  - absent (auto after deadline)
+
+  supporting_doc_path for
+  sick/permission documents
+end note
+
+' ===== ANNOUNCEMENT SYSTEM (NEW) =====
+
+entity "announcements" as announcements {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(created_by) : BIGINT
+  FOREIGN_KEY(course_id) : BIGINT NULL
+  title : VARCHAR(255)
+  content : TEXT
+  announcement_type : ENUM('global', 'course')
+  priority : ENUM('normal', 'high', 'urgent')
+  status : ENUM('draft', 'published', 'archived')
+  published_at : TIMESTAMP NULL
+  expires_at : TIMESTAMP NULL
+  view_count : INT DEFAULT 0
+  pinned : BOOLEAN DEFAULT FALSE
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+note right of announcements
+  **NEW FEATURE**
+  Types:
+  - global: course_id = NULL
+  - course: course_id filled
+
+  Supports scheduled publishing
+  and expiration
+end note
+
+' ===== NOTIFICATION SYSTEM (NEW) =====
+
+entity "notifications" as notifications {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(user_id) : BIGINT
+  notification_type : VARCHAR(255)
+  title : VARCHAR(255)
+  message : TEXT
+  action_url : VARCHAR(255) NULL
+  related_entity_type : VARCHAR(255) NULL
+  related_entity_id : BIGINT NULL
+  is_read : BOOLEAN DEFAULT FALSE
+  read_at : TIMESTAMP NULL
+  priority : ENUM('low', 'normal', 'high')
+  expires_at : TIMESTAMP NULL
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+note right of notifications
+  **NEW FEATURE**
+  Notification types:
+  - assignment_due
+  - grade_released
+  - announcement_new
+  - attendance_reminder
+  - certificate_ready
+  - course_enrolled
+
+  Supports in-app + email
+end note
+
+' ===== CERTIFICATE SYSTEM (NEW) =====
+
+entity "certificates" as certificates {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  FOREIGN_KEY(enrollment_id) : BIGINT
+  FOREIGN_KEY(course_id) : BIGINT
+  certificate_code : VARCHAR(255) UNIQUE
+  certificate_file_path : VARCHAR(255)
+  final_grade : DECIMAL(5,2)
+  attendance_percentage : DECIMAL(5,2)
+  assignment_completion_rate : DECIMAL(5,2)
+  grade_letter : CHAR(2) NULL
+  issue_date : DATE
+  expiry_date : DATE NULL
+  FOREIGN_KEY(generated_by) : BIGINT
+  status : ENUM('issued', 'revoked', 'expired')
+  revocation_reason : TEXT NULL
+  revoked_at : TIMESTAMP NULL
+  verification_count : INT DEFAULT 0
+  metadata : JSON NULL
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+note right of certificates
+  **NEW FEATURE - SNAPSHOT**
+  Stores aggregated data at issue time:
+  - final_grade (calculated)
+  - attendance_percentage (calculated)
+  - assignment_completion_rate (calculated)
+
+  NOT affected by future changes!
+
+  Eligibility rules:
+  - final_grade >= 60
+  - attendance_percentage >= 75%
+  - assignment_completion_rate >= 80%
+
+  Public verification via certificate_code
+end note
+
+' ===== AUTHENTICATION TOKENS =====
+
+entity "personal_access_tokens" as tokens {
+  PRIMARY_KEY(id) : BIGINT
+  --
+  tokenable_type : VARCHAR(255)
+  FOREIGN_KEY(tokenable_id) : BIGINT
+  name : VARCHAR(255)
+  token : VARCHAR(64) UNIQUE
+  abilities : TEXT NULL
+  last_used_at : TIMESTAMP NULL
+  expires_at : TIMESTAMP NULL
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "sessions" as sessions {
+  PRIMARY_KEY(id) : VARCHAR(255)
+  --
+  FOREIGN_KEY(user_id) : BIGINT NULL
+  ip_address : VARCHAR(45) NULL
+  user_agent : TEXT NULL
+  payload : LONGTEXT
+  last_activity : INTEGER
+}
+
+entity "password_reset_tokens" as password_resets {
+  PRIMARY_KEY(email) : VARCHAR(255)
+  --
+  token : VARCHAR(255)
+  created_at : TIMESTAMP NULL
+}
+
+' ===== RELATIONSHIPS =====
+
+' Users to Role Tables (1:1)
+users ||--o| students : "user_id"
+users ||--o| instructors : "user_id"
+users ||--o| parents : "user_id"
+
+' Parents to Students (1:N)
+parents ||--o{ students : "parent_id"
+
+' Student Registration
+users ||--o{ student_registrations : "user_id"
+users ||--o{ student_registrations : "approved_by"
+
+' Instructors to Courses (1:N)
+instructors ||--o{ courses : "instructor_id"
+
+' Courses Relationships
+courses ||--o{ enrollments : "course_id"
+courses ||--o{ course_modules : "course_id"
+courses ||--o{ assignments : "course_id"
+courses ||--o{ grade_components : "course_id"
+courses ||--o{ attendance_sessions : "course_id"
+courses ||--o{ announcements : "course_id"
+courses ||--o{ certificates : "course_id (denormalized)"
+
+' Students Relationships
+students ||--o{ enrollments : "student_id"
+
+' ===== ENROLLMENTS AS CENTRAL HUB =====
+' All student-course related data goes through enrollments
+enrollments ||--o{ submissions : "enrollment_id"
+enrollments ||--o{ grades : "enrollment_id"
+enrollments ||--o{ attendance_records : "enrollment_id"
+enrollments ||--o{ certificates : "enrollment_id"
+
+' Course Modules Relationships
+course_modules ||--o{ materials : "course_module_id"
+course_modules ||--o{ assignments : "course_module_id"
+
+' Assignments to Submissions
+assignments ||--o{ submissions : "assignment_id"
+
+' Grade Components to Grades
+grade_components ||--o{ grades : "grade_component_id"
+
+' Grader (User) to Grades & Submissions
+users ||--o{ grades : "graded_by"
+users ||--o{ submissions : "graded_by"
+
+' Attendance Relationships
+attendance_sessions ||--o{ attendance_records : "attendance_session_id"
+users ||--o{ attendance_sessions : "created_by"
+users ||--o{ attendance_records : "reviewed_by"
+
+' Announcement Relationships
+users ||--o{ announcements : "created_by"
+
+' Notification Relationships
+users ||--o{ notifications : "user_id"
+
+' Certificate Relationships
+users ||--o{ certificates : "generated_by"
+
+' Authentication Tokens
+users ||--o{ tokens : "tokenable_id"
+users ||--o{ sessions : "user_id"
+
+@enduml

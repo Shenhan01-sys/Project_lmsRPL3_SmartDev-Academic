@@ -28,17 +28,17 @@ class CoursePolicy
 
         if ($user->role === 'instructor') {
             // Instructor bisa lihat course yang dia ajar
-            return $course->instructor_id === $user->id;
+            return $user->instructor && $course->instructor_id === $user->instructor->id;
         }
 
         if ($user->role === 'student') {
             // Student bisa lihat course yang dia ikuti atau course yang available untuk enrollment
-            return $user->enrollments()->where('course_id', $course->id)->exists() || true;
+            return ($user->student && $user->student->enrollments()->where('course_id', $course->id)->exists()) || true;
         }
 
         if ($user->role === 'parent') {
             // Parent bisa lihat course yang anaknya ikuti
-            return $user->children()->whereHas('enrollments', function($query) use ($course) {
+            return $user->parentProfile && $user->parentProfile->students()->whereHas('enrollments', function($query) use ($course) {
                 $query->where('course_id', $course->id);
             })->exists();
         }
@@ -59,7 +59,7 @@ class CoursePolicy
      */
     public function update(User $user, Course $course): bool
     {
-        return $user->role === 'admin' || $user->id === $course->instructor_id;
+        return $user->role === 'admin' || ($user->instructor && $user->instructor->id === $course->instructor_id);
     }
 
     /**
@@ -67,7 +67,7 @@ class CoursePolicy
      */
     public function delete(User $user, Course $course): bool
     {
-        return $user->role === 'admin' || $user->id === $course->instructor_id;
+        return $user->role === 'admin' || ($user->instructor && $user->instructor->id === $course->instructor_id);
     }
 
     /**
