@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .nav-bar {
+            background: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-bar ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .nav-bar button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-bar button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .nav-bar button.active {
+            background: #28a745;
+        }
+
+        .content {
+            padding: 2rem 0;
+        }
+
+        .section {
+            display: none;
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid #667eea;
+        }
+
+        h3 {
+            color: #764ba2;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        h4 {
+            color: #555;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .code-block {
+            position: relative;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #764ba2;
+        }
+
+        .copy-btn.copied {
+            background: #28a745;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .endpoint-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .endpoint-card .method {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .method.get { background: #28a745; color: white; }
+        .method.post { background: #007bff; color: white; }
+        .method.put { background: #ffc107; color: black; }
+        .method.delete { background: #dc3545; color: white; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        table th,
+        table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .badge-primary { background: #667eea; color: white; }
+        .badge-success { background: #28a745; color: white; }
+        .badge-warning { background: #ffc107; color: black; }
+        .badge-danger { background: #dc3545; color: white; }
+        .badge-info { background: #17a2b8; color: white; }
+
+        .footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .card {
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 1rem;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        li {
+            margin: 0.25rem 0;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            color: #d63384;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .nav-bar ul {
+                flex-direction: column;
+            }
+
+            .nav-bar button {
+                width: 100%;
+            }
+
+            .section {
+                padding: 1rem;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>🎓 Student Dashboard - Frontend Implementation Guide</h1>
+            <p>Complete guide for building the Student Dashboard with Laravel backend via ngrok</p>
+        </div>
+    </div>
+
+    <nav class="nav-bar">
+        <div class="container">
+            <ul>
+                <li><button class="nav-btn active" onclick="showSection('overview')">Overview</button></li>
+                <li><button class="nav-btn" onclick="showSection('paths')">📁 File Paths</button></li>
+                <li><button class="nav-btn" onclick="showSection('setup')">Setup</button></li>
+                <li><button class="nav-btn" onclick="showSection('layout')">Layout</button></li>
+                <li><button class="nav-btn" onclick="showSection('api')">API Helper</button></li>
+                <li><button class="nav-btn" onclick="showSection('dashboard')">Dashboard</button></li>
+                <li><button class="nav-btn" onclick="showSection('courses')">Courses</button></li>
+                <li><button class="nav-btn" onclick="showSection('assignments')">Assignments</button></li>
+                <li><button class="nav-btn" onclick="showSection('grades')">Grades</button></li>
+                <li><button class="nav-btn" onclick="showSection('attendance')">Attendance</button></li>
+                <li><button class="nav-btn" onclick="showSection('certificates')">Certificates</button></li>
+                <li><button class="nav-btn" onclick="showSection('components')">Components</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container content">
+        <!-- Overview Section -->
+        <section id="overview" class="section active">
+            <h2>📋 Overview</h2>
+
+            <div class="info-box">
+                <strong>Purpose:</strong> This guide provides complete frontend implementation for the Student Dashboard,
+                including course viewing, assignment submission, grade tracking, attendance monitoring, and certificate management.
+            </div>
+
+            <h3>Key Features</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📚 Course Management</h4>
+                    <ul>
+                        <li>View enrolled courses</li>
+                        <li>Access course materials</li>
+                        <li>Track course progress</li>
+                        <li>View course details</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>📝 Assignment Handling</h4>
+                    <ul>
+                        <li>View all assignments</li>
+                        <li>Submit assignments with files</li>
+                        <li>Track submission status</li>
+                        <li>View feedback</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>📊 Grade Tracking</h4>
+                    <ul>
+                        <li>View all grades</li>
+                        <li>Grade statistics</li>
+                        <li>Course-wise grades</li>
+                        <li>Performance analytics</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>📅 Attendance & Certificates</h4>
+                    <ul>
+                        <li>View attendance records</li>
+                        <li>Mark attendance</li>
+                        <li>View certificates</li>
+                        <li>Download certificates</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Technology Stack</h3>
+            <ul>
+                <li><strong>Backend:</strong> Laravel API (via ngrok)</li>
+                <li><strong>Frontend:</strong> Blade Templates + Vanilla JavaScript</li>
+                <li><strong>Styling:</strong> Bootstrap 5 + Custom CSS</li>
+                <li><strong>Icons:</strong> Font Awesome 6</li>
+                <li><strong>Authentication:</strong> Laravel Sanctum (Bearer Token)</li>
+            </ul>
+
+            <h3>API Configuration</h3>
+            <div class="endpoint-card">
+                <strong>Base URL:</strong> <code>https://loraine-seminiferous-snappily.ngrok-free.dev/api/v1</code><br>
+                <strong>Auth Token:</strong> Stored in <code>localStorage</code> as <code>auth_token</code><br>
+                <strong>Required Header:</strong> <code>ngrok-skip-browser-warning: true</code>
+            </div>
+        </section>
+
+        <!-- File Paths Section -->
+        <section id="paths" class="section">
+            <h2>📁 File Paths & Lokasi</h2>
+
+            <div class="warning-box">
+                <strong>⚠️ PENTING!</strong> Letakkan setiap file di path yang PERSIS seperti di bawah ini.
+                Laravel is case-sensitive (huruf besar/kecil harus sama)!
+            </div>
+
+            <h3>📂 Project Root</h3>
+            <div class="endpoint-card">
+                <strong>Base Directory:</strong> <code>C:\Users\hansg\OneDrive\Desktop\lmsRPL3 (hanya ada di laptop hans)</code>
+            </div>
+
+            <h3>1️⃣ Layout Template</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Path</button>
+                <pre>resources/views/layouts/student.blade.php</pre>
+            </div>
+            <div class="info-box">
+                <strong>Full Path:</strong> <code>resources\views\layouts\student.blade.php</code><br>
+                <strong>Buat folder jika belum ada:</strong> <code>mkdir resources/views/layouts</code>
+            </div>
+
+            <h3>2️⃣ CSS File</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Path</button>
+                <pre>public/css/student/dashboard.css</pre>
+            </div>
+            <div class="info-box">
+                <strong>Full Path:</strong> <code>\css\student\dashboard.css</code><br>
+                <strong>Buat folder jika belum ada:</strong> <code>mkdir public/css/student</code>
+            </div>
+
+            <h3>3️⃣ JavaScript API Helper</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Path</button>
+                <pre>public/js/student/api.js</pre>
+            </div>
+            <div class="info-box">
+                <strong>Full Path:</strong> <code>public\js\student\api.js</code><br>
+                <strong>Buat folder jika belum ada:</strong> <code>mkdir public/js/student</code>
+            </div>
+
+            <h3>4️⃣ View Files (Blade Templates)</h3>
+
+            <h4>Main Dashboard</h4>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Path</button>
+                <pre>resources/views/student/dashboard.blade.php</pre>
+            </div>
+
+            <h4>Courses Pages</h4>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Path</button>
+                <pre>resources/views/student/courses/index.blade.php
+resources/views/student/courses/show.blade.php</pre>
+            </div>
+            <div class="info-box">
+                <strong>Buat folder:</strong> <code>mkdir resources/views/student/courses</code>
+            </div>
+
+            <h4>Assignments Pages</h4>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Path</button>
+                <pre>resources/views/student/assignments/index.blade.php
+resources/views/student/assignments/show.blade.php</pre>
+            </div>
+            <div class="info-box">
+                <strong>Buat folder:</strong> <code>mkdir resources/views/student/assignments</code>
+            </div>
+
+            <h4>Grades Page</h4>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Path</button>
+                <pre>resources/views/student/grades/index.blade.php</pre>
+            </div>
+            <div class="info-box">
+                <strong>Buat folder:</strong> <code>mkdir resources/views/student/grades</code>
+            </div>
+
+            <h4>Attendance Page</h4>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Path</button>
+                <pre>resources/views/student/attendance/index.blade.php</pre>
+            </div>
+            <div class="info-box">
+                <strong>Buat folder:</strong> <code>mkdir resources/views/student/attendance</code>
+            </div>
+
+            <h4>Certificates Page</h4>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Path</button>
+                <pre>resources/views/student/certificates/index.blade.php</pre>
+            </div>
+            <div class="info-box">
+                <strong>Buat folder:</strong> <code>mkdir resources/views/student/certificates</code>
+            </div>
+
+            <h4>Profile & Notifications</h4>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Path</button>
+                <pre>resources/views/student/profile.blade.php
+resources/views/student/notifications.blade.php</pre>
+            </div>
+
+            <h3>📊 Complete Structure</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>
+resources/views/
+└── student/
+    ├── dashboard.blade.php          ← Main dashboard
+    ├── courses/
+    │   ├── index.blade.php          ← Courses list
+    │   └── show.blade.php           ← Course detail
+    ├── assignments/
+    │   ├── index.blade.php          ← Assignments list
+    │   └── show.blade.php           ← Assignment detail & submit
+    ├── grades/
+    │   └── index.blade.php          ← Grades page
+    ├── attendance/
+    │   └── index.blade.php          ← Attendance page
+    ├── certificates/
+    │   └── index.blade.php          ← Certificates page
+    ├── profile.blade.php            ← Profile page
+    └── notifications.blade.php      ← Notifications page
+
+public/
+├── css/student/
+│   └── dashboard.css                ← Custom CSS
+└── js/student/
+    └── api.js                       ← API Helper
+
+Total: 12 files (1 layout + 1 CSS + 1 JS + 10 views)</pre>
+            </div>
+
+            <h3>🚀 Quick Folder Creation (PowerShell)</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy Commands</button>
+                <pre>
+# Jalankan dari project root
+cd C:\Users\hansg\OneDrive\Desktop\lmsRPL3 (hanya ada di laptop hans)
+
+# Buat semua folder sekaligus
+New-Item -Path "resources/views/student" -ItemType Directory -Force
+New-Item -Path "resources/views/student/courses" -ItemType Directory -Force
+New-Item -Path "resources/views/student/assignments" -ItemType Directory -Force
+New-Item -Path "resources/views/student/grades" -ItemType Directory -Force
+New-Item -Path "resources/views/student/attendance" -ItemType Directory -Force
+New-Item -Path "resources/views/student/certificates" -ItemType Directory -Force
+New-Item -Path "public/css/student" -ItemType Directory -Force
+New-Item -Path "public/js/student" -ItemType Directory -Force</pre>
+            </div>
+
+            <h3>✅ Verification Checklist</h3>
+            <div class="success-box">
+                <strong>Setelah membuat semua file, pastikan:</strong>
+                <ul>
+                    <li>✅ Semua folder sudah dibuat</li>
+                    <li>✅ File layout ada di <code>resources/views/layouts/student.blade.php</code></li>
+                    <li>✅ CSS ada di <code>public/css/student/dashboard.css</code></li>
+                    <li>✅ JS API helper ada di <code>public/js/student/api.js</code></li>
+                    <li>✅ 10 view files ada di folder <code>resources/views/student/</code></li>
+                    <li>✅ Tidak ada typo di nama file (case-sensitive!)</li>
+                </ul>
+            </div>
+
+            <h3>❌ Common Mistakes</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>❌ WRONG</th>
+                        <th>✅ CORRECT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>resources/view/student/...</code></td>
+                        <td><code>resources/views/student/...</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>resources/views/Student/...</code></td>
+                        <td><code>resources/views/student/...</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>public/CSS/student/...</code></td>
+                        <td><code>public/css/student/...</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>public/js/Student/...</code></td>
+                        <td><code>public/js/student/...</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="warning-box">
+                <strong>💡 Pro Tip:</strong> Gunakan command <code>Test-Path "path/to/file"</code> (PowerShell)
+                untuk verify file sudah ada di tempat yang benar!
+            </div>
+        </section>
+
+        <!-- Setup Section -->
+        <section id="setup" class="section">
+            <h2>⚙️ Setup & Installation</h2>
+
+            <h3>1. File Structure</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>
+project/
+├── resources/
+│   └── views/
+│       ├── layouts/
+│       │   └── student.blade.php
+│       └── student/
+│           ├── dashboard.blade.php
+│           ├── courses/
+│           │   ├── index.blade.php
+│           │   └── show.blade.php
+│           ├── assignments/
+│           │   ├── index.blade.php
+│           │   ├── show.blade.php
+│           │   └── submit.blade.php
+│           ├── grades/
+│           │   └── index.blade.php
+│           ├── attendance/
+│           │   └── index.blade.php
+│           ├── certificates/
+│           │   └── index.blade.php
+│           └── profile.blade.php
+├── public/
+│   ├── js/
+│   │   └── student/
+│   │       └── api.js
+│   └── css/
+│       └── student/
+│           └── dashboard.css
+└── routes/
+    └── web.php</pre>
+            </div>
+
+            <h3>2. Routes Configuration</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>
+// routes/web.php
+Route::middleware(['auth:sanctum'])->prefix('student')->name('student.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('dashboard');
+
+    // Courses
+    Route::get('/courses', [StudentController::class, 'courses'])->name('courses');
+    Route::get('/courses/{id}', [StudentController::class, 'courseDetail'])->name('courses.show');
+
+    // Assignments
+    Route::get('/assignments', [StudentController::class, 'assignments'])->name('assignments');
+    Route::get('/assignments/{id}', [StudentController::class, 'assignmentDetail'])->name('assignments.show');
+    Route::post('/assignments/{id}/submit', [StudentController::class, 'submitAssignment'])->name('assignments.submit');
+
+    // Grades
+    Route::get('/grades', [StudentController::class, 'grades'])->name('grades');
+
+    // Attendance
+    Route::get('/attendance', [StudentController::class, 'attendance'])->name('attendance');
+
+    // Certificates
+    Route::get('/certificates', [StudentController::class, 'certificates'])->name('certificates');
+
+    // Profile
+    Route::get('/profile', [StudentController::class, 'profile'])->name('profile');
+
+    // Notifications
+    Route::get('/notifications', [StudentController::class, 'notifications'])->name('notifications');
+});</pre>
+            </div>
+
+            <h3>3. Required Dependencies</h3>
+            <div class="info-box">
+                <strong>Note:</strong> These are already included in the layout template
+                <ul>
+                    <li>Bootstrap 5.3.0 CSS & JS</li>
+                    <li>Font Awesome 6.4.0</li>
+                    <li>Custom Student Dashboard CSS</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Layout Section -->
+        <section id="layout" class="section">
+            <h2>🎨 Layout Template</h2>
+
+            <h3>Main Layout: student.blade.php</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;meta name="csrf-token" content="{{ csrf_token() }}"&gt;
+    &lt;title&gt;@yield('title', 'Student Dashboard') - LMS&lt;/title&gt;
+
+    &lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"&gt;
+    &lt;link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"&gt;
+    &lt;link href="{{ asset('css/student/dashboard.css') }}" rel="stylesheet"&gt;
+
+    @yield('extra-css')
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;!-- Top Navigation --&gt;
+    &lt;nav class="navbar navbar-expand-lg navbar-dark bg-primary"&gt;
+        &lt;div class="container-fluid"&gt;
+            &lt;a class="navbar-brand" href="{{ route('student.dashboard') }}"&gt;
+                &lt;i class="fas fa-graduation-cap"&gt;&lt;/i&gt; LMS Student
+            &lt;/a&gt;
+            &lt;button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"&gt;
+                &lt;span class="navbar-toggler-icon"&gt;&lt;/span&gt;
+            &lt;/button&gt;
+            &lt;div class="collapse navbar-collapse" id="navbarNav"&gt;
+                &lt;ul class="navbar-nav ms-auto"&gt;
+                    &lt;li class="nav-item dropdown"&gt;
+                        &lt;a class="nav-link dropdown-toggle" href="#" id="notificationDropdown"&gt;
+                            &lt;i class="fas fa-bell"&gt;&lt;/i&gt;
+                            &lt;span class="badge bg-danger" id="notificationCount"&gt;0&lt;/span&gt;
+                        &lt;/a&gt;
+                    &lt;/li&gt;
+                    &lt;li class="nav-item dropdown"&gt;
+                        &lt;a class="nav-link dropdown-toggle" href="#" id="profileDropdown"&gt;
+                            &lt;i class="fas fa-user-circle"&gt;&lt;/i&gt;
+                            &lt;span id="studentName"&gt;Student&lt;/span&gt;
+                        &lt;/a&gt;
+                        &lt;ul class="dropdown-menu"&gt;
+                            &lt;li&gt;&lt;a class="dropdown-item" href="{{ route('student.profile') }}"&gt;Profile&lt;/a&gt;&lt;/li&gt;
+                            &lt;li&gt;&lt;a class="dropdown-item" href="#" onclick="logout()"&gt;Logout&lt;/a&gt;&lt;/li&gt;
+                        &lt;/ul&gt;
+                    &lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/nav&gt;
+
+    &lt;div class="container-fluid"&gt;
+        &lt;div class="row"&gt;
+            &lt;!-- Sidebar --&gt;
+            &lt;nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar"&gt;
+                &lt;div class="position-sticky pt-3"&gt;
+                    &lt;ul class="nav flex-column"&gt;
+                        &lt;li class="nav-item"&gt;
+                            &lt;a class="nav-link" href="{{ route('student.dashboard') }}"&gt;
+                                &lt;i class="fas fa-home"&gt;&lt;/i&gt; Dashboard
+                            &lt;/a&gt;
+                        &lt;/li&gt;
+                        &lt;li class="nav-item"&gt;
+                            &lt;a class="nav-link" href="{{ route('student.courses') }}"&gt;
+                                &lt;i class="fas fa-book"&gt;&lt;/i&gt; My Courses
+                            &lt;/a&gt;
+                        &lt;/li&gt;
+                        &lt;li class="nav-item"&gt;
+                            &lt;a class="nav-link" href="{{ route('student.assignments') }}"&gt;
+                                &lt;i class="fas fa-tasks"&gt;&lt;/i&gt; Assignments
+                            &lt;/a&gt;
+                        &lt;/li&gt;
+                        &lt;li class="nav-item"&gt;
+                            &lt;a class="nav-link" href="{{ route('student.grades') }}"&gt;
+                                &lt;i class="fas fa-chart-line"&gt;&lt;/i&gt; My Grades
+                            &lt;/a&gt;
+                        &lt;/li&gt;
+                        &lt;li class="nav-item"&gt;
+                            &lt;a class="nav-link" href="{{ route('student.attendance') }}"&gt;
+                                &lt;i class="fas fa-calendar-check"&gt;&lt;/i&gt; Attendance
+                            &lt;/a&gt;
+                        &lt;/li&gt;
+                        &lt;li class="nav-item"&gt;
+                            &lt;a class="nav-link" href="{{ route('student.certificates') }}"&gt;
+                                &lt;i class="fas fa-certificate"&gt;&lt;/i&gt; Certificates
+                            &lt;/a&gt;
+                        &lt;/li&gt;
+                    &lt;/ul&gt;
+                &lt;/div&gt;
+            &lt;/nav&gt;
+
+            &lt;!-- Main Content --&gt;
+            &lt;main class="col-md-9 ms-sm-auto col-lg-10 px-md-4"&gt;
+                &lt;div class="pt-3 pb-2 mb-3"&gt;
+                    @yield('content')
+                &lt;/div&gt;
+            &lt;/main&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"&gt;&lt;/script&gt;
+    &lt;script src="{{ asset('js/student/api.js') }}"&gt;&lt;/script&gt;
+    &lt;script&gt;
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('auth_token');
+                window.location.href = '/login';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const user = await StudentAPI.getUserInfo();
+                document.getElementById('studentName').textContent = user.name;
+                await loadNotificationCount();
+            } catch (error) {
+                console.error('Error loading user info:', error);
+            }
+        });
+
+        async function loadNotificationCount() {
+            try {
+                const data = await StudentAPI.getNotificationCount();
+                const badge = document.getElementById('notificationCount');
+                if (data.unread_count &gt; 0) {
+                    badge.textContent = data.unread_count;
+                    badge.style.display = 'inline';
+                } else {
+                    badge.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        setInterval(loadNotificationCount, 30000);
+    &lt;/script&gt;
+
+    @yield('extra-js')
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+            </div>
+        </section>
+
+        <!-- API Helper Section -->
+        <section id="api" class="section">
+            <h2>🔌 API Helper</h2>
+
+            <h3>StudentAPI Helper (api.js)</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>
+const StudentAPI = {
+    baseURL: 'https://loraine-seminiferous-snappily.ngrok-free.dev/api/v1',
+
+    getHeaders() {
+        const token = localStorage.getItem('auth_token');
+        return {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'ngrok-skip-browser-warning': 'true'
+        };
+    },
+
+    async handleResponse(response) {
+        if (response.status === 401) {
+            localStorage.removeItem('auth_token');
+            window.location.href = '/login';
+            throw new Error('Unauthorized');
+        }
+
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.message || 'API request failed');
+        }
+        return data.data || data;
+    },
+
+    // User Info
+    async getUserInfo() {
+        const response = await fetch(`${this.baseURL}/user`, {
+            method: 'GET',
+            headers: this.getHeaders()
+        });
+        return this.handleResponse(response);
+    },
+
+    // Dashboard
+    async getDashboardStats() {
+        const response = await fetch(`${this.baseURL}/students/dashboard/stats`, {
+            method: 'GET',
+            headers: this.getHeaders()
+        });
+        return this.handleResponse(response);
+    },
+
+    // Courses
+    async getEnrolledCourses() {
+        const response = await fetch(`${this.baseURL}/students/courses`, {
+            method: 'GET',
+            headers: this.getHeaders()
+        });
+        return this.handleResponse(response);
+    },
+
+    async getCourseDetail(courseId) {
+        const response = await fetch(`${this.baseURL}/courses/${courseId}`, {
+            method: 'GET',
+            headers: this.getHeaders()
+        });
+        return this.handleResponse(response);
+    },
+
+    async getCourseMaterials(courseId) {
+        const response = await fetch(`${this.baseURL}/courses/${courseId}/materials`, {
+            method: 'GET',
+            headers: this.getHeaders()
+        });
+        return this.handleResponse(response);
+    },
+
+    // Assignments
+    async getAssignments(filters = {}) {
+        const params = new URLSearchParams(filters);
+        const response = await fetch(`${this.baseURL}/students/assignments?${params}`, {
+            method: 'GET',
+            headers: this.getHeaders()
+        });
+        return this.handleResponse(response);
+    },
+
+    async getAssignmentDetail(assignmentId) {
+        const response = await fetch(`${this.baseURL}/assignments/${assignmentId}`, {
+            method: 'GET',
+            headers: this.getHeaders()
+        });
+        return this.handleResponse(response);
+    },
+
+    async submitAssignment(assignmentId, formData) {
+        const token = localStorage.getItem('auth_token');
+        const response = await fetch(`${this.baseURL}/assignments/${assignmentId}/submit`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json',
+                'ngrok-skip-browser-warning': 'true'
+            },
+            body: formData
+        });
+        return this.handleResponse(response);
+    },
+
+    // Grades
+    async getGrades() {
+        const response = await fetch(`${this.baseURL}/students/grades`, {
+            method: 'GET',
+            headers: this.getHeaders()
+        });
+        return this.handleResponse(response);
+    },
+
+    async getGradesByCourse(courseId) {
+        const response = await fetch(`${this.baseURL}/students/grades/course/${courseId}`, {
+            method: 'GET',
+            headers: this.getHeaders()
+        });
+        return this.handleResponse(response);
+    },
+
+    // Attendance
+    async getAttendanceRecords(filters = {}) {
+        const params = new URLSearchParams(filters);
+        const response = await fetch(`${this.baseURL}/students/attendance?${params}`, {
+            method: 'GET',
+            headers: this.getHeaders()
+        });
+        return this.handleResponse(response);
+    },
+
+    // Certificates
+    async getCertificates() {
+        const response = await fetch(`${this.baseURL}/students/certificates`, {
+            method: 'GET',
+            headers: this.getHeaders()
+        });
+        return this.handleResponse(response);
+    },
+
+    async downloadCertificate(certificateId) {
+        const token = localStorage.getItem('auth_token');
+        const response = await fetch(`${this.baseURL}/certificates/${certificateId}/download`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'ngrok-skip-browser-warning': 'true'
+            }
+        });
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `certificate-${certificateId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+    },
+
+    // Notifications
+    async getNotifications() {
+        const response = await fetch(`${this.baseURL}/notifications`, {
+            method: 'GET',
+            headers: this.getHeaders()
+        });
+        return this.handleResponse(response);
+    },
+
+    async getNotificationCount() {
+        const response = await fetch(`${this.baseURL}/notifications/counts`, {
+            method: 'GET',
+            headers: this.getHeaders()
+        });
+        return this.handleResponse(response);
+    },
+
+    async markNotificationRead(notificationId) {
+        const response = await fetch(`${this.baseURL}/notifications/${notificationId}/read`, {
+            method: 'PUT',
+            headers: this.getHeaders()
+        });
+        return this.handleResponse(response);
+    }
+};</pre>
+            </div>
+
+            <h3>Key API Endpoints</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th</table>>Endpoint</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-success">GET</span></td>
+                        <td>/students/courses</td>
+                        <td>Get enrolled courses</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-success">GET</span></td>
+                        <td>/students/assignments</td>
+                        <td>Get assignments with filters</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-info">POST</span></td>
+                        <td>/assignments/{id}/submit</td>
+                        <td>Submit assignment with file</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-success">GET</span></td>
+                        <td>/students/grades</td>
+                        <td>Get all grades</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-success">GET</span></td>
+                        <td>/students/attendance</td>
+                        <td>Get attendance records</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-success">GET</span></td>
+                        <td>/students/certificates</td>
+                        <td>Get student certificates</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section">
+            <h2>📊 Main Dashboard</h2>
+
+            <h3>Dashboard Statistics</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>
+async function loadDashboardStats() {
+    try {
+        const stats = await StudentAPI.getDashboardStats();
+
+        document.getElementById('totalCourses').textContent = stats.total_courses || 0;
+        document.getElementById('pendingAssignments').textContent = stats.pending_assignments || 0;
+        document.getElementById('averageGrade').textContent = stats.average_grade ?
+            stats.average_grade.toFixed(1) : '-';
+        document.getElementById('attendanceRate').textContent = stats.attendance_rate ?
+            stats.attendance_rate.toFixed(1) + '%' : '-';
+    } catch (error) {
+        console.error('Error loading stats:', error);
+    }
+}</pre>
+            </div>
+
+            <h3>Dashboard HTML Template</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>
+&lt;!-- Statistics Cards --&gt;
+&lt;div class="row mb-4"&gt;
+    &lt;div class="col-md-3 mb-3"&gt;
+        &lt;div class="card stat-card bg-primary text-white"&gt;
+            &lt;div class="card-body"&gt;
+                &lt;div class="d-flex justify-content-between"&gt;
+                    &lt;div&gt;
+                        &lt;h6&gt;Enrolled Courses&lt;/h6&gt;
+                        &lt;h2 id="totalCourses"&gt;-&lt;/h2&gt;
+                    &lt;/div&gt;
+                    &lt;i class="fas fa-book fa-3x"&gt;&lt;/i&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="col-md-3 mb-3"&gt;
+        &lt;div class="card stat-card bg-warning text-white"&gt;
+            &lt;div class="card-body"&gt;
+                &lt;div class="d-flex justify-content-between"&gt;
+                    &lt;div&gt;
+                        &lt;h6&gt;Pending Assignments&lt;/h6&gt;
+                        &lt;h2 id="pendingAssignments"&gt;-&lt;/h2&gt;
+                    &lt;/div&gt;
+                    &lt;i class="fas fa-tasks fa-3x"&gt;&lt;/i&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="col-md-3 mb-3"&gt;
+        &lt;div class="card stat-card bg-success text-white"&gt;
+            &lt;div class="card-body"&gt;
+                &lt;div class="d-flex justify-content-between"&gt;
+                    &lt;div&gt;
+                        &lt;h6&gt;Average Grade&lt;/h6&gt;
+                        &lt;h2 id="averageGrade"&gt;-&lt;/h2&gt;
+                    &lt;/div&gt;
+                    &lt;i class="fas fa-chart-line fa-3x"&gt;&lt;/i&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="col-md-3 mb-3"&gt;
+        &lt;div class="card stat-card bg-info text-white"&gt;
+            &lt;div class="card-body"&gt;
+                &lt;div class="d-flex justify-content-between"&gt;
+                    &lt;div&gt;
+                        &lt;h6&gt;Attendance Rate&lt;/h6&gt;
+                        &lt;h2 id="attendanceRate"&gt;-&lt;/h2&gt;
+                    &lt;/div&gt;
+                    &lt;i class="fas fa-calendar-check fa-3x"&gt;&lt;/i&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+            </div>
+        </section>
+
+        <!-- Courses Section -->
+        <section id="courses" class="section">
+            <h2>📚 Courses</h2>
+
+            <h3>Load Enrolled Courses</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>
+async function loadCourses() {
+    try {
+        const courses = await StudentAPI.getEnrolledCourses();
+        const container = document.getElementById('coursesContainer');
+
+        if (!courses || courses.length === 0) {
+            container.innerHTML = '&lt;p class="text-muted"&gt;No courses found&lt;/p&gt;';
+            return;
+        }
+
+        container.innerHTML = courses.map(course =&gt; `
+            &lt;div class="col-md-4 mb-4"&gt;
+                &lt;div class="card course-card h-100"&gt;
+                    &lt;div class="course-card-header"&gt;
+                        &lt;h5&gt;${course.title}&lt;/h5&gt;
+                        &lt;p class="small"&gt;${course.code || ''}&lt;/p&gt;
+                    &lt;/div&gt;
+                    &lt;div class="card-body"&gt;
+                        &lt;p class="text-muted small"&gt;
+                            &lt;i class="fas fa-user"&gt;&lt;/i&gt; ${course.instructor_name}
+                        &lt;/p&gt;
+                        &lt;div class="mb-3"&gt;
+                            &lt;div class="d-flex justify-content-between mb-1"&gt;
+                                &lt;small&gt;Progress&lt;/small&gt;
+                                &lt;small&gt;${course.progress || 0}%&lt;/small&gt;
+                            &lt;/div&gt;
+                            &lt;div class="progress"&gt;
+                                &lt;div class="progress-bar bg-success"
+                                     style="width: ${course.progress || 0}%"&gt;&lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="card-footer"&gt;
+                        &lt;a href="/student/courses/${course.id}"
+                           class="btn btn-primary btn-sm w-100"&gt;
+                            View Course
+                        &lt;/a&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        `).join('');
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to load courses');
+    }
+}</pre>
+            </div>
+
+            <h3>Course Card Component</h3>
+            <div class="success-box">
+                <strong>Course Card Features:</strong>
+                <ul>
+                    <li>Course title and code</li>
+                    <li>Instructor name</li>
+                    <li>Progress bar</li>
+                    <li>Quick access button</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Assignments Section -->
+        <section id="assignments" class="section">
+            <h2>📝 Assignments</h2>
+
+            <h3>Submit Assignment with File Upload</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>
+async function submitAssignment(assignmentId) {
+    const formData = new FormData();
+
+    // Add text content
+    const text = document.getElementById('submissionText').value;
+    formData.append('submission_text', text);
+
+    // Add file if selected
+    const fileInput = document.getElementById('fileInput');
+    if (fileInput.files.length &gt; 0) {
+        formData.append('file', fileInput.files[0]);
+    }
+
+    try {
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '&lt;i class="fas fa-spinner fa-spin"&gt;&lt;/i&gt; Submitting...';
+
+        const result = await StudentAPI.submitAssignment(assignmentId, formData);
+
+        alert('Assignment submitted successfully!');
+        window.location.href = `/student/assignments/${assignmentId}`;
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to submit assignment: ' + error.message);
+
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Submit Assignment';
+    }
+}</pre>
+            </div>
+
+            <h3>File Upload Form</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>
+&lt;form id="submissionForm" onsubmit="submitAssignment(assignmentId); return false;"&gt;
+    &lt;div class="mb-3"&gt;
+        &lt;label class="form-label"&gt;Submission Text&lt;/label&gt;
+        &lt;textarea id="submissionText" class="form-control" rows="5"
+                  placeholder="Enter your submission..."&gt;&lt;/textarea&gt;
+    &lt;/div&gt;
+
+    &lt;div class="mb-3"&gt;
+        &lt;label class="form-label"&gt;Upload File&lt;/label&gt;
+        &lt;div class="file-upload-area" onclick="document.getElementById('fileInput').click()"&gt;
+            &lt;i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"&gt;&lt;/i&gt;
+            &lt;p&gt;Click to upload or drag and drop&lt;/p&gt;
+            &lt;small class="text-muted"&gt;Maximum file size: 10MB&lt;/small&gt;
+            &lt;input type="file" id="fileInput" class="d-none"&gt;
+        &lt;/div&gt;
+        &lt;div id="fileInfo"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;button type="submit" id="submitBtn" class="btn btn-primary"&gt;
+        &lt;i class="fas fa-paper-plane"&gt;&lt;/i&gt; Submit Assignment
+    &lt;/button&gt;
+&lt;/form&gt;</pre>
+            </div>
+
+            <h3>Assignment Status Badges</h3>
+            <div class="grid-2">
+                <div>
+                    <span class="badge badge-warning">Pending</span> - Not submitted yet
+                </div>
+                <div>
+                    <span class="badge badge-info">Submitted</span> - Waiting for grading
+                </div>
+                <div>
+                    <span class="badge badge-success">Graded</span> - Grade received
+                </div>
+                <div>
+                    <span class="badge badge-danger">Overdue</span> - Past due date
+                </div>
+            </div>
+        </section>
+
+        <!-- Grades Section -->
+        <section id="grades" class="section">
+            <h2>📊 Grades</h2>
+
+            <h3>Display Grades Table</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>
+async function loadGrades() {
+    try {
+        const grades = await StudentAPI.getGrades();
+        const tbody = document.getElementById('gradesTableBody');
+
+        if (!grades || grades.length === 0) {
+            tbody.innerHTML = '&lt;tr&gt;&lt;td colspan="5" class="text-center"&gt;No grades yet&lt;/td&gt;&lt;/tr&gt;';
+            return;
+        }
+
+        tbody.innerHTML = grades.map(grade =&gt; `
+            &lt;tr&gt;
+                &lt;td&gt;${grade.course_title}&lt;/td&gt;
+                &lt;td&gt;${grade.assignment_title}&lt;/td&gt;
+                &lt;td&gt;
+                    &lt;div class="grade-circle grade-${getGradeClass(grade.grade)}"&gt;
+                        ${grade.grade}
+                    &lt;/div&gt;
+                &lt;/td&gt;
+                &lt;td&gt;${grade.percentage}%&lt;/td&gt;
+                &lt;td&gt;${formatDate(grade.graded_at)}&lt;/td&gt;
+            &lt;/tr&gt;
+        `).join('');
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function getGradeClass(grade) {
+    const num = parseFloat(grade);
+    if (num &gt;= 90) return 'a';
+    if (num &gt;= 80) return 'b';
+    if (num &gt;= 70) return 'c';
+    return 'd';
+}</pre>
+            </div>
+
+            <h3>Grade Display Components</h3>
+            <div class="info-box">
+                <strong>Grade Circle Classes:</strong>
+                <ul>
+                    <li><code>.grade-a</code> - Green (90-100)</li>
+                    <li><code>.grade-b</code> - Blue (80-89)</li>
+                    <li><code>.grade-c</code> - Yellow (70-79)</li>
+                    <li><code>.grade-d</code> - Red (below 70)</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Attendance Section -->
+        <section id="attendance" class="section">
+            <h2>📅 Attendance</h2>
+
+            <h3>Load Attendance Records</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>
+async function loadAttendance(courseId, month) {
+    try {
+        const records = await StudentAPI.getAttendanceRecords({
+            course_id: courseId,
+            month: month
+        });
+
+        const tbody = document.getElementById('attendanceTableBody');
+
+        if (!records || records.length === 0) {
+            tbody.innerHTML = '&lt;tr&gt;&lt;td colspan="4" class="text-center"&gt;No records&lt;/td&gt;&lt;/tr&gt;';
+            return;
+        }
+
+        tbody.innerHTML = records.map(record =&gt; `
+            &lt;tr&gt;
+                &lt;td&gt;${formatDate(record.date)}&lt;/td&gt;
+                &lt;td&gt;${record.session_title}&lt;/td&gt;
+                &lt;td&gt;
+                    &lt;span class="badge ${getAttendanceClass(record.status)}"&gt;
+                        ${record.status}
+                    &lt;/span&gt;
+                &lt;/td&gt;
+                &lt;td&gt;${record.notes || '-'}&lt;/td&gt;
+            &lt;/tr&gt;
+        `).join('');
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function getAttendanceClass(status) {
+    const classes = {
+        'present': 'badge-success',
+        'absent': 'badge-danger',
+        'late': 'badge-warning'
+    };
+    return classes[status] || 'badge-secondary';
+}</pre>
+            </div>
+
+            <h3>Attendance Summary</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>
+async function loadAttendanceSummary(courseId) {
+    try {
+        const summary = await StudentAPI.getAttendanceSummary(courseId);
+
+        document.getElementById('totalSessions').textContent = summary.total_sessions;
+        document.getElementById('presentCount').textContent = summary.present;
+        document.getElementById('absentCount').textContent = summary.absent;
+        document.getElementById('lateCount').textContent = summary.late;
+        document.getElementById('attendanceRate').textContent =
+            summary.attendance_rate.toFixed(1) + '%';
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}</pre>
+            </div>
+        </section>
+
+        <!-- Certificates Section -->
+        <section id="certificates" class="section">
+            <h2>🏆 Certificates</h2>
+
+            <h3>Display Certificates</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>
+async function loadCertificates() {
+    try {
+        const certificates = await StudentAPI.getCertificates();
+        const container = document.getElementById('certificatesContainer');
+
+        if (!certificates || certificates.length === 0) {
+            container.innerHTML = '&lt;p class="text-muted"&gt;No certificates yet&lt;/p&gt;';
+            return;
+        }
+
+        container.innerHTML = certificates.map(cert =&gt; `
+            &lt;div class="col-md-6 mb-4"&gt;
+                &lt;div class="card"&gt;
+                    &lt;div class="card-body"&gt;
+                        &lt;h5&gt;${cert.course_title}&lt;/h5&gt;
+                        &lt;p class="text-muted"&gt;
+                            Certificate #${cert.certificate_number}
+                        &lt;/p&gt;
+                        &lt;p&gt;
+                            &lt;strong&gt;Issued:&lt;/strong&gt; ${formatDate(cert.issued_at)}&lt;br&gt;
+                            &lt;strong&gt;Grade:&lt;/strong&gt; ${cert.final_grade}
+                        &lt;/p&gt;
+                        &lt;button onclick="downloadCertificate(${cert.id})"
+                                class="btn btn-primary btn-sm"&gt;
+                            &lt;i class="fas fa-download"&gt;&lt;/i&gt; Download
+                        &lt;/button&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        `).join('');
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+async function downloadCertificate(certificateId) {
+    try {
+        await StudentAPI.downloadCertificate(certificateId);
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to download certificate');
+    }
+}</pre>
+            </div>
+
+            <h3>Certificate Verification</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>
+async function verifyCertificate() {
+    const certificateNumber = document.getElementById('certificateNumber').value;
+
+    if (!certificateNumber) {
+        alert('Please enter certificate number');
+        return;
+    }
+
+    try {
+        const result = await StudentAPI.verifyCertificate(certificateNumber);
+
+        document.getElementById('verificationResult').innerHTML = `
+            &lt;div class="alert alert-success"&gt;
+                &lt;h5&gt;Valid Certificate&lt;/h5&gt;
+                &lt;p&gt;&lt;strong&gt;Student:&lt;/strong&gt; ${result.student_name}&lt;/p&gt;
+                &lt;p&gt;&lt;strong&gt;Course:&lt;/strong&gt; ${result.course_title}&lt;/p&gt;
+                &lt;p&gt;&lt;strong&gt;Issued:&lt;/strong&gt; ${formatDate(result.issued_at)}&lt;/p&gt;
+                &lt;p&gt;&lt;strong&gt;Grade:&lt;/strong&gt; ${result.final_grade}&lt;/p&gt;
+            &lt;/div&gt;
+        `;
+    } catch (error) {
+        document.getElementById('verificationResult').innerHTML = `
+            &lt;div class="alert alert-danger"&gt;
+                Certificate not found or invalid
+            &lt;/div&gt;
+        `;
+    }
+}</pre>
+            </div>
+        </section>
+
+        <!-- Components Section -->
+        <section id="components" class="section">
+            <h2>🧩 Common Components</h2>
+
+            <h3>Helper Functions</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>
+// Format date
+function formatDate(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// Show loading state
+function showLoading(containerId) {
+    document.getElementById(containerId).innerHTML = `
+        &lt;div class="spinner-container"&gt;
+            &lt;div class="spinner-border text-primary"&gt;&lt;/div&gt;
+        &lt;/div&gt;
+    `;
+}
+
+// Show error message
+function showError(containerId, message) {
+    document.getElementById(containerId).innerHTML = `
+        &lt;div class="alert alert-danger"&gt;
+            &lt;i class="fas fa-exclamation-circle"&gt;&lt;/i&gt; ${message}
+        &lt;/div&gt;
+    `;
+}
+
+// Truncate text
+function truncateText(text, maxLength) {
+    if (!text || text.length &lt;= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+}
+
+// Confirm action
+function confirmAction(message, callback) {
+    if (confirm(message)) {
+        callback();
+    }
+}</pre>
+            </div>
+
+            <h3>File Upload Handler</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>
+function setupFileUpload() {
+    const uploadArea = document.getElementById('fileUploadArea');
+    const fileInput = document.getElementById('fileInput');
+
+    uploadArea.addEventListener('click', () =&gt; fileInput.click());
+
+    fileInput.addEventListener('change', (e) =&gt; {
+        const file = e.target.files[0];
+        if (file) displayFileInfo(file);
+    });
+
+    uploadArea.addEventListener('dragover', (e) =&gt; {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () =&gt; {
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) =&gt; {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            fileInput.files = e.dataTransfer.files;
+            displayFileInfo(file);
+        }
+    });
+}
+
+function displayFileInfo(file) {
+    const fileSize = (file.size / 1024 / 1024).toFixed(2);
+    document.getElementById('fileInfo').innerHTML = `
+        &lt;div class="alert alert-success"&gt;
+            &lt;i class="fas fa-file"&gt;&lt;/i&gt; ${file.name} (${fileSize} MB)
+        &lt;/div&gt;
+    `;
+}</pre>
+            </div>
+
+            <h3>Search and Filter</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>
+// Debounced search
+let searchTimeout;
+function handleSearch(query) {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() =&gt; {
+        performSearch(query);
+    }, 300);
+}
+
+// Filter by status
+function filterByStatus(status) {
+    const filtered = status ?
+        allItems.filter(item =&gt; item.status === status) :
+        allItems;
+    displayItems(filtered);
+}
+
+// Sort items
+function sortItems(items, field, order = 'asc') {
+    return items.sort((a, b) =&gt; {
+        if (order === 'asc') {
+            return a[field] &gt; b[field] ? 1 : -1;
+        } else {
+            return a[field] &lt; b[field] ? 1 : -1;
+        }
+    });
+}</pre>
+            </div>
+        </section>
+    </div>
+
+    <div class="footer">
+        <div class="container">
+            <p>&copy; 2024 LMS - Student Dashboard Implementation Guide</p>
+            <p>For complete documentation, see STUDENT-DASHBOARD-GUIDE.md</p>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Remove active class from all nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy code');
+            });
+        }
+
+        // Add smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -28,7 +28,35 @@ class GradeController extends Controller
     }
 
     /**
-     * Input nilai siswa
+     * @OA\Post(
+     *     path="/api/grades",
+     *     tags={"Grades"},
+     *     summary="Input nilai siswa",
+     *     description="Create a new grade entry for a student in a specific grade component",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"student_id", "grade_component_id", "score"},
+     *             @OA\Property(property="student_id", type="integer", example=1),
+     *             @OA\Property(property="grade_component_id", type="integer", example=1),
+     *             @OA\Property(property="score", type="number", format="float", example=85.5),
+     *             @OA\Property(property="max_score", type="number", format="float", example=100),
+     *             @OA\Property(property="notes", type="string", example="Good performance")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Grade created successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Nilai berhasil di-input."),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=400, description="Validation error or enrollment required"),
+     *     @OA\Response(response=403, description="Unauthorized"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
      */
     public function store(Request $request)
     {
@@ -98,7 +126,41 @@ class GradeController extends Controller
     }
 
     /**
-     * Input nilai massal (bulk)
+     * @OA\Post(
+     *     path="/api/grades/bulk",
+     *     tags={"Grades"},
+     *     summary="Input nilai massal (bulk)",
+     *     description="Create multiple grade entries at once for multiple students",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"grades"},
+     *             @OA\Property(
+     *                 property="grades",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     @OA\Property(property="student_id", type="integer", example=1),
+     *                     @OA\Property(property="grade_component_id", type="integer", example=1),
+     *                     @OA\Property(property="score", type="number", format="float", example=85.5),
+     *                     @OA\Property(property="max_score", type="number", format="float", example=100),
+     *                     @OA\Property(property="notes", type="string", example="Good work")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Bulk grades created successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Nilai massal berhasil di-input."),
+     *             @OA\Property(property="data", type="array", @OA\Items(type="object")),
+     *             @OA\Property(property="count", type="integer", example=10)
+     *         )
+     *     ),
+     *     @OA\Response(response=400, description="Validation error or enrollment issues"),
+     *     @OA\Response(response=403, description="Unauthorized")
+     * )
      */
     public function bulkStore(Request $request)
     {
@@ -185,7 +247,43 @@ class GradeController extends Controller
     }
 
     /**
-     * Get nilai siswa untuk course
+     * @OA\Get(
+     *     path="/api/grades/student",
+     *     tags={"Grades"},
+     *     summary="Get nilai siswa untuk course",
+     *     description="Retrieve all grades for a student in a specific course including final grade",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="student_id",
+     *         in="query",
+     *         required=true,
+     *         description="Student ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="course_id",
+     *         in="query",
+     *         required=true,
+     *         description="Course ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Student grades retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Nilai siswa berhasil diambil."),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="grades", type="array", @OA\Items(type="object")),
+     *                 @OA\Property(property="final_grade", type="number", format="float", example=87.5)
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=403, description="Unauthorized"),
+     *     @OA\Response(response=422, description="Validation error"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function getStudentGrades(Request $request)
     {
@@ -227,7 +325,36 @@ class GradeController extends Controller
     }
 
     /**
-     * Get rekap nilai untuk course
+     * @OA\Get(
+     *     path="/api/grades/course",
+     *     tags={"Grades"},
+     *     summary="Get rekap nilai untuk course",
+     *     description="Retrieve grades summary and statistics for a specific course",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="course_id",
+     *         in="query",
+     *         required=true,
+     *         description="Course ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Course grades summary retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Rekap nilai course berhasil diambil."),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="summary", type="object"),
+     *                 @OA\Property(property="statistics", type="object")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=403, description="Unauthorized"),
+     *     @OA\Response(response=422, description="Validation error"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function getCourseGrades(Request $request)
     {
@@ -265,7 +392,40 @@ class GradeController extends Controller
     }
 
     /**
-     * Update nilai siswa
+     * @OA\Put(
+     *     path="/api/grades/{id}",
+     *     tags={"Grades"},
+     *     summary="Update nilai siswa",
+     *     description="Update an existing grade entry",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Grade ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="score", type="number", format="float", example=90.0),
+     *             @OA\Property(property="max_score", type="number", format="float", example=100),
+     *             @OA\Property(property="notes", type="string", example="Improved performance")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Grade updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Nilai berhasil diupdate."),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=400, description="Validation error"),
+     *     @OA\Response(response=403, description="Unauthorized"),
+     *     @OA\Response(response=404, description="Grade not found"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function update(Request $request, Grade $grade)
     {
@@ -325,7 +485,30 @@ class GradeController extends Controller
     }
 
     /**
-     * Delete nilai siswa
+     * @OA\Delete(
+     *     path="/api/grades/{id}",
+     *     tags={"Grades"},
+     *     summary="Delete nilai siswa",
+     *     description="Remove a grade entry",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Grade ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Grade deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Nilai berhasil dihapus.")
+     *         )
+     *     ),
+     *     @OA\Response(response=403, description="Unauthorized"),
+     *     @OA\Response(response=404, description="Grade not found"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function destroy(Grade $grade)
     {

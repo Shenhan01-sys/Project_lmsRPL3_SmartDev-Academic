@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMARTDev Academic - Platform Pembelajaran SMP & SMA Modern</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#667eea',
+                        primaryDark: '#5568d3',
+                        secondary: '#764ba2',
+                        accent: '#28a745',
+                        info: '#17a2b8',
+                        warning: '#ffc107',
+                        danger: '#dc3545',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans antialiased">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md fixed w-full top-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-gradient-to-r from-primary to-secondary p-2 rounded-lg">
+                        <i class="fas fa-graduation-cap text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800">SMARTDev Academic</h1>
+                        <p class="text-xs text-gray-500">Learning Management System</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#features" class="text-gray-600 hover:text-primary transition">Fitur</a>
+                    <a href="#how-it-works" class="text-gray-600 hover:text-primary transition">Cara Kerja</a>
+                    <a href="#courses" class="text-gray-600 hover:text-primary transition">Kursus</a>
+                    <a href="#faq" class="text-gray-600 hover:text-primary transition">FAQ</a>
+                    <a href="#login" class="text-primary hover:text-primaryDark font-medium transition">Login</a>
+                    <a href="#register" class="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full hover:shadow-lg transition transform hover:scale-105">Daftar Sekarang</a>
+                </div>
+                <button class="md:hidden text-gray-600" id="mobileMenuBtn">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+            <!-- Mobile Menu -->
+            <div class="hidden md:hidden mt-4 pb-4 space-y-3" id="mobileMenu">
+                <a href="#features" class="block text-gray-600 hover:text-primary transition">Fitur</a>
+                <a href="#how-it-works" class="block text-gray-600 hover:text-primary transition">Cara Kerja</a>
+                <a href="#courses" class="block text-gray-600 hover:text-primary transition">Kursus</a>
+                <a href="#faq" class="block text-gray-600 hover:text-primary transition">FAQ</a>
+                <a href="#login" class="block text-primary hover:text-primaryDark font-medium transition">Login</a>
+                <a href="#register" class="block bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full text-center">Daftar Sekarang</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 bg-gradient-to-br from-primary via-secondary to-primary">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="text-white">
+                    <div class="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+                        <span class="text-sm font-medium">Platform Pembelajaran Modern</span>
+                    </div>
+                    <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+                        Platform Pembelajaran Akademik <span class="text-yellow-300"><br>SMP & SMA</span>
+                    </h1>
+                    <p class="text-xl mb-8 text-white/90 leading-relaxed">
+                        Kelola kursus, tugas, dan nilai dengan sistem terintegrasi untuk siswa, pengajar, dan orang tua
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                        <a href="#register" class="bg-white text-primary px-8 py-4 rounded-full font-bold hover:shadow-2xl transition transform hover:scale-105 text-center">
+                            <i class="fas fa-user-plus mr-2"></i>
+                            Daftar Sebagai Siswa
+                        </a>
+                        <a href="#login" class="bg-white/10 backdrop-blur-sm border-2 border-white text-white px-8 py-4 rounded-full font-bold hover:bg-white/20 transition text-center">
+                            <i class="fas fa-sign-in-alt mr-2"></i>
+                            Login
+                        </a>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 text-sm">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-check-circle text-green-300"></i>
+                            <span>Sistem Grading Otomatis</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-check-circle text-green-300"></i>
+                            <span>Parent Monitoring</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-check-circle text-green-300"></i>
+                            <span>Upload Dokumen Aman</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="bg-white/10 backdrop-blur-sm p-5 rounded-3xl shadow-2xl">
+                        <img src="https://www.ispringsolutions.com/blog/wp-content/uploads/editor/2025/01/TalentLMS%20(1).png" alt="Dashboard Preview" class="rounded-xl shadow-lg">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Role-Based Cards -->
+    <section class="py-20 bg-gray-50" id="roles">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Siapa Yang Bisa Menggunakan?</h2>
+                <p class="text-xl text-gray-600">Platform kami dirancang untuk tiga peran utama dalam ekosistem pembelajaran</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Student Card -->
+                <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 overflow-hidden">
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-8 text-white">
+                        <div class="bg-white/20 backdrop-blur-sm w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-user-graduate text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-2">Untuk Siswa</h3>
+                        <p class="text-blue-100">Akses pembelajaran digital yang mudah</p>
+                    </div>
+                    <div class="p-8">
+                        <ul class="space-y-4 mb-8">
+                            <li class="flex items-start space-x-3">
+                                <i class="fas fa-check text-accent mt-1"></i>
+                                <span class="text-gray-700">Akses materi pembelajaran kapan saja</span>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <i class="fas fa-check text-accent mt-1"></i>
+                                <span class="text-gray-700">Submit tugas online dengan mudah</span>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <i class="fas fa-check text-accent mt-1"></i>
+                                <span class="text-gray-700">Lihat nilai & feedback langsung</span>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <i class="fas fa-check text-accent mt-1"></i>
+                                <span class="text-gray-700">Track progress akademik real-time</span>
+                            </li>
+                        </ul>
+                        <a href="#register" class="block w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white text-center px-6 py-3 rounded-full font-bold hover:shadow-lg transition transform hover:scale-105">
+                            Daftar Sekarang
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Instructor Card -->
+                <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 overflow-hidden">
+                    <div class="bg-gradient-to-br from-purple-500 to-purple-600 p-8 text-white">
+                        <div class="bg-white/20 backdrop-blur-sm w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-chalkboard-teacher text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-2">Untuk Pengajar</h3>
+                        <p class="text-purple-100">Tools lengkap untuk mengajar</p>
+                    </div>
+                    <div class="p-8">
+                        <ul class="space-y-4 mb-8">
+                            <li class="flex items-start space-x-3">
+                                <i class="fas fa-check text-accent mt-1"></i>
+                                <span class="text-gray-700">Buat & kelola kursus dengan mudah</span>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <i class="fas fa-check text-accent mt-1"></i>
+                                <span class="text-gray-700">Upload materi (PDF, video, link)</span>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <i class="fas fa-check text-accent mt-1"></i>
+                                <span class="text-gray-700">Beri tugas & nilai siswa online</span>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <i class="fas fa-check text-accent mt-1"></i>
+                                <span class="text-gray-700">Monitoring progress kelas</span>
+                            </li>
+                        </ul>
+                        <a href="#contact" class="block w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white text-center px-6 py-3 rounded-full font-bold hover:shadow-lg transition transform hover:scale-105">
+                            Hubungi Admin
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Parent Card -->
+                <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 overflow-hidden">
+                    <div class="bg-gradient-to-br from-green-500 to-green-600 p-8 text-white">
+                        <div class="bg-white/20 backdrop-blur-sm w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-users text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-2">Untuk Orang Tua</h3>
+                        <p class="text-green-100">Pantau perkembangan anak Anda</p>
+                    </div>
+                    <div class="p-8">
+                        <ul class="space-y-4 mb-8">
+                            <li class="flex items-start space-x-3">
+                                <i class="fas fa-check text-accent mt-1"></i>
+                                <span class="text-gray-700">Pantau perkembangan akademik anak</span>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <i class="fas fa-check text-accent mt-1"></i>
+                                <span class="text-gray-700">Lihat nilai & kehadiran real-time</span>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <i class="fas fa-check text-accent mt-1"></i>
+                                <span class="text-gray-700">Komunikasi dengan pengajar</span>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <i class="fas fa-check text-accent mt-1"></i>
+                                <span class="text-gray-700">Akses rapor digital</span>
+                            </li>
+                        </ul>
+                        <a href="#contact" class="block w-full bg-gradient-to-r from-green-500 to-green-600 text-white text-center px-6 py-3 rounded-full font-bold hover:shadow-lg transition transform hover:scale-105">
+                            Info Lebih Lanjut
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Features -->
+    <section class="py-20 bg-white" id="features">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Fitur Unggulan</h2>
+                <p class="text-xl text-gray-600">Platform lengkap dengan fitur-fitur yang mendukung pembelajaran modern</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="bg-gray-50 rounded-xl p-8 hover:shadow-lg transition">
+                    <div class="bg-blue-100 w-14 h-14 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-book text-blue-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Materi Terstruktur</h3>
+                    <p class="text-gray-600 mb-4">Kursus → Module → Materi dengan struktur hierarchical yang jelas. Berbagai tipe: PDF, video, link, dan teks.</p>
+                    <div class="flex items-center text-sm text-primary font-medium">
+                        <span>Pelajari lebih lanjut</span>
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </div>
+                </div></span>
+
+                <!-- Feature 2 -->
+                <div class="bg-gray-50 rounded-xl p-8 hover:shadow-lg transition">
+                    <div class="bg-purple-100 w-14 h-14 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-tasks text-purple-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Manajemen Tugas</h3>
+                    <p class="text-gray-600 mb-4">Submit file atau teks, track deadline otomatis, dan dapatkan feedback langsung dari pengajar.</p>
+                    <div class="flex items-center text-sm text-primary font-medium">
+                        <span>Pelajari lebih lanjut</span>
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </div>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="bg-gray-50 rounded-xl p-8 hover:shadow-lg transition">
+                    <div class="bg-green-100 w-14 h-14 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-chart-line text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Monitoring Nilai</h3>
+                    <p class="text-gray-600 mb-4">Grade components fleksibel (UTS, UAS, Quiz, Tugas) dengan weighted scoring otomatis dan grafik progress.</p>
+                    <div class="flex items-center text-sm text-primary font-medium">
+                        <span>Pelajari lebih lanjut</span>
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </div>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="bg-gray-50 rounded-xl p-8 hover:shadow-lg transition">
+                    <div class="bg-yellow-100 w-14 h-14 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-pencil-ruler text-yellow-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Course Builder</h3>
+                    <p class="text-gray-600 mb-4">Buat module & materi dengan mudah, upload berbagai format file, dan set urutan pembelajaran.</p>
+                    <div class="flex items-center text-sm text-primary font-medium">
+                        <span>Pelajari lebih lanjut</span>
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </div>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="bg-gray-50 rounded-xl p-8 hover:shadow-lg transition">
+                    <div class="bg-red-100 w-14 h-14 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-star text-red-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Grading System</h3>
+                    <p class="text-gray-600 mb-4">Komponen nilai fleksibel, bulk grading untuk efisiensi, dan auto-calculate weighted scores.</p>
+                    <div class="flex items-center text-sm text-primary font-medium">
+                        <span>Pelajari lebih lanjut</span>
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </div>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="bg-gray-50 rounded-xl p-8 hover:shadow-lg transition">
+                    <div class="bg-indigo-100 w-14 h-14 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-eye text-indigo-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Parent Monitoring</h3>
+                    <p class="text-gray-600 mb-4">Orang tua dapat melihat aktivitas anak real-time, notifikasi nilai baru, dan dashboard dedicated.</p>
+                    <div class="flex items-center text-sm text-primary font-medium">
+                        <span>Pelajari lebih lanjut</span>
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </div>
+                </div>
+
+                <!-- Feature 7 -->
+                <div class="bg-gray-50 rounded-xl p-8 hover:shadow-lg transition">
+                    <div class="bg-pink-100 w-14 h-14 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-shield-alt text-pink-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Keamanan Terjamin</h3>
+                    <p class="text-gray-600 mb-4">Laravel Sanctum authentication, role-based access control, dan encrypted data storage.</p>
+                    <div class="flex items-center text-sm text-primary font-medium">
+                        <span>Pelajari lebih lanjut</span>
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </div>
+                </div>
+
+                <!-- Feature 8 -->
+                <div class="bg-gray-50 rounded-xl p-8 hover:shadow-lg transition">
+                    <div class="bg-teal-100 w-14 h-14 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-mobile-alt text-teal-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Responsive Design</h3>
+                    <p class="text-gray-600 mb-4">Akses dari desktop, tablet, atau mobile dengan UI modern menggunakan Tailwind CSS.</p>
+                    <div class="flex items-center text-sm text-primary font-medium">
+                        <span>Pelajari lebih lanjut</span>
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="py-20 bg-gradient-to-br from-primary/10 to-secondary/10" id="how-it-works">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Cara Pendaftaran</h2>
+                <p class="text-xl text-gray-600">Proses pendaftaran yang mudah dan transparan</p>
+            </div>
+            <div class="max-w-4xl mx-auto">
+                <!-- Step 1 -->
+                <div class="flex flex-col md:flex-row items-start mb-12">
+                    <div class="flex-shrink-0 mb-4 md:mb-0">
+                        <div class="bg-gradient-to-br from-primary to-secondary w-20 h-20 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                            1
+                        </div>
+                    </div>
+                    <div class="md:ml-8 flex-grow">
+                        <div class="bg-white rounded-xl p-8 shadow-lg">
+                            <div class="flex items-center mb-4">
+                                <i class="fas fa-edit text-primary text-3xl mr-4"></i>
+                                <h3 class="text-2xl font-bold text-gray-800">Daftar Online</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">Isi form pendaftaran calon siswa dengan data diri lengkap dan informasi orang tua.</p>
+                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+                                <p class="text-sm text-yellow-800"><strong>Status:</strong> <span class="font-mono">pending_documents</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connector -->
+                <div class="flex justify-center my-8">
+                    <div class="w-1 h-16 bg-gradient-to-b from-primary to-secondary"></div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="flex flex-col md:flex-row items-start mb-12">
+                    <div class="flex-shrink-0 mb-4 md:mb-0">
+                        <div class="bg-gradient-to-br from-primary to-secondary w-20 h-20 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                            2
+                        </div>
+                    </div>
+                    <div class="md:ml-8 flex-grow">
+                        <div class="bg-white rounded-xl p-8 shadow-lg">
+                            <div class="flex items-center mb-4">
+                                <i class="fas fa-file-upload text-primary text-3xl mr-4"></i>
+                                <h3 class="text-2xl font-bold text-gray-800">Upload Dokumen</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">Upload dokumen persyaratan yang diperlukan:</p>
+                            <ul class="grid md:grid-cols-2 gap-3 mb-4">
+                                <li class="flex items-center text-gray-700">
+                                    <i class="fas fa-check-circle text-accent mr-2"></i>
+                                    KTP Orang Tua
+                                </li>
+                                <li class="flex items-center text-gray-700">
+                                    <i class="fas fa-check-circle text-accent mr-2"></i>
+                                    Ijazah Terakhir
+                                </li>
+                                <li class="flex items-center text-gray-700">
+                                    <i class="fas fa-check-circle text-accent mr-2"></i>
+                                    Foto Siswa
+                                </li>
+                                <li class="flex items-center text-gray-700">
+                                    <i class="fas fa-check-circle text-accent mr-2"></i>
+                                    Bukti Pembayaran
+                                </li>
+                            </ul>
+                            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+                                <p class="text-sm text-blue-800"><strong>Status:</strong> <span class="font-mono">pending_approval</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connector -->
+                <div class="flex justify-center my-8">
+                    <div class="w-1 h-16 bg-gradient-to-b from-primary to-secondary"></div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="flex flex-col md:flex-row items-start mb-12">
+                    <div class="flex-shrink-0 mb-4 md:mb-0">
+                        <div class="bg-gradient-to-br from-primary to-secondary w-20 h-20 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                            3
+                        </div>
+                    </div>
+                    <div class="md:ml-8 flex-grow">
+                        <div class="bg-white rounded-xl p-8 shadow-lg">
+                            <div class="flex items-center mb-4">
+                                <i class="fas fa-check-double text-primary text-3xl mr-4"></i>
+                                <h3 class="text-2xl font-bold text-gray-800">Verifikasi Admin</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">Admin akan mereview dokumen Anda dalam 1-3 hari kerja. Anda akan mendapat notifikasi hasil verifikasi.</p>
+                            <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded">
+                                <p class="text-sm text-green-800"><strong>Status:</strong> <span class="font-mono">approved</span> → Role berubah menjadi <span class="font-mono font-bold">student</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA -->
+                <div class="text-center mt-12">
+                    <a href="#register" class="inline-block bg-gradient-to-r from-primary to-secondary text-white px-10 py-4 rounded-full text-lg font-bold hover:shadow-2xl transition transform hover:scale-105">
+                        <i class="fas fa-rocket mr-2"></i>
+                        Mulai Pendaftaran Sekarang
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-20 bg-gradient-to-r from-primary to-secondary text-white" id="stats">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div class="text-5xl font-bold mb-2 counter" data-target="1250">0</div>
+                    <p class="text-white/80 text-lg">Siswa Aktif</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-bold mb-2 counter" data-target="85">0</div>
+                    <p class="text-white/80 text-lg">Kursus Tersedia</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-bold mb-2 counter" data-target="42">0</div>
+                    <p class="text-white/80 text-lg">Pengajar Berpengalaman</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-bold mb-2 counter" data-target="380">0</div>
+                    <p class="text-white/80 text-lg">Materi Pembelajaran</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Course Preview -->
+    <section class="py-20 bg-white" id="courses">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Kursus Tersedia</h2>
+                <p class="text-xl text-gray-600">Pilih kursus sesuai dengan jenjang pendidikan Anda</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex justify-center mb-12">
+                <div class="inline-flex bg-gray-100 rounded-full p-1">
+                    <button class="course-tab active px-8 py-3 rounded-full font-bold transition" data-tab="smp">
+                        <i class="fas fa-school mr-2"></i>SMP
+                    </button>
+                    <button class="course-tab px-8 py-3 rounded-full font-bold transition" data-tab="sma">
+                        <i class="fas fa-university mr-2"></i>SMA
+                    </button>
+                </div>
+            </div>
+
+            <!-- SMP Courses -->
+            <div class="course-content active" id="smp-courses">
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Course 1 -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2">
+                        <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white">
+                            <div class="text-sm font-bold mb-2">MTK-SMP-01</div>
+                            <h3 class="text-xl font-bold mb-2">Matematika Kelas 7</h3>
+                            <p class="text-sm text-blue-100">Semester 1 & 2</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center text-sm text-gray-600 mb-4">
+                                <i class="fas fa-user-tie mr-2"></i>
+                                <span>Bu Siti Nurhaliza</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-primary">12</div>
+                                    <div class="text-xs text-gray-500">Modules</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-primary">48</div>
+                                    <div class="text-xs text-gray-500">Materi</div>
+                                </div>
+                            </div>
+                            <a href="#" class="block w-full bg-blue-500 text-white text-center py-3 rounded-lg font-bold hover:bg-blue-600 transition">
+                                Lihat Detail
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Course 2 -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2">
+                        <div class="bg-gradient-to-br from-green-500 to-green-600 p-6 text-white">
+                            <div class="text-sm font-bold mb-2">IPA-SMP-01</div>
+                            <h3 class="text-xl font-bold mb-2">IPA Terpadu Kelas 7</h3>
+                            <p class="text-sm text-green-100">Semester 1 & 2</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center text-sm text-gray-600 mb-4">
+                                <i class="fas fa-user-tie mr-2"></i>
+                                <span>Pak Ahmad Fauzi</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-accent">10</div>
+                                    <div class="text-xs text-gray-500">Modules</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-accent">42</div>
+                                    <div class="text-xs text-gray-500">Materi</div>
+                                </div>
+                            </div>
+                            <a href="#" class="block w-full bg-green-500 text-white text-center py-3 rounded-lg font-bold hover:bg-green-600 transition">
+                                Lihat Detail
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Course 3 -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2">
+                        <div class="bg-gradient-to-br from-purple-500 to-purple-600 p-6 text-white">
+                            <div class="text-sm font-bold mb-2">BHS-SMP-01</div>
+                            <h3 class="text-xl font-bold mb-2">Bahasa Indonesia Kelas 7</h3>
+                            <p class="text-sm text-purple-100">Semester 1 & 2</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center text-sm text-gray-600 mb-4">
+                                <i class="fas fa-user-tie mr-2"></i>
+                                <span>Ibu Dewi Lestari</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-secondary">8</div>
+                                    <div class="text-xs text-gray-500">Modules</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-secondary">36</div>
+                                    <div class="text-xs text-gray-500">Materi</div>
+                                </div>
+                            </div>
+                            <a href="#" class="block w-full bg-purple-500 text-white text-center py-3 rounded-lg font-bold hover:bg-purple-600 transition">
+                                Lihat Detail
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SMA Courses -->
+            <div class="course-content" id="sma-courses">
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Course 1 -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2">
+                        <div class="bg-gradient-to-br from-red-500 to-red-600 p-6 text-white">
+                            <div class="text-sm font-bold mb-2">FIS-SMA-01</div>
+                            <h3 class="text-xl font-bold mb-2">Fisika Kelas 10</h3>
+                            <p class="text-sm text-red-100">Semester 1 & 2</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center text-sm text-gray-600 mb-4">
+                                <i class="fas fa-user-tie mr-2"></i>
+                                <span>Pak Budi Santoso</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-danger">14</div>
+                                    <div class="text-xs text-gray-500">Modules</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-danger">56</div>
+                                    <div class="text-xs text-gray-500">Materi</div>
+                                </div>
+                            </div>
+                            <a href="#" class="block w-full bg-red-500 text-white text-center py-3 rounded-lg font-bold hover:bg-red-600 transition">
+                                Lihat Detail
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Course 2 -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2">
+                        <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 p-6 text-white">
+                            <div class="text-sm font-bold mb-2">KIM-SMA-01</div>
+                            <h3 class="text-xl font-bold mb-2">Kimia Kelas 10</h3>
+                            <p class="text-sm text-yellow-100">Semester 1 & 2</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center text-sm text-gray-600 mb-4">
+                                <i class="fas fa-user-tie mr-2"></i>
+                                <span>Ibu Maria Ulfa</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-warning">12</div>
+                                    <div class="text-xs text-gray-500">Modules</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-warning">52</div>
+                                    <div class="text-xs text-gray-500">Materi</div>
+                                </div>
+                            </div>
+                            <a href="#" class="block w-full bg-yellow-500 text-white text-center py-3 rounded-lg font-bold hover:bg-yellow-600 transition">
+                                Lihat Detail
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Course 3 -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2">
+                        <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 p-6 text-white">
+                            <div class="text-sm font-bold mb-2">MAT-SMA-01</div>
+                            <h3 class="text-xl font-bold mb-2">Matematika Peminatan</h3>
+                            <p class="text-sm text-indigo-100">Semester 1 & 2</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center text-sm text-gray-600 mb-4">
+                                <i class="fas fa-user-tie mr-2"></i>
+                                <span>Pak Andi Wijaya</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-indigo-600">16</div>
+                                    <div class="text-xs text-gray-500">Modules</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-indigo-600">64</div>
+                                    <div class="text-xs text-gray-500">Materi</div>
+                                </div>
+                            </div>
+                            <a href="#" class="block w-full bg-indigo-500 text-white text-center py-3 rounded-lg font-bold hover:bg-indigo-600 transition">
+                                Lihat Detail
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View All CTA -->
+            <div class="text-center mt-12">
+                <a href="#" class="inline-block border-2 border-primary text-primary px-8 py-3 rounded-full font-bold hover:bg-primary hover:text-white transition">
+                    Lihat Semua Kursus
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-20 bg-gray-50" id="faq">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Pertanyaan yang Sering Diajukan</h2>
+                <p class="text-xl text-gray-600">Temukan jawaban untuk pertanyaan umum seputar SMARTDev Academic</p>
+            </div>
+            <div class="max-w-3xl mx-auto space-y-4">
+                <!-- FAQ 1 -->
+                <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
+                    <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                        <span class="text-lg font-bold text-gray-800">Siapa yang bisa mendaftar?</span>
+                        <i class="fas fa-chevron-down text-primary transition-transform"></i>
+                    </button>
+                    <div class="faq-answer px-6 pb-6 text-gray-600">
+                        <p>Calon siswa SMP dan SMA dapat mendaftar sendiri melalui form online. Untuk pengajar dan orang tua, akun akan dibuatkan oleh administrator setelah proses verifikasi internal.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 2 -->
+                <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
+                    <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                        <span class="text-lg font-bold text-gray-800">Berapa lama proses approval pendaftaran?</span>
+                        <i class="fas fa-chevron-down text-primary transition-transform"></i>
+                    </button>
+                    <div class="faq-answer px-6 pb-6 text-gray-600 hidden">
+                        <p>Proses verifikasi dokumen biasanya memakan waktu 1-3 hari kerja setelah semua dokumen lengkap diupload. Anda akan mendapat notifikasi via email mengenai status pendaftaran Anda.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 3 -->
+                <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
+                    <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                        <span class="text-lg font-bold text-gray-800">Dokumen apa saja yang diperlukan untuk pendaftaran?</span>
+                        <i class="fas fa-chevron-down text-primary transition-transform"></i>
+                    </button>
+                    <div class="faq-answer px-6 pb-6 text-gray-600 hidden">
+                        <p>Dokumen yang diperlukan meliputi:</p>
+                        <ul class="list-disc list-inside mt-2 space-y-1">
+                            <li>KTP Orang Tua (scan/foto yang jelas)</li>
+                            <li>Ijazah terakhir (SMP untuk pendaftar SMA, SD untuk pendaftar SMP)</li>
+                            <li>Foto siswa terbaru ukuran 3x4</li>
+                            <li>Bukti pembayaran pendaftaran</li>
+                        </ul>
+                        <p class="mt-2">Semua dokumen harus dalam format JPG, PNG, atau PDF dengan ukuran maksimal 2MB.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 4 -->
+                <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
+                    <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                        <span class="text-lg font-bold text-gray-800">Apakah ada biaya pendaftaran?</span>
+                        <i class="fas fa-chevron-down text-primary transition-transform"></i>
+                    </button>
+                    <div class="faq-answer px-6 pb-6 text-gray-600 hidden">
+                        <p>Ya, terdapat biaya pendaftaran yang bervariasi tergantung jenjang pendidikan. Untuk informasi lebih detail mengenai biaya, silakan hubungi bagian administrasi kami melalui WhatsApp atau email yang tertera di bagian footer.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 5 -->
+                <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
+                    <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                        <span class="text-lg font-bold text-gray-800">Bagaimana cara orang tua memantau perkembangan anak?</span>
+                        <i class="fas fa-chevron-down text-primary transition-transform"></i>
+                    </button>
+                    <div class="faq-answer px-6 pb-6 text-gray-600 hidden">
+                        <p>Setelah siswa terdaftar, orang tua akan dibuatkan akun khusus oleh admin dengan akses ke Parent Dashboard. Melalui dashboard ini, orang tua dapat melihat nilai real-time, kehadiran, tugas yang dikerjakan, dan berkomunikasi dengan pengajar.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 6 -->
+                <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
+                    <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                        <span class="text-lg font-bold text-gray-800">Apakah bisa akses dari smartphone?</span>
+                        <i class="fas fa-chevron-down text-primary transition-transform"></i>
+                    </button>
+                    <div class="faq-answer px-6 pb-6 text-gray-600 hidden">
+                        <p>Ya! Platform kami sepenuhnya responsive dan dapat diakses dari berbagai perangkat termasuk desktop, tablet, dan smartphone. Anda bisa belajar, mengerjakan tugas, dan memantau nilai kapan saja dan di mana saja.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 7 -->
+                <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
+                    <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                        <span class="text-lg font-bold text-gray-800">Bagaimana jika lupa password?</span>
+                        <i class="fas fa-chevron-down text-primary transition-transform"></i>
+                    </button>
+                    <div class="faq-answer px-6 pb-6 text-gray-600 hidden">
+                        <p>Anda dapat menggunakan fitur "Lupa Password" di halaman login. Kami akan mengirimkan link reset password ke email yang terdaftar. Ikuti instruksi di email untuk membuat password baru.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 8 -->
+                <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
+                    <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                        <span class="text-lg font-bold text-gray-800">Apakah data saya aman?</span>
+                        <i class="fas fa-chevron-down text-primary transition-transform"></i>
+                    </button>
+                    <div class="faq-answer px-6 pb-6 text-gray-600 hidden">
+                        <p>Keamanan data adalah prioritas utama kami. Platform ini menggunakan Laravel Sanctum untuk autentikasi, enkripsi data, dan role-based access control. Semua data pribadi dan dokumen disimpan dengan aman dan hanya dapat diakses oleh pihak yang berwenang.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-gradient-to-r from-primary to-secondary text-white">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">Siap Memulai Perjalanan Belajar Anda?</h2>
+            <p class="text-xl mb-8 text-white/90">Bergabunglah dengan ribuan siswa yang sudah merasakan pengalaman belajar modern</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#register" class="bg-white text-primary px-10 py-4 rounded-full text-lg font-bold hover:shadow-2xl transition transform hover:scale-105">
+                    <i class="fas fa-user-plus mr-2"></i>
+                    Daftar Sekarang
+                </a>
+                <a href="#contact" class="bg-white/10 backdrop-blur-sm border-2 border-white text-white px-10 py-4 rounded-full text-lg font-bold hover:bg-white/20 transition">
+                    <i class="fas fa-phone mr-2"></i>
+                    Hubungi Kami
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-16" id="contact">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-12 mb-12">
+                <!-- Column 1: Branding -->
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="bg-gradient-to-r from-primary to-secondary p-2 rounded-lg">
+                            <i class="fas fa-graduation-cap text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">SMARTDev Academic</h3>
+                            <p class="text-xs text-gray-400">Learning Management System</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 mb-4">Platform pembelajaran modern untuk SMP & SMA dengan sistem terintegrasi.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="bg-white/10 w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="bg-white/10 w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="bg-white/10 w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="bg-white/10 w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Column 2: Quick Links -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Tentang Kami</a></li>
+                        <li><a href="#how-it-works" class="text-gray-400 hover:text-white transition">Cara Pendaftaran</a></li>
+                        <li><a href="#faq" class="text-gray-400 hover:text-white transition">FAQ</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Kebijakan Privasi</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Syarat & Ketentuan</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Role Access -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Portal Login</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition"><i class="fas fa-user-graduate mr-2"></i>Login Siswa</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition"><i class="fas fa-chalkboard-teacher mr-2"></i>Login Pengajar</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition"><i class="fas fa-users mr-2"></i>Login Orang Tua</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition"><i class="fas fa-user-shield mr-2"></i>Admin Login</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 4: Contact -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Kontak Kami</h4>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-envelope text-primary mr-3 mt-1"></i>
+                            <div>
+                                <p class="text-gray-400 text-sm">Email</p>
+                                <a href="mailto:info@smartdevacademic.sch.id" class="text-white hover:text-primary transition">info@smartdevacademic.sch.id</a>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fab fa-whatsapp text-accent mr-3 mt-1"></i>
+                            <div>
+                                <p class="text-gray-400 text-sm">WhatsApp</p>
+                                <a href="https://wa.me/6281234567890" class="text-white hover:text-accent transition">0812-3456-7890</a>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt text-danger mr-3 mt-1"></i>
+                            <div>
+                                <p class="text-gray-400 text-sm">Alamat</p>
+                                <p class="text-white">Jl. Pendidikan No. 123<br>Jakarta Selatan, 12345</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="border-t border-gray-800 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 SMARTDev Academic. All rights reserved.</p>
+                <p class="text-sm mt-2">Made with <i class="fas fa-heart text-red-500"></i> for better education</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Sticky CTA Bar -->
+    <div class="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-primary to-secondary text-white py-4 shadow-2xl transform translate-y-full transition-transform duration-300" id="stickyCTA">
+        <div class="container mx-auto px-6 flex flex-col sm:flex-row justify-between items-center">
+            <p class="text-lg font-bold mb-2 sm:mb-0">Siap bergabung dengan SMARTDev Academic?</p>
+            <div class="flex gap-3">
+                <a href="#register" class="bg-white text-primary px-6 py-2 rounded-full font-bold hover:shadow-lg transition">
+                    Daftar Sekarang
+                </a>
+                <a href="#login" class="bg-white/20 backdrop-blur-sm border-2 border-white text-white px-6 py-2 rounded-full font-bold hover:bg-white/30 transition">
+                    Login
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>

@@ -23,9 +23,30 @@ class SubmissionController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/submissions",
+     *     tags={"Submissions"},
+     *     summary="Get all submissions",
+     *     description="Retrieve a list of all assignment submissions",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="assignment_id", type="integer", example=1),
+     *                 @OA\Property(property="student_id", type="integer", example=1),
+     *                 @OA\Property(property="file_path", type="string", example="/uploads/submission.pdf"),
+     *                 @OA\Property(property="grade", type="number", example=85.5),
+     *                 @OA\Property(property="feedback", type="string", example="Good work!"),
+     *                 @OA\Property(property="submitted_at", type="string", format="date-time")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function index()
     {
@@ -47,10 +68,37 @@ class SubmissionController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @OA\Post(
+     *     path="/api/submissions",
+     *     tags={"Submissions"},
+     *     summary="Submit an assignment",
+     *     description="Create a new assignment submission (student must be enrolled in course)",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"assignment_id"},
+     *             @OA\Property(property="assignment_id", type="integer", example=1),
+     *             @OA\Property(property="file_path", type="string", example="/uploads/submission.pdf"),
+     *             @OA\Property(property="grade", type="number", example=85.5),
+     *             @OA\Property(property="feedback", type="string", example="Good work!")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Submission created successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="id", type="integer", example=1),
+     *             @OA\Property(property="assignment_id", type="integer", example=1),
+     *             @OA\Property(property="student_id", type="integer", example=1),
+     *             @OA\Property(property="file_path", type="string", example="/uploads/submission.pdf"),
+     *             @OA\Property(property="submitted_at", type="string", format="date-time")
+     *         )
+     *     ),
+     *     @OA\Response(response=403, description="Not enrolled in course or not a student"),
+     *     @OA\Response(response=422, description="Validation error"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function store(Request $request)
     {
@@ -116,10 +164,35 @@ class SubmissionController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Submission  $submission
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/submissions/{id}",
+     *     tags={"Submissions"},
+     *     summary="Get submission by ID",
+     *     description="Retrieve a specific submission with assignment and student details",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Submission ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="id", type="integer", example=1),
+     *             @OA\Property(property="assignment_id", type="integer", example=1),
+     *             @OA\Property(property="student_id", type="integer", example=1),
+     *             @OA\Property(property="file_path", type="string", example="/uploads/submission.pdf"),
+     *             @OA\Property(property="grade", type="number", example=85.5),
+     *             @OA\Property(property="feedback", type="string", example="Good work!"),
+     *             @OA\Property(property="submitted_at", type="string", format="date-time")
+     *         )
+     *     ),
+     *     @OA\Response(response=403, description="Unauthorized"),
+     *     @OA\Response(response=404, description="Submission not found")
+     * )
      */
     public function show(Submission $submission)
     {
@@ -131,11 +204,45 @@ class SubmissionController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Submission  $submission
-     * @return \Illuminate\Http\Response
+     * @OA\Put(
+     *     path="/api/submissions/{id}",
+     *     tags={"Submissions"},
+     *     summary="Update submission",
+     *     description="Update an existing assignment submission",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Submission ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="assignment_id", type="integer", example=1),
+     *             @OA\Property(property="file_path", type="string", example="/uploads/submission_updated.pdf"),
+     *             @OA\Property(property="grade", type="number", example=90.0),
+     *             @OA\Property(property="feedback", type="string", example="Excellent work!")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Submission updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="id", type="integer", example=1),
+     *             @OA\Property(property="assignment_id", type="integer", example=1),
+     *             @OA\Property(property="student_id", type="integer", example=1),
+     *             @OA\Property(property="file_path", type="string", example="/uploads/submission_updated.pdf"),
+     *             @OA\Property(property="grade", type="number", example=90.0),
+     *             @OA\Property(property="feedback", type="string", example="Excellent work!")
+     *         )
+     *     ),
+     *     @OA\Response(response=403, description="Unauthorized or not enrolled"),
+     *     @OA\Response(response=404, description="Submission not found"),
+     *     @OA\Response(response=422, description="Validation error"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function update(Request $request, Submission $submission)
     {
@@ -199,10 +306,27 @@ class SubmissionController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Submission  $submission
-     * @return \Illuminate\Http\Response
+     * @OA\Delete(
+     *     path="/api/submissions/{id}",
+     *     tags={"Submissions"},
+     *     summary="Delete submission",
+     *     description="Remove an assignment submission",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Submission ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="Submission deleted successfully"
+     *     ),
+     *     @OA\Response(response=403, description="Unauthorized"),
+     *     @OA\Response(response=404, description="Submission not found"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function destroy(Submission $submission)
     {

@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Course;
+use OpenApi\Annotations as OA;
 
 class AssignmentController extends Controller
 {
@@ -23,6 +24,34 @@ class AssignmentController extends Controller
 
     /**
      * Display a listing of the resource.
+     *
+     * @OA\Get(
+     *     path="/api/v1/assignments",
+     *     summary="Get all assignments",
+     *     description="Retrieve assignments based on user role. Admin sees all, instructor sees their courses, student sees enrolled courses",
+     *     tags={"Assignments"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="course_id", type="integer", example=1),
+     *                 @OA\Property(property="title", type="string", example="Quiz Mingguan 1"),
+     *                 @OA\Property(property="description", type="string", example="Kerjakan quiz dengan teliti"),
+     *                 @OA\Property(property="due_date", type="string", format="date-time", example="2025-12-31 23:59:59"),
+     *                 @OA\Property(property="max_score", type="number", example=100),
+     *                 @OA\Property(property="status", type="string", example="published")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     )
+     * )
      *
      * @return \Illuminate\Http\Response
      */
@@ -68,6 +97,42 @@ class AssignmentController extends Controller
     /**
      * Store a newly created resource in storage.
      *
+     * @OA\Post(
+     *     path="/api/v1/assignments",
+     *     summary="Create new assignment",
+     *     description="Create a new assignment for a course (Instructor/Admin only)",
+     *     tags={"Assignments"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"course_id", "title", "description", "due_date", "max_score"},
+     *             @OA\Property(property="course_id", type="integer", example=1),
+     *             @OA\Property(property="title", type="string", example="Quiz Mingguan 1"),
+     *             @OA\Property(property="description", type="string", example="Kerjakan quiz dengan teliti"),
+     *             @OA\Property(property="due_date", type="string", format="date-time", example="2025-12-31 23:59:59"),
+     *             @OA\Property(property="max_score", type="number", example=100),
+     *             @OA\Property(property="status", type="string", example="published", enum={"draft", "published", "closed"})
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Assignment created successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error"
+     *     )
+     * )
+     *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
@@ -107,6 +172,43 @@ class AssignmentController extends Controller
 
     /**
      * Display the specified resource.
+     *
+     * @OA\Get(
+     *     path="/api/v1/assignments/{id}",
+     *     summary="Get assignment details",
+     *     description="Get detailed information about a specific assignment",
+     *     tags={"Assignments"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Assignment ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="id", type="integer", example=1),
+     *             @OA\Property(property="course_id", type="integer", example=1),
+     *             @OA\Property(property="title", type="string", example="Quiz Mingguan 1"),
+     *             @OA\Property(property="description", type="string"),
+     *             @OA\Property(property="due_date", type="string", format="date-time"),
+     *             @OA\Property(property="max_score", type="number", example=100),
+     *             @OA\Property(property="status", type="string", example="published"),
+     *             @OA\Property(property="course", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Assignment not found"
+     *     )
+     * )
      *
      * @param  \App\Models\Assignment  $assignment
      * @return \Illuminate\Http\Response
@@ -155,6 +257,51 @@ class AssignmentController extends Controller
     /**
      * Update the specified resource in storage.
      *
+     * @OA\Put(
+     *     path="/api/v1/assignments/{id}",
+     *     summary="Update assignment",
+     *     description="Update an existing assignment (Instructor/Admin only)",
+     *     tags={"Assignments"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Assignment ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="title", type="string", example="Quiz Mingguan 1"),
+     *             @OA\Property(property="description", type="string"),
+     *             @OA\Property(property="due_date", type="string", format="date-time"),
+     *             @OA\Property(property="max_score", type="number", example=100),
+     *             @OA\Property(property="status", type="string", example="published")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Assignment updated successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Assignment not found"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error"
+     *     )
+     * )
+     *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Assignment  $assignment
      * @return \Illuminate\Http\Response
@@ -184,6 +331,37 @@ class AssignmentController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @OA\Delete(
+     *     path="/api/v1/assignments/{id}",
+     *     summary="Delete assignment",
+     *     description="Delete an assignment (Instructor/Admin only)",
+     *     tags={"Assignments"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Assignment ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="Assignment deleted successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Assignment not found"
+     *     )
+     * )
      *
      * @param  \App\Models\Assignment  $assignment
      * @return \Illuminate\Http\Response

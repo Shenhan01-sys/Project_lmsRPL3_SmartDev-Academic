@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructor Dashboard Complete Guide - SmartDev LMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .nav {
+            background: var(--dark);
+            padding: 1rem 2rem;
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        h3 {
+            color: var(--dark);
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        h4 {
+            color: var(--secondary);
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        p {
+            margin: 1rem 0;
+            line-height: 1.8;
+        }
+
+        .code-block {
+            position: relative;
+            background: var(--dark);
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            overflow: hidden;
+        }
+
+        .code-label {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .code-block pre {
+            color: #e2e8f0;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 0;
+            font-family: "Consolas", "Monaco", monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            color: #1e40af;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            border-color: var(--success);
+            color: #065f46;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border-color: var(--warning);
+            color: #92400e;
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            border-color: var(--danger);
+            color: #991b1b;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th {
+            background: var(--light);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: var(--light);
+        }
+
+        ul, ol {
+            margin: 1rem 0 1rem 2rem;
+            line-height: 2;
+        }
+
+        li {
+            margin: 0.5rem 0;
+        }
+
+        code {
+            background: #f1f5f9;
+            color: #e11d48;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: "Consolas", "Monaco", monospace;
+            font-size: 0.9em;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .badge-new {
+            background: var(--success);
+            color: white;
+        }
+
+        .badge-important {
+            background: var(--danger);
+            color: white;
+        }
+
+        .footer {
+            background: var(--dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+
+            .container {
+                border-radius: 0;
+            }
+
+            .header h1 {
+                font-size: 1.75rem;
+            }
+
+            .content {
+                padding: 1rem;
+            }
+
+            .nav {
+                padding: 0.5rem 1rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>👨‍🏫 Instructor Dashboard Complete Guide</h1>
+            <p>Panduan Lengkap Frontend dengan Ngrok Integration</p>
+            <p style="font-size: 0.9rem; margin-top: 1rem;">
+                <strong>Ngrok URL:</strong> https://loraine-seminiferous-snappily.ngrok-free.dev
+            </p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav">
+            <a class="nav-item active" onclick="showSection('overview')">📋 Overview</a>
+            <a class="nav-item" onclick="showSection('setup')">⚙️ Setup</a>
+            <a class="nav-item" onclick="showSection('api')">🔌 API Helper</a>
+            <a class="nav-item" onclick="showSection('layout')">🎨 Layout</a>
+            <a class="nav-item" onclick="showSection('dashboard')">📊 Dashboard</a>
+            <a class="nav-item" onclick="showSection('courses')">📚 Courses</a>
+            <a class="nav-item" onclick="showSection('assignments')">📝 Assignments</a>
+            <a class="nav-item" onclick="showSection('submissions')">✅ Submissions</a>
+            <a class="nav-item" onclick="showSection('grading')">⭐ Grading</a>
+            <a class="nav-item" onclick="showSection('attendance')">📅 Attendance</a>
+            <a class="nav-item" onclick="showSection('announcements')">📢 Announcements</a>
+            <a class="nav-item" onclick="showSection('certificates')">🎓 Certificates</a>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- OVERVIEW SECTION -->
+            <section id="overview" class="section active">
+                <h2>📋 Overview</h2>
+
+                <div class="alert alert-info">
+                    <strong>ℹ️ Informasi Penting:</strong><br>
+                    Tutorial</strong> ini menggunakan <strong>Ngrok</strong> untuk mengakses Laravel backend API.<br>
+                    <strong>Base URL:</strong> <code>https://loraine-seminiferous-snappily.ngrok-free.dev</code>
+                </div>
+
+                <h3>🎯 Apa yang Akan Dibuat?</h3>
+                <div class="grid">
+                    <div class="card">
+                        <h4>📊 Dashboard</h4>
+                        <p>Overview statistik courses, students, submissions, assignments</p>
+                    </div>
+                    <div class="card">
+                        <h4>📚 My Courses</h4>
+                        <p>CRUD courses dengan search dan filter</p>
+                    </div>
+                    <div class="card">
+                        <h4>📝 Assignments</h4>
+                        <p>Create dan manage assignments untuk courses</p>
+                    </div>
+                    <div class="card">
+                        <h4>✅ Submissions</h4>
+                        <p>Review dan grade student submissions</p>
+                    </div>
+                    <div class="card">
+                        <h4>⭐ Grading</h4>
+                        <p>Input grades dengan grade components</p>
+                    </div>
+                    <div class="card">
+                        <h4>📅 Attendance</h4>
+                        <p>Create sessions dan mark attendance</p>
+                    </div>
+                    <div class="card">
+                        <h4>👥 Students</h4></h4>
+                        <p>View enrolled students in courses</p>
+                    </div>
+                    <div class="card">
+                        <h4>📢 Announcements</h4>
+                        <p>Create dan publish announcements</p>
+                    </div>
+                    <div class="card">
+                        <h4>🎓 Certificates</h4>
+                        <p>Generate certificates untuk students</p>
+                    </div>
+                </div>
+
+                <h3>🛠️ Tech Stack</h3>
+                <ul>
+                    <li><strong>Laravel Blade:</strong> Template engine</li>
+                    <li><strong>Bootstrap 5.3:</strong> UI framework</li>
+                    <li><strong>Chart.js:</strong> Data visualization</li>
+                    <li><strong>Vanilla JavaScript:</strong> API calls dengan Fetch API</li>
+                    <li><strong>Ngrok:</strong> Backend API tunneling</li>
+                </ul>
+
+                <h3>📁 Struktur Folder</h3>
+                <div class="code-block">
+                    <div class="code-label">Project Structure</div>
+                    <pre>
+resources/views/
+├── layouts/
+│   └── instructor.blade.php       # Base layout
+└── instructor/
+    ├── dashboard.blade.php        # Main dashboard
+    ├── courses.blade.php          # My courses
+    ├── course-detail.blade.php    # Course management
+    ├── assignments.blade.php      # Assignments
+    ├── submissions.blade.php      # Review submissions
+    ├── grading.blade.php          # Grading interface
+    ├── attendance.blade.php       # Attendance
+    ├── students.blade.php         # Students
+    ├── announcements.blade.php    # Announcements
+    └── certificates.blade.php     # Certificates
+
+public/js/instructor/
+└── api.js                         # API helper
+
+routes/
+└── web.php                        # Web routes</pre>
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>✅ Prerequisites:</strong>
+                    Backend API sudah running dan accessible via ngrok. Token authentication sudah setup di localStorage.
+                </div>
+            </section>
+
+            <!-- SETUP SECTION -->
+            <section id="setup" class="section">
+                <h2>⚙️ Setup & Configuration</h2>
+
+                <h3>Step 1: Web Routes</h3>
+                <p>Buat routes untuk instructor dashboard pages.</p>
+
+                <div class="code-block">
+                    <div class="code-label">routes/web.php</div>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                    <pre>
+&lt;?php
+
+use Illuminate\Support\Facades\Route;
+
+// Instructor Dashboard Routes
+Route::prefix('instructor')->name('instructor.')->group(function () {
+
+    Route::get('/dashboard', function () {
+        return view('instructor.dashboard');
+    })->name('dashboard');
+
+    Route::get('/courses', function () {
+        return view('instructor.courses');
+    })->name('courses');
+
+    Route::get('/courses/{id}', function ($id) {
+        return view('instructor.course-detail', ['courseId' => $id]);
+    })->name('course.detail');
+
+    Route::get('/assignments', function () {
+        return view('instructor.assignments');
+    })->name('assignments');
+
+    Route::get('/submissions', function () {
+        return view('instructor.submissions');
+    })->name('submissions');
+
+    Route::get('/grading', function () {
+        return view('instructor.grading');
+    })->name('grading');
+
+    Route::get('/attendance', function () {
+        return view('instructor.attendance');
+    })->name('attendance');
+
+    Route::get('/students', function () {
+        return view('instructor.students');
+    })->name('students');
+
+    Route::get('/announcements', function () {
+        return view('instructor.announcements');
+    })->name('announcements');
+
+    Route::get('/certificates', function () {
+        return view('instructor.certificates');
+    })->name('certificates');
+});</pre>
+                </div>
+
+                <div class="alert alert-warning">
+                    <strong>⚠️ Production Note:</strong> Tambahkan middleware <code>auth:sanctum</code> pada route group untuk protect halaman.
+                </div>
+            </section>
+
+            <!-- API SECTION -->
+            <section id="api" class="section">
+                <h2>🔌 API Helper</h2>
+
+                <h3>📡 Available Endpoints</h3>
+                <p>API endpoints yang tersedia dari backend melalui ngrok:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Endpoint</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>GET</strong></td>
+                            <td><code>/api/user</code></td>
+                            <td>Get current authenticated user</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GET</strong></td>
+                            <td><code>/api/v1/instructors/{id}/courses</code></td>
+                            <td>Get instructor's courses</td>
+                        </tr>
+                        <tr>
+                            <td><strong>POST</strong></td>
+                            <td><code>/api/v1/courses</code></td>
+                            <td>Create course</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GET/PUT/DELETE</strong></td>
+                            <td><code>/api/v1/courses/{id}</code></td>
+                            <td>Course CRUD operations</td>
+                        </tr>
+                        <tr>
+                            <td><strong>POST</strong></td>
+                            <td><code>/api/v1/assignments</code></td>
+                            <td>Create assignment</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GET</strong></td>
+                            <td><code>/api/v1/assignments/{id}/submissions</code></td>
+                            <td>Get submissions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>POST</strong></td>
+                            <td><code>/api/v1/submissions/{id}/grade</code></td>
+                            <td>Grade submission</td>
+                        </tr>
+                        <tr>
+                            <td><strong>POST</strong></td>
+                            <td><code>/api/v1/attendance/sessions</code></td>
+                            <td>Create attendance session</td>
+                        </tr>
+                        <tr>
+                            <td><strong>POST</strong></td>
+                            <td><code>/api/v1/announcements</code></td>
+                            <td>Create announcement</td>
+                        </tr>
+                        <tr>
+                            <td><strong>POST</strong></td>
+                            <td><code>/api/v1/certificates/generate</code></td>
+                            <td>Generate certificate</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>🔐 API Helper JavaScript</h3>
+                <p>Buat file helper untuk semua API calls dengan ngrok integration.</p>
+
+                <div class="code-block">
+                    <div class="code-label">public/js/instructor/api.js</div>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                    <pre>
+/**
+ * Instructor Dashboard API Helper
+ * Handles all API calls with Ngrok authentication
+ */
+
+const NGROK_BASE = 'https://loraine-seminiferous-snappily.ngrok-free.dev';
+const API_BASE = NGROK_BASE + '/api/v1';
+
+// Get token from localStorage
+function getToken() {
+    return localStorage.getItem('auth_token');
+}
+
+// Default headers with auth and ngrok bypass
+function getHeaders() {
+    return {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${getToken()}`,
+        'ngrok-skip-browser-warning': 'true'
+    };
+}
+
+// Handle response and errors
+async function handleResponse(response) {
+    if (!response.ok) {
+        if (response.status === 401) {
+            localStorage.removeItem('auth_token');
+            window.location.href = '/login';
+            throw new Error('Unauthorized');
+        }
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP ${response.status}`);
+    }
+    return await response.json();
+}
+
+// API Functions
+const InstructorAPI = {
+    // Auth
+    getCurrentUser: () => fetch(NGROK_BASE + '/api/user', {
+        headers: getHeaders()
+    }).then(handleResponse),
+
+    // Courses
+    getCourses: (instructorId) => fetch(`${API_BASE}/instructors/${instructorId}/courses`, {
+        headers: getHeaders()
+    }).then(handleResponse),
+
+    createCourse: (data) => fetch(`${API_BASE}/courses`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+    }).then(handleResponse),
+
+    updateCourse: (id, data) => fetch(`${API_BASE}/courses/${id}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+    }).then(handleResponse),
+
+    deleteCourse: (id) => fetch(`${API_BASE}/courses/${id}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+    }).then(handleResponse),
+
+    // Assignments
+    createAssignment: (data) => fetch(`${API_BASE}/assignments`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+    }).then(handleResponse),
+
+    getAssignmentSubmissions: (id) => fetch(`${API_BASE}/assignments/${id}/submissions`, {
+        headers: getHeaders()
+    }).then(handleResponse),
+
+    // Grading
+    gradeSubmission: (id, score, feedback) => fetch(`${API_BASE}/submissions/${id}/grade`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ score, feedback })
+    }).then(handleResponse),
+
+    // Attendance
+    createAttendanceSession: (data) => fetch(`${API_BASE}/attendance/sessions`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+    }).then(handleResponse),
+
+    openAttendanceSession: (id) => fetch(`${API_BASE}/attendance/sessions/${id}/open`, {
+        method: 'POST',
+        headers: getHeaders()
+    }).then(handleResponse),
+
+    markAttendance: (sessionId, studentId, status) => fetch(`${API_BASE}/attendance/records`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ session_id: sessionId, student_id: studentId, status })
+    }).then(handleResponse),
+
+    // Announcements
+    createAnnouncement: (data) => fetch(`${API_BASE}/announcements`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+    }).then(handleResponse),
+
+    publishAnnouncement: (id) => fetch(`${API_BASE}/announcements/${id}/publish`, {
+        method: 'POST',
+        headers: getHeaders()
+    }).then(handleResponse),
+
+    // Certificates
+    generateCertificate: (studentId, courseId) => fetch(`${API_BASE}/certificates/generate`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ student_id: studentId, course_id: courseId })
+    }).then(handleResponse)
+};
+
+window.InstructorAPI = InstructorAPI;</pre>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>ℹ️ Ngrok Header:</strong> Header <code>ngrok-skip-browser-warning: true</code> digunakan untuk bypass warning page ngrok saat development.
+                </div>
+            </section>
+
+            <!-- LAYOUT SECTION -->
+            <section id="layout" class="section">
+                <h2>🎨 Base Layout</h2>
+
+                <p>Layout template dengan sidebar navigation, Bootstrap 5.3, dan instructor-themed colors (blue gradient).</p>
+
+                <div class="code-block">
+                    <div class="code-label">resources/views/layouts/instructor.blade.php (Key Parts)</div>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                    <pre>
+&lt;!DOCTYPE html&gt;
+&lt;html lang="id"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;@yield('title') - Instructor Dashboard&lt;/title&gt;
+
+    &lt;!-- Bootstrap 5.3 --&gt;
+    &lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"&gt;
+    &lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"&gt;
+
+    &lt;style&gt;
+        :root {
+            --primary: #0ea5e9;
+            --secondary: #8b5cf6;
+        }
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+            min-height: 100vh;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+        }
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            color: white;
+            background: rgba(255,255,255,0.15);
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="container-fluid"&gt;
+        &lt;div class="row"&gt;
+            &lt;nav class="col-md-3 col-lg-2 sidebar p-3"&gt;
+                &lt;div class="text-center mb-4"&gt;
+                    &lt;h4 class="text-white fw-bold"&gt;SmartDev LMS&lt;/h4&gt;
+                    &lt;p class="text-white-50 small"&gt;Instructor Dashboard&lt;/p&gt;
+                &lt;/div&gt;
+
+                &lt;ul class="nav flex-column"&gt;
+                    &lt;li class="nav-item"&gt;
+                        &lt;a class="nav-link" href="{{ route('instructor.dashboard') }}"&gt;
+                            &lt;i class="bi bi-speedometer2 me-2"&gt;&lt;/i&gt; Dashboard
+                        &lt;/a&gt;
+                    &lt;/li&gt;
+                    &lt;li class="nav-item"&gt;
+                        &lt;a class="nav-link" href="{{ route('instructor.courses') }}"&gt;
+                            &lt;i class="bi bi-book me-2"&gt;&lt;/i&gt; My Courses
+                        &lt;/a&gt;
+                    &lt;/li&gt;
+                    &lt;!-- More nav items... --&gt;
+                &lt;/ul&gt;
+            &lt;/nav&gt;
+
+            &lt;main class="col-md-9 ms-sm-auto col-lg-10 px-4 py-4"&gt;
+                @yield('content')
+            &lt;/main&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"&gt;&lt;/script&gt;
+    &lt;script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"&gt;&lt;/script&gt;
+
+    &lt;script&gt;
+        const NGROK_BASE = 'https://loraine-seminiferous-snappily.ngrok-free.dev';
+        const API_BASE = NGROK_BASE + '/api/v1';
+    &lt;/script&gt;
+
+    @yield('extra-js')
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>✅ Layout Complete!</strong> Base template dengan blue gradient theme untuk instructor.
+                </div>
+            </section>
+
+            <!-- DASHBOARD SECTION -->
+            <section id="dashboard" class="section">
+                <h2>📊 Dashboard Page</h2>
+
+                <p>Halaman dashboard utama dengan statistics cards, courses overview, dan pending submissions.</p>
+
+                <div class="code-block">
+                    <div class="code-label">resources/views/instructor/dashboard.blade.php (Core)</div>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                    <pre>
+@extends('layouts.instructor')
+@section('title', 'Dashboard')
+
+@section('content')
+&lt;h2&gt;Dashboard&lt;/h2&gt;
+
+&lt;!-- Statistics Cards --&gt;
+&lt;div class="row g-3 mb-4"&gt;
+    &lt;div class="col-md-3"&gt;
+        &lt;div class="card"&gt;
+            &lt;div class="card-body text-center"&gt;
+                &lt;h6 class="text-muted"&gt;Total Courses&lt;/h6&gt;
+                &lt;h2 id="totalCourses" class="text-primary"&gt;-&lt;/h2&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="col-md-3"&gt;
+        &lt;div class="card"&gt;
+            &lt;div class="card-body text-center"&gt;
+                &lt;h6 class="text-muted"&gt;Total Students&lt;/h6&gt;
+                &lt;h2 id="totalStudents" class="text-success"&gt;-&lt;/h2&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="col-md-3"&gt;
+        &lt;div class="card"&gt;
+            &lt;div class="card-body text-center"&gt;
+                &lt;h6 class="text-muted"&gt;Pending Submissions&lt;/h6&gt;
+                &lt;h2 id="pendingSubmissions" class="text-warning"&gt;-&lt;/h2&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="col-md-3"&gt;
+        &lt;div class="card"&gt;
+            &lt;div class="card-body text-center"&gt;
+                &lt;h6 class="text-muted"&gt;Assignments&lt;/h6&gt;
+                &lt;h2 id="totalAssignments" class="text-info"&gt;-&lt;/h2&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Courses List --&gt;
+&lt;div class="card"&gt;
+    &lt;div class="card-header bg-white"&gt;
+        &lt;h5 class="mb-0"&gt;My Courses&lt;/h5&gt;
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;div id="coursesList" class="row g-3"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+@endsection
+
+@section('extra-js')
+&lt;script src="{{ asset('js/instructor/api.js') }}"&gt;&lt;/script&gt;
+&lt;script&gt;
+async function loadDashboard() {
+    const user = await InstructorAPI.getCurrentUser();
+    const courses = await InstructorAPI.getCourses(user.instructor.id);
+
+    document.getElementById('totalCourses').textContent = courses.length;
+
+    document.getElementById('coursesList').innerHTML = courses.map(c =&gt; `
+        &lt;div class="col-md-4"&gt;
+            &lt;div class="card"&gt;
+                &lt;div class="card-body"&gt;
+                    &lt;h5&gt;${c.title}&lt;/h5&gt;
+                    &lt;p class="text-muted small"&gt;${c.description?.substring(0, 80)}...&lt;/p&gt;
+                    &lt;a href="/instructor/courses/${c.id}" class="btn btn-primary btn-sm"&gt;
+                        Manage
+                    &lt;/a&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    `).join('');
+}
+
+document.addEventListener('DOMContentLoaded', loadDashboard);
+&lt;/script&gt;
+@endsection</pre>
+                </div>
+            </section>
+
+            <!-- COURSES SECTION -->
+            <section id="courses" class="section">
+                <h2>📚 My Courses Page</h2>
+
+                <p>Halaman untuk manage courses dengan CRUD operations.</p>
+
+                <div class="alert alert-info">
+                    <strong>💡 Key Features:</strong>
+                    <ul>
+                        <li>Create new course dengan modal form</li>
+                        <li>Search dan filter courses</li>
+                        <li>Edit dan delete operations</li>
+                        <li>View course details</li>
+                    </ul>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-label">Create Course Function</div>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                    <pre>
+async function createCourse() {
+    const form = document.getElementById('courseForm');
+    const formData = new FormData(form);
+
+    const data = {
+        title: formData.get('title'),
+        description: formData.get('description'),
+        category: formData.get('category'),
+        status: 'active'
+    };
+
+    try {
+        await InstructorAPI.createCourse(data);
+        bootstrap.Modal.getInstance(document.getElementById('createModal')).hide();
+        form.reset();
+        await loadCourses();
+        alert('Course created successfully!');
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}</pre>
+                </div>
+            </section>
+
+            <!-- ASSIGNMENTS SECTION -->
+            <section id="assignments" class="section">
+                <h2>📝 Assignments Page</h2>
+
+                <p>Create dan manage assignments untuk courses.</p>
+
+                <div class="code-block">
+                    <div class="code-label">Create Assignment Example</div>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                    <pre>
+async function createAssignment() {
+    const data = {
+        course_id: courseId,
+        title: document.getElementById('title').value,
+        description: document.getElementById('description').value,
+        due_date: document.getElementById('dueDate').value,
+        max_score: parseInt(document.getElementById('maxScore').value)
+    };
+
+    try {
+        await InstructorAPI.createAssignment(data);
+        alert('Assignment created!');
+        loadAssignments();
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}</pre>
+                </div>
+
+                <h3>Assignment Form HTML</h3>
+                <div class="code-block">
+                    <div class="code-label">Form Template</div>
+                    <pre>
+&lt;form id="assignmentForm"&gt;
+    &lt;div class="mb-3"&gt;
+        &lt;label&gt;Title&lt;/label&gt;
+        &lt;input type="text" class="form-control" name="title" required&gt;
+    &lt;/div&gt;
+    &lt;div class="mb-3"&gt;
+        &lt;label&gt;Description&lt;/label&gt;
+        &lt;textarea class="form-control" name="description" rows="4"&gt;&lt;/textarea&gt;
+    &lt;/div&gt;
+    &lt;div class="row"&gt;
+        &lt;div class="col-md-6"&gt;
+            &lt;label&gt;Due Date&lt;/label&gt;
+            &lt;input type="datetime-local" class="form-control" name="due_date"&gt;
+        &lt;/div&gt;
+        &lt;div class="col-md-6"&gt;
+            &lt;label&gt;Max Score&lt;/label&gt;
+            &lt;input type="number" class="form-control" name="max_score" value="100"&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/form&gt;</pre>
+                </div>
+            </section>
+
+            <!-- SUBMISSIONS SECTION -->
+            <section id="submissions" class="section">
+                <h2>✅ Submissions Review</h2>
+
+                <p>Review dan grade student submissions.</p>
+
+                <div class="code-block">
+                    <div class="code-label">Grade Submission Function</div>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                    <pre>
+async function gradeSubmission(submissionId) {
+    const score = document.getElementById('score').value;
+    const feedback = document.getElementById('feedback').value;
+
+    if (!score || score < 0 || score > 100) {
+        alert('Please enter valid score (0-100)');
+        return;
+    }
+
+    try {
+        await InstructorAPI.gradeSubmission(
+            submissionId,
+            parseFloat(score),
+            feedback
+        );
+        alert('Submission graded successfully!');
+        loadSubmissions();
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}</pre>
+                </div>
+
+                <h3>Render Submissions</h3>
+                <div class="code-block">
+                    <div class="code-label">Display Submissions</div>
+                    <pre>
+function renderSubmissions(submissions) {
+    const html = submissions.map(s =&gt; `
+        &lt;div class="card mb-3"&gt;
+            &lt;div class="card-body"&gt;
+                &lt;div class="d-flex justify-content-between"&gt;
+                    &lt;div&gt;
+                        &lt;h5&gt;${s.student.full_name}&lt;/h5&gt;
+                        &lt;p&gt;Submitted: ${new Date(s.submission_date).toLocaleDateString()}&lt;/p&gt;
+                        &lt;span class="badge bg-${getStatusColor(s.status)}"&gt;
+                            ${s.status}
+                        &lt;/span&gt;
+                    &lt;/div&gt;
+                    ${s.status === 'pending' ? `
+                        &lt;button class="btn btn-primary"
+                                onclick="showGradeModal(${s.id})"&gt;
+                            Grade
+                        &lt;/button&gt;
+                    ` : `
+                        &lt;div&gt;
+                            &lt;strong&gt;Score: ${s.score}&lt;/strong&gt;
+                            &lt;p&gt;${s.feedback}&lt;/p&gt;
+                        &lt;/div&gt;
+                    `}
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    `).join('');
+
+    document.getElementById('submissionsList').innerHTML = html;
+}</pre>
+                </div>
+            </section>
+
+            <!-- GRADING SECTION -->
+            <section id="grading" class="section">
+                <h2>⭐ Grading System</h2>
+
+                <p>Input grades dengan grade components (UTS, UAS, Tugas, dll).</p>
+
+                <div class="code-block">
+                    <div class="code-label">Grade Components Setup</div>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                    <pre>
+// Grade components example
+const gradeComponents = [
+    { name: 'UTS', weight: 30 },
+    { name: 'UAS', weight: 40 },
+    { name: 'Tugas', weight: 20 },
+    { name: 'Kehadiran', weight: 10 }
+];
+
+// Create grade with component
+async function createGrade(enrollmentId, componentId, score) {
+    const data = {
+        enrollment_id: enrollmentId,
+        grade_component_id: componentId,
+        score: parseFloat(score),
+        feedback: document.getElementById('feedback').value
+    };
+
+    try {
+        await InstructorAPI.createGrade(data);
+        alert('Grade saved!');
+        loadGrades();
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}</pre>
+                </div>
+
+                <h3>Calculate Final Grade</h3>
+                <div class="code-block">
+                    <div class="code-label">Final Grade Calculation</div>
+                    <pre>
+function calculateFinalGrade(grades, components) {
+    let totalWeight = 0;
+    let weightedScore = 0;
+
+    grades.forEach(grade => {
+        const component = components.find(c => c.id === grade.grade_component_id);
+        if (component) {
+            weightedScore += (grade.score * component.weight / 100);
+            totalWeight += component.weight;
+        }
+    });
+
+    return totalWeight > 0 ? (weightedScore / totalWeight * 100) : 0;
+}</pre>
+                </div>
+            </section>
+
+            <!-- ATTENDANCE SECTION -->
+            <section id="attendance" class="section">
+                <h2>📅 Attendance Management</h2>
+
+                <p>Create sessions dan mark student attendance.</p>
+
+                <div class="code-block">
+                    <div class="code-label">Create Attendance Session</div>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                    <pre>
+async function createSession() {
+    const data = {
+        course_id: courseId,
+        session_date: document.getElementById('sessionDate').value,
+        topic: document.getElementById('topic').value
+    };
+
+    try {
+        const session = await InstructorAPI.createAttendanceSession(data);
+        // Auto-open the session
+        await InstructorAPI.openAttendanceSession(session.id);
+        alert('Session created and opened!');
+        loadSessions();
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}</pre>
+                </div>
+
+                <h3>Mark Attendance</h3>
+                <div class="code-block">
+                    <div class="code-label">Mark Student Attendance</div>
+                    <pre>
+async function markAttendance(sessionId, studentId, status) {
+    try {
+        await InstructorAPI.markAttendance(sessionId, studentId, status);
+        // Update UI
+        const button = document.querySelector(`[data-student="${studentId}"]`);
+        button.className = `btn btn-sm btn-${getStatusColor(status)}`;
+        button.textContent = status.toUpperCase();
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+function getStatusColor(status) {
+    const colors = {
+        'present': 'success',
+        'absent': 'danger',
+        'sick': 'warning',
+        'permission': 'info'
+    };
+    return colors[status] || 'secondary';
+}</pre>
+                </div>
+
+                <h3>Attendance UI Example</h3>
+                <div class="code-block">
+                    <div class="code-label">Student Attendance List</div>
+                    <pre>
+function renderAttendanceList(students, sessionId) {
+    const html = students.map(student =&gt; `
+        &lt;tr&gt;
+            &lt;td&gt;${student.full_name}&lt;/td&gt;
+            &lt;td&gt;
+                &lt;div class="btn-group" role="group"&gt;
+                    &lt;button class="btn btn-sm btn-success"
+                            onclick="markAttendance(${sessionId}, ${student.id}, 'present')"&gt;
+                        Present
+                    &lt;/button&gt;
+                    &lt;button class="btn btn-sm btn-danger"
+                            onclick="markAttendance(${sessionId}, ${student.id}, 'absent')"&gt;
+                        Absent
+                    &lt;/button&gt;
+                    &lt;button class="btn btn-sm btn-warning"
+                            onclick="markAttendance(${sessionId}, ${student.id}, 'sick')"&gt;
+                        Sick
+                    &lt;/button&gt;
+                    &lt;button class="btn btn-sm btn-info"
+                            onclick="markAttendance(${sessionId}, ${student.id}, 'permission')"&gt;
+                        Permission
+                    &lt;/button&gt;
+                &lt;/div&gt;
+            &lt;/td&gt;
+        &lt;/tr&gt;
+    `).join('');
+
+    document.getElementById('attendanceTable').innerHTML = html;
+}</pre>
+                </div>
+            </section>
+
+            <!-- ANNOUNCEMENTS SECTION -->
+            <section id="announcements" class="section">
+                <h2>📢 Announcements</h2>
+
+                <p>Create dan publish announcements untuk course atau global.</p>
+
+                <div class="code-block">
+                    <div class="code-label">Create Announcement</div>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                    <pre>
+async function createAnnouncement() {
+    const data = {
+        title: document.getElementById('title').value,
+        content: document.getElementById('content').value,
+        scope: document.getElementById('scope').value, // 'global' or 'course'
+        course_id: document.getElementById('scope').value === 'course'
+            ? document.getElementById('courseId').value
+            : null
+    };
+
+    try {
+        const announcement = await InstructorAPI.createAnnouncement(data);
+
+        // Auto-publish if needed
+        if (confirm('Publish this announcement now?')) {
+            await InstructorAPI.publishAnnouncement(announcement.id);
+        }
+
+        alert('Announcement created!');
+        loadAnnouncements();
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}</pre>
+                </div>
+
+                <h3>Announcement Form</h3>
+                <div class="code-block">
+                    <div class="code-label">Form Template</div>
+                    <pre>
+&lt;form id="announcementForm"&gt;
+    &lt;div class="mb-3"&gt;
+        &lt;label&gt;Title&lt;/label&gt;
+        &lt;input type="text" class="form-control" id="title" required&gt;
+    &lt;/div&gt;
+    &lt;div class="mb-3"&gt;
+        &lt;label&gt;Content&lt;/label&gt;
+        &lt;textarea class="form-control" id="content" rows="6" required&gt;&lt;/textarea&gt;
+    &lt;/div&gt;
+    &lt;div class="row"&gt;
+        &lt;div class="col-md-6"&gt;
+            &lt;label&gt;Scope&lt;/label&gt;
+            &lt;select class="form-select" id="scope" onchange="toggleCourseSelect()"&gt;
+                &lt;option value="global"&gt;Global (All Students)&lt;/option&gt;
+                &lt;option value="course"&gt;Course Specific&lt;/option&gt;
+            &lt;/select&gt;
+        &lt;/div&gt;
+        &lt;div class="col-md-6" id="courseSelectDiv" style="display:none"&gt;
+            &lt;label&gt;Select Course&lt;/label&gt;
+            &lt;select class="form-select" id="courseId"&gt;
+                &lt;!-- Populate with courses --&gt;
+            &lt;/select&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/form&gt;</pre>
+                </div>
+            </section>
+
+            <!-- CERTIFICATES SECTION -->
+            <section id="certificates" class="section">
+                <h2>🎓 Certificates Generation</h2>
+
+                <p>Generate certificates untuk students yang eligible.</p>
+
+                <div class="code-block">
+                    <div class="code-label">Generate Certificate</div>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                    <pre>
+// Generate single certificate
+async function generateCertificate(studentId, courseId) {
+    try {
+        const cert = await InstructorAPI.generateCertificate(studentId, courseId);
+        alert(`Certificate generated! Code: ${cert.certificate_code}`);
+        loadCertificates();
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+// Bulk generate for all eligible students
+async function bulkGenerate(courseId) {
+    if (!confirm('Generate certificates for all eligible students?')) {
+        return;
+    }
+
+    try {
+        const result = await InstructorAPI.bulkGenerateCertificates(courseId);
+        alert(`Generated ${result.count} certificates!`);
+        loadCertificates();
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}</pre>
+                </div>
+
+                <h3>Check Eligibility</h3>
+                <div class="code-block">
+                    <div class="code-label">Check if Student is Eligible</div>
+                    <pre>
+function checkEligibility(student) {
+    // Example criteria:
+    // 1. Final grade >= 70
+    // 2. Attendance >= 75%
+    // 3. All assignments submitted
+
+    const finalGrade = student.final_grade || 0;
+    const attendance = student.attendance_percentage || 0;
+    const assignmentsCompleted = student.assignments_completed || 0;
+    const totalAssignments = student.total_assignments || 0;
+
+    return finalGrade >= 70 &&
+           attendance >= 75 &&
+           assignmentsCompleted === totalAssignments;
+}
+
+// Render eligible students
+function renderEligibleStudents(students) {
+    const eligible = students.filter(checkEligibility);
+
+    const html = eligible.map(s =&gt; `
+        &lt;tr&gt;
+            &lt;td&gt;${s.full_name}&lt;/td&gt;
+            &lt;td&gt;${s.final_grade}&lt;/td&gt;
+            &lt;td&gt;${s.attendance_percentage}%&lt;/td&gt;
+            &lt;td&gt;
+                ${s.has_certificate ? `
+                    &lt;span class="badge bg-success"&gt;Already Generated&lt;/span&gt;
+                ` : `
+                    &lt;button class="btn btn-sm btn-primary"
+                            onclick="generateCertificate(${s.id}, ${courseId})"&gt;
+                        Generate
+                    &lt;/button&gt;
+                `}
+            &lt;/td&gt;
+        &lt;/tr&gt;
+    `).join('');
+
+    document.getElementById('eligibleList').innerHTML = html;
+}</pre>
+                </div>
+            </section>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>&copy; 2024 SmartDev LMS - Instructor Dashboard Complete Guide</p>
+            <p class="small">Dibuat dengan ❤️ menggunakan Laravel Blade + Bootstrap 5.3 + Ngrok</p>
+        </div>
+    </div>
+
+    <script>
+        // Navigation functionality
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Show selected section
+            const selectedSection = document.getElementById(sectionId);
+            if (selectedSection) {
+                selectedSection.classList.add('active');
+            }
+
+            // Add active class to clicked nav item
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Copy code functionality
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            const code = codeBlock.querySelector('pre').textContent.trim();
+
+            navigator.clipboard.writeText(code)
+                .then(() => {
+                    const originalText = button.textContent;
+                    button.textContent = '✅ Copied!';
+                    button.style.background = '#10b981';
+
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.style.background = '';
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy:', err);
+                    alert('Failed to copy code');
+                });
+        }
+
+        // Log welcome message
+        console.log('%c👨‍🏫 Instructor Dashboard Complete Guide', 'font-size: 20px; font-weight: bold; color: #0ea5e9;');
+        console.log('%cNgrok Integration Ready', 'font-size: 14px; color: #8b5cf6;');
+    </script>
+</body>
+</html>
