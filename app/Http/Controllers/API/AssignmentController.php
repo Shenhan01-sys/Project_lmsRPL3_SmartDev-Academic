@@ -146,11 +146,11 @@ class AssignmentController extends Controller
         ]);
 
         $course = Course::find($validated["course_id"]);
-        if ($request->user()->id !== $course->instructor_id) {
+        $user = $request->user();
+        if (!$user->instructor || $user->instructor->id !== $course->instructor_id) {
             return response()->json(
                 [
-                    "message" =>
-                        "You are not authorized to create assignments for this course.",
+                    "message" => "You are not authorized to create assignments for this course.",
                 ],
                 403,
             );

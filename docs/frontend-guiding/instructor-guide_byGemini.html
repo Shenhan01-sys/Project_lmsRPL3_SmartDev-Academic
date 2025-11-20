@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructor Dashboard - SmartDev LMS</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --primary: #0ea5e9;     /* Sky Blue */
+            --primary-dark: #0284c7;
+            --secondary: #8b5cf6;   /* Violet */
+            --sidebar-bg: linear-gradient(180deg, #0ea5e9 0%, #8b5cf6 100%);
+            --light-bg: #f8fafc;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            background: var(--sidebar-bg);
+            min-height: 100vh;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            color: white;
+            z-index: 1000;
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.9);
+            padding: 12px 20px;
+            margin: 4px 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .sidebar-brand {
+            padding: 2rem 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 1rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+        }
+
+        /* Cards */
+        .stat-card {
+            border: none;
+            border-radius: 15px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .icon-box {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        /* Sections */
+        .page-section {
+            display: none; /* Hidden by default */
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Loading Spinner */
+        #loadingOverlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.8);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loadingOverlay">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="sidebar-brand">
+                    <i class="bi bi-mortarboard-fill me-2"></i>SmartDev
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showSection('dashboard', this)">
+                            <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('courses', this)">
+                            <i class="bi bi-book me-2"></i> My Courses
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('assignments', this)">
+                            <i class="bi bi-journal-check me-2"></i> Global Assignments
+                        </a>
+                    </li>
+                    <li class="nav-item mt-4">
+                        <a class="nav-link text-danger" href="#" onclick="logout()">
+                            <i class="bi bi-box-arrow-right me-2"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 main-content">
+                
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+                    <h1 class="h2" id="pageTitle">Dashboard</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+                        </div>
+                        <div class="input-group input-group-sm" style="width: 300px;">
+                            <span class="input-group-text">API URL</span>
+                            <input type="text" id="ngrokUrl" class="form-control" value="https://loraine-seminiferous-snappily.ngrok-free.dev" placeholder="Enter Ngrok URL">
+                            <button class="btn btn-outline-primary" onclick="updateApiUrl()">Set</button>
+                        </div>
+                    </div>
+                </div>
+
+                <section id="dashboard" class="page-section active">
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-3">
+                            <div class="stat-card p-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-1">Total Courses</h6>
+                                        <h2 class="mb-0 fw-bold" id="totalCourses">0</h2>
+                                    </div>
+                                    <div class="icon-box bg-primary bg-opacity-10 text-primary">
+                                        <i class="bi bi-journal-bookmark"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card p-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-1">Active Assignments</h6>
+                                        <h2 class="mb-0 fw-bold" id="totalAssignments">0</h2>
+                                    </div>
+                                    <div class="icon-box bg-success bg-opacity-10 text-success">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0">Recent Courses</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3" id="dashboardCoursesList">
+                                <p class="text-muted">Loading courses...</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="courses" class="page-section">
+                    <div class="d-flex justify-content-between mb-4">
+                        <h3>Manage Courses</h3>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCourseModal">
+                            <i class="bi bi-plus-lg"></i> New Course
+                        </button>
+                    </div>
+                    <div class="row g-4" id="coursesGrid">
+                        </div>
+                </section>
+
+                <section id="courseDetail" class="page-section">
+                    <button class="btn btn-outline-secondary mb-3" onclick="showSection('courses')">
+                        <i class="bi bi-arrow-left"></i> Back to Courses
+                    </button>
+                    
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body">
+                            <h2 id="detailCourseName" class="text-primary fw-bold">Course Name</h2>
+                            <p id="detailCourseCode" class="badge bg-secondary">CODE</p>
+                            <p id="detailCourseDesc" class="text-muted mt-2">Description...</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h4>Assignments</h4>
+                                <button class="btn btn-sm btn-primary" onclick="openCreateAssignmentModal()">
+                                    <i class="bi bi-plus-circle"></i> Add Assignment
+                                </button>
+                            </div>
+                            <div id="courseAssignmentsList">
+                                </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0">Enrolled Students</h5>
+                                </div>
+                                <div class="card-body" id="enrolledStudentsList">
+                                    <p class="text-muted small">No students enrolled yet.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="submissions" class="page-section">
+                    <button class="btn btn-outline-secondary mb-3" onclick="backToCourseDetail()">
+                        <i class="bi bi-arrow-left"></i> Back to Course
+                    </button>
+                    <h3 id="submissionPageTitle">Submissions</h3>
+                    <div class="table-responsive card border-0 shadow-sm p-3">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Date</th>
+                                    <th>File</th>
+                                    <th>Grade</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="submissionsTableBody">
+                                </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <div class="modal fade" id="createCourseModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Course</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createCourseForm">
+                        <div class="mb-3">
+                            <label>Course Name</label>
+                            <input type="text" name="course_name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Course Code</label>
+                            <input type="text" name="course_code" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Description</label>
+                            <textarea name="description" class="form-control" rows="3"></textarea>
+                        </div>
+                        <input type="hidden" name="instructor_id" id="hiddenInstructorId">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="submitCreateCourse()">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="createAssignmentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Assignment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createAssignmentForm">
+                        <input type="hidden" id="assignCourseId">
+                        <div class="mb-3">
+                            <label>Title</label>
+                            <input type="text" id="assignTitle" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Description</label>
+                            <textarea id="assignDesc" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label>Due Date</label>
+                            <input type="datetime-local" id="assignDueDate" class="form-control">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitCreateAssignment()">Save Assignment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // --- CONFIGURATION ---
+        let API_BASE_URL = document.getElementById('ngrokUrl').value + '/api/v1';
+        let currentUser = null;
+        let currentActiveCourseId = null; // State untuk navigasi
+
+        function updateApiUrl() {
+            const url = document.getElementById('ngrokUrl').value;
+            // Remove trailing slash if exists
+            API_BASE_URL = url.replace(/\/$/, "") + '/api/v1';
+            alert('API URL Updated to: ' + API_BASE_URL);
+            initDashboard(); // Reload data
+        }
+
+        // --- AUTH HELPERS --
+
+        function getHeaders() {
+            const token = '13|E7M6C4wtH5T0y0qHSuUHeMziagjVcYcaAQBtWsIE1d48292f';
+            if(token) localStorage.setItem('auth_token', '13|E7M6C4wtH5T0y0qHSuUHeMziagjVcYcaAQBtWsIE1d48292f'); // Save for later
+            
+            return {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'ngrok-skip-browser-warning': 'true' // Penting untuk Ngrok free tier
+            };
+        }
+
+        async function apiFetch(endpoint, options = {}) {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch(API_BASE_URL + endpoint, {
+                    ...options,
+                    headers: getHeaders()
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        alert("Session expired or invalid token. Please login again.");
+                        localStorage.removeItem('auth_token');
+                        // window.location.reload();
+                        return null;
+                    }
+                    const err = await response.json().catch(() => ({}));
+                    throw new Error(err.message || `HTTP Error ${response.status}`);
+                }
+
+                // Handle No Content
+                if(response.status === 204) return null;
+
+                return await response.json();
+            } catch (error) {
+                console.error("API Error:", error);
+                alert("Error: " + error.message);
+                return null;
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        // --- MAIN LOGIC ---
+
+        async function initDashboard() {
+            // 1. Get User Info
+            // Note: Endpoint /api/user biasanya ada di luar group v1, check routes/api.php
+            // Jika di routes: Route::get('/user', ...), maka URLnya beda dikit.
+            // Mari kita coba fetch user.
+            const userUrl = document.getElementById('ngrokUrl').value + '/api/user';
+            
+            try {
+                const res = await fetch(userUrl, { headers: getHeaders() });
+                if(res.ok) {
+                    currentUser = await res.json();
+                    console.log("User Logged In:", currentUser);
+                    // Set instructor ID for forms if needed
+                    // Note: check if user has relation 'instructor' loaded or if we need to fetch it
+                }
+            } catch (e) {
+                console.warn("Could not fetch /api/user, proceeding anyway...");
+            }
+
+            // 2. Load Courses
+            loadCourses();
+        }
+
+        async function loadCourses() {
+                    // 1. Fetch semua course dari API
+            const allCourses = await apiFetch('/courses'); 
+            if (!allCourses) return;
+    
+            // 2. FILTER LOGIC (Baru)
+            // Kita filter array 'allCourses' sebelum di-render ke HTML
+            const filteredCourses = allCourses.filter(c => {
+                // a. Jika user adalah ADMIN, tampilkan semua course (bypass filter)
+                if (currentUser && currentUser.role === 'admin') {
+                    return true;
+                }
+    
+                // b. Safety Check: Pastikan course punya data instructor
+                if (!c.instructor) return false;
+    
+                // c. FILTER UTAMA: Berdasarkan Instructor Code
+                // Kita cek apakah currentUser memiliki data instructor profile
+                if (currentUser && currentUser.instructor && currentUser.instructor.instructor_code) {
+                    return c.instructor.instructor_code === currentUser.instructor.instructor_code;
+                }
+    
+                // d. FALLBACK FILTER: Berdasarkan User ID
+                // Jika /api/user belum me-load relasi 'instructor', kita pakai user_id yang pasti ada.
+                // Logic: Course ini milik user yang login jika ID-nya sama.
+                if (currentUser && currentUser.id) {
+                    return c.instructor.user_id === currentUser.id;
+                }
+    
+                return false; // Default: sembunyikan jika tidak ada yang cocok
+            });
+    
+            // 3. Update Statistik (Gunakan data yang sudah difilter)
+            document.getElementById('totalCourses').innerText = filteredCourses.length;
+    
+            // 4. Render Dashboard List (Tampilkan 3 course pertama dari hasil filter)
+            const dashboardHtml = filteredCourses.slice(0, 3).map(c => `
+                <div class="col-md-4">
+                    <div class="card h-100 border-start border-4 border-primary">
+                        <div class="card-body">
+                            <h6 class="fw-bold text-primary">${c.course_name}</h6>
+                            <small class="text-muted d-block mb-2">${c.course_code}</small>
+                            <span class="badge bg-light text-dark border">
+                                <i class="bi bi-person"></i> ${c.instructor.instructor_code}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('dashboardCoursesList').innerHTML = dashboardHtml || '<p class="text-muted col-12">No courses assigned to you yet.</p>';
+    
+            // 5. Render Manage Courses Grid (Looping filteredCourses)
+            const gridHtml = filteredCourses.map(c => `
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="badge bg-primary">${c.course_code}</span>
+                                <div class="dropdown">
+                                    <button class="btn btn-link p-0 text-dark" data-bs-toggle="dropdown">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteCourse(${c.id})">Delete</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <h5 class="card-title">${c.course_name}</h5>
+                            
+                            <!-- Menampilkan Instructor Code untuk konfirmasi visual -->
+                            <p class="text-primary small mb-2">
+                                <i class="bi bi-person-badge"></i> ${c.instructor ? c.instructor.instructor_code : 'Unknown'}
+                            </p>
+    
+                            <p class="card-text text-muted small text-truncate-3">
+                                ${c.description || 'No description provided.'}
+                            </p>
+                            
+                            <div class="mt-auto">
+                                <button class="btn btn-outline-primary w-100 mt-3" onclick="loadCourseDetail(${c.id})">
+                                    Manage Course & Assignments
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('coursesGrid').innerHTML = gridHtml || `
+                <div class="col-12 text-center py-5">
+                    <div class="text-muted mb-3"><i class="bi bi-search display-4"></i></div>
+                    <h5>No courses found for your Instructor Code.</h5>
+                </div>
+            `;
+        }
+
+        // --- COURSE DETAIL & ASSIGNMENTS ---
+
+        async function loadCourseDetail(courseId) {
+            currentActiveCourseId = courseId;
+            
+            // Fetch Detail Course (Include Assignments via Eager Load di Backend)
+            const course = await apiFetch(`/courses/${courseId}`);
+            if (!course) return;
+
+            // 1. Update UI Header
+            document.getElementById('detailCourseName').innerText = course.course_name;
+            document.getElementById('detailCourseCode').innerText = course.course_code;
+            document.getElementById('detailCourseDesc').innerText = course.description || '';
+
+            // 2. Render Assignments List
+            // Backend: $course->assignments
+            const assignments = course.assignments || [];
+            const assignContainer = document.getElementById('courseAssignmentsList');
+            
+            if (assignments.length === 0) {
+                assignContainer.innerHTML = `<div class="alert alert-info">No assignments yet. Click "Add Assignment" to create one.</div>`;
+            } else {
+                assignContainer.innerHTML = assignments.map(a => `
+                    <div class="card mb-3 border-start border-4 border-primary">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1">${a.title}</h5>
+                                <p class="mb-1 small text-muted">${a.description || ''}</p>
+                                <span class="badge bg-light text-dark border">
+                                    <i class="bi bi-calendar"></i> Due: ${a.due_date ? new Date(a.due_date).toLocaleString() : 'No Due Date'}
+                                </span>
+                            </div>
+                            <div>
+                                <button class="btn btn-sm btn-outline-primary me-2" onclick="viewSubmissions(${a.id}, '${a.title}')">
+                                    View Submissions
+                                </button>
+                                <button class="btn btn-sm btn-link text-danger" onclick="deleteAssignment(${a.id})">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // 3. Render Students (Enrollments)
+            // Backend: $course->enrollments
+            const enrollments = course.enrollments || [];
+            const studentList = document.getElementById('enrolledStudentsList');
+            if(enrollments.length > 0) {
+                studentList.innerHTML = '<ul class="list-group list-group-flush">' + 
+                    enrollments.map(e => `
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span>
+                                <i class="bi bi-person-circle text-secondary me-2"></i>
+                                ${e.student?.user?.full_name || e.student?.user?.name || 'Student'}
+                            </span>
+                            <span class="badge bg-success rounded-pill">Active</span>
+                        </li>
+                    `).join('') + 
+                '</ul>';
+            } else {
+                studentList.innerHTML = '<p class="text-muted small">No students enrolled yet.</p>';
+            }
+
+            // Switch View
+            hideAllSections();
+            document.getElementById('courseDetail').classList.add('active');
+        }
+
+        // --- CREATE ASSIGNMENT ---
+
+        function openCreateAssignmentModal() {
+            if(!currentActiveCourseId) {
+                alert("Error: No active course selected.");
+                return;
+            }
+            document.getElementById('assignCourseId').value = currentActiveCourseId;
+            // Reset form
+            document.getElementById('assignTitle').value = '';
+            document.getElementById('assignDesc').value = '';
+            document.getElementById('assignDueDate').value = '';
+            
+            const modal = new bootstrap.Modal(document.getElementById('createAssignmentModal'));
+            modal.show();
+        }
+
+        async function submitCreateAssignment() {
+            const data = {
+                course_id: document.getElementById('assignCourseId').value,
+                title: document.getElementById('assignTitle').value,
+                description: document.getElementById('assignDesc').value,
+                due_date: document.getElementById('assignDueDate').value,
+                max_score: 100 // Default value
+            };
+
+            const result = await apiFetch('/assignments', {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+
+            if(result) {
+                alert("Assignment Created Successfully!");
+                // Close modal
+                const modalEl = document.getElementById('createAssignmentModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                modal.hide();
+                
+                // Refresh detail view
+                loadCourseDetail(currentActiveCourseId);
+            }
+        }
+
+        async function deleteAssignment(id) {
+            if(!confirm("Are you sure you want to delete this assignment?")) return;
+            const res = await apiFetch(`/assignments/${id}`, { method: 'DELETE' });
+            // Handle 204 or success
+            loadCourseDetail(currentActiveCourseId);
+        }
+
+        // --- SUBMISSIONS & GRADING ---
+
+        async function viewSubmissions(assignmentId, assignmentTitle) {
+            document.getElementById('submissionPageTitle').innerText = `Submissions: ${assignmentTitle}`;
+            
+            // Fetch detail assignment lagi untuk dapat submissions terbaru
+            // Backend: $assignment->load('submissions.student')
+            const assignment = await apiFetch(`/assignments/${assignmentId}`);
+            if(!assignment) return;
+
+            const submissions = assignment.submissions || [];
+            const tbody = document.getElementById('submissionsTableBody');
+
+            if(submissions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center">No submissions found.</td></tr>';
+            } else {
+                tbody.innerHTML = submissions.map(s => {
+                    // DEFENSIVE CODING untuk akses nama student
+                    // Path: submission -> enrollment -> student -> user -> full_name
+                    // Atau path: submission -> student -> user -> full_name (tergantung struktur model kamu)
+                    // Kode di bawah mencoba mencari jalur yang valid.
+                    let studentName = "Unknown Student";
+                    if (s.enrollment && s.enrollment.student && s.enrollment.student.user) {
+                        studentName = s.enrollment.student.user.full_name || s.enrollment.student.user.name;
+                    } else if (s.student && s.student.user) {
+                        studentName = s.student.user.full_name;
+                    }
+
+                    return `
+                        <tr>
+                            <td>${studentName}</td>
+                            <td>${new Date(s.created_at).toLocaleDateString()}</td>
+                            <td>
+                                ${s.file_path ? `<a href="${s.file_path}" target="_blank" class="btn btn-sm btn-info">Download</a>` : 'No File'}
+                            </td>
+                            <td>
+                                ${s.grade ? `<span class="badge bg-success">${s.grade.score}</span>` : '<span class="badge bg-warning">Not Graded</span>'}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="gradeSubmission(${s.id})">Grade</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            hideAllSections();
+            document.getElementById('submissions').classList.add('active');
+        }
+
+        function backToCourseDetail() {
+            if(currentActiveCourseId) {
+                loadCourseDetail(currentActiveCourseId);
+            } else {
+                showSection('courses');
+            }
+        }
+
+        function gradeSubmission(submissionId) {
+            alert("Fitur Grading belum diimplementasikan di demo frontend ini.\nBackend endpoint: POST /api/v1/grades");
+            // Logic: Buka modal, input nilai, POST ke /grades dengan enrollment_id terkait.
+        }
+
+        // --- CREATE COURSE ---
+        async function submitCreateCourse() {
+            // Note: Instructor ID harusnya otomatis dari user login atau diinput admin.
+            // Di sini kita asumsikan user login adalah instruktur dan backend menghandle,
+            // atau kita hardcode instructor_id untuk demo.
+            const instructorId = currentUser?.instructor?.id || 1; // Fallback ID 1
+
+            const data = {
+                course_name: document.querySelector('[name="course_name"]').value,
+                course_code: document.querySelector('[name="course_code"]').value,
+                description: document.querySelector('[name="description"]').value,
+                instructor_id: instructorId 
+            };
+
+            const res = await apiFetch('/courses', {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+
+            if(res) {
+                alert("Course Created!");
+                const modal = bootstrap.Modal.getInstance(document.getElementById('createCourseModal'));
+                modal.hide();
+                document.getElementById('createCourseForm').reset();
+                loadCourses();
+            }
+        }
+
+        async function deleteCourse(id) {
+            if(!confirm("Delete this course?")) return;
+            await apiFetch(`/courses/${id}`, { method: 'DELETE' });
+            loadCourses();
+        }
+
+        // --- UI HELPERS ---
+        function showSection(sectionId, navElement) {
+            hideAllSections();
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update Nav Active State
+            if(navElement) {
+                document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+                navElement.classList.add('active');
+            }
+
+            // Update Header
+            document.getElementById('pageTitle').innerText = sectionId.charAt(0).toUpperCase() + sectionId.slice(1);
+
+            // Special Loads
+            if(sectionId === 'dashboard') initDashboard();
+            if(sectionId === 'courses') loadCourses();
+        }
+
+        function hideAllSections() {
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+        }
+
+        function logout() {
+            if(confirm("Logout?")) {
+                localStorage.removeItem('auth_token');
+                window.location.reload();
+            }
+        }
+
+        // --- INIT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initDashboard();
+        });
+
+    </script>
+</body>
+</html>

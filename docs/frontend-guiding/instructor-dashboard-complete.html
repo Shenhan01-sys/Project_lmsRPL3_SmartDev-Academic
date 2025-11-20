@@ -1,3 +1,9 @@
+<!--
+==================================================================
+VERIFIKASI PERUBAHAN: File ini terakhir diubah oleh Gemini.
+Jika Anda tidak melihat perubahan di bawah, mohon tutup dan buka kembali file ini dari disk.
+==================================================================
+-->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -574,19 +580,17 @@ Route::prefix('instructor')->name('instructor.')->group(function () {
                     <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
                     <pre>
 /**
- * Instructor Dashboard API Helper
- * Handles all API calls with Ngrok authentication
+ * Instructor Dashboard API Helper - REFACTORED
+ * Matches Laravel Project Structure
  */
 
-const NGROK_BASE = 'https://loraine-seminiferous-snappily.ngrok-free.dev';
+const NGROK_BASE = 'https://loraine-seminiferous-snappily.ngrok-free.dev'; // Sesuaikan URL Ngrok kamu
 const API_BASE = NGROK_BASE + '/api/v1';
 
-// Get token from localStorage
 function getToken() {
     return localStorage.getItem('auth_token');
 }
 
-// Default headers with auth and ngrok bypass
 function getHeaders() {
     return {
         'Content-Type': 'application/json',
@@ -596,29 +600,35 @@ function getHeaders() {
     };
 }
 
-// Handle response and errors
 async function handleResponse(response) {
     if (!response.ok) {
         if (response.status === 401) {
-            localStorage.removeItem('auth_token');
-            window.location.href = '/login';
-            throw new Error('Unauthorized');
+            console.warn('Unauthorized, redirecting to login...');
+            // window.location.href = '/login.html'; // Uncomment jika sudah ada page login
         }
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || `HTTP ${response.status}`);
     }
+    // Handle 204 No Content (biasanya delete)
+    if (response.status === 204) return null;
     return await response.json();
 }
 
-// API Functions
 const InstructorAPI = {
-    // Auth
+    // --- AUTH & USER ---
     getCurrentUser: () => fetch(NGROK_BASE + '/api/user', {
         headers: getHeaders()
     }).then(handleResponse),
 
-    // Courses
-    getCourses: (instructorId) => fetch(`${API_BASE}/instructors/${instructorId}/courses`, {
+    // --- COURSES ---
+    // Get All Courses (with Instructor info)
+    getCourses: () => fetch(`${API_BASE}/courses`, {
+        headers: getHeaders()
+    }).then(handleResponse),
+
+    // Get Single Course Detail (Termasuk Enrollments, Modules, Assignments)
+    // Endpoint ini PENTING untuk fitur "Assignments per Course"
+    getCourseDetail: (id) => fetch(`${API_BASE}/courses/${id}`, {
         headers: getHeaders()
     }).then(handleResponse),
 
@@ -639,43 +649,74 @@ const InstructorAPI = {
         headers: getHeaders()
     }).then(handleResponse),
 
-    // Assignments
+    // --- ASSIGNMENTS ---
+    // Get ALL Assignments (Global List)
+    getAllAssignments: () => fetch(`${API_BASE}/assignments`, {
+        headers: getHeaders()
+    }).then(handleResponse),
+
+    // Create Assignment
+    // Payload harus ada: course_id, title, description, dll.
     createAssignment: (data) => fetch(`${API_BASE}/assignments`, {
         method: 'POST',
         headers: getHeaders(),
         body: JSON.stringify(data)
     }).then(handleResponse),
 
-    getAssignmentSubmissions: (id) => fetch(`${API_BASE}/assignments/${id}/submissions`, {
+    // Get Detail Assignment (Termasuk Submissions)
+    // Backend: $assignment->load('submissions.student')
+    getAssignmentDetail: (id) => fetch(`${API_BASE}/assignments/${id}`, {
         headers: getHeaders()
     }).then(handleResponse),
 
-    // Grading
-    gradeSubmission: (id, score, feedback) => fetch(`${API_BASE}/submissions/${id}/grade`, {
-        method: 'POST',
+    updateAssignment: (id, data) => fetch(`${API_BASE}/assignments/${id}`, {
+        method: 'PUT',
         headers: getHeaders(),
-        body: JSON.stringify({ score, feedback })
+        body: JSON.stringify(data)
     }).then(handleResponse),
 
-    // Attendance
-    createAttendanceSession: (data) => fetch(`${API_BASE}/attendance/sessions`, {
+    deleteAssignment: (id) => fetch(`${API_BASE}/assignments/${id}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+    }).then(handleResponse),
+
+    // --- GRADING (SUBMISSIONS) ---
+    // Grade Submission
+    // Endpoint ini asumsinya kamu pakai GradingController atau update Submission langsung?
+    // Berdasarkan routes/api.php kamu: Route::apiResource('grades', GradeController::class)
+    // Tapi grading biasanya menempel ke submission atau enrollment.
+    // Mari gunakan endpoint '/api/v1/grades/bulk' atau create grade manual.
+    // Untuk kesederhanaan, kita asumsikan update submission score dulu jika ada fiturnya,
+    // Jika tidak, kita pakai GradeController.
+
+    // Cek SubmissionController kamu: tidak ada method khusus 'grade'.
+    // Jadi kita harus buat Grade entry baru via GradeController.
+    createGrade: (data) => fetch(`${API_BASE}/grades`, {
         method: 'POST',
         headers: getHeaders(),
         body: JSON.stringify(data)
     }).then(handleResponse),
 
-    openAttendanceSession: (id) => fetch(`${API_BASE}/attendance/sessions/${id}/open`, {
-        method: 'POST',
+    // --- ATTENDANCE ---
+    // Get Sessions by Course
+    getSessionsByCourse: (courseId) => fetch(`${API_BASE}/attendance-sessions/course/${courseId}/all`, {
         headers: getHeaders()
     }).then(handleResponse),
 
-    markAttendance: (sessionId, studentId, status) => fetch(`${API_BASE}/attendance/records`, {
+    createSession: (data) => fetch(`${API_BASE}/attendance-sessions`, {
         method: 'POST',
         headers: getHeaders(),
-        body: JSON.stringify({ session_id: sessionId, student_id: studentId, status })
+        body: JSON.stringify(data)
     }).then(handleResponse),
 
-    // Announcements
+    // Mark Attendance (Single Student)
+    markAttendance: (sessionId, enrollmentId, status) => fetch(`${API_BASE}/attendance-records/mark/${sessionId}/${enrollmentId}`, {
+        method: 'POST', // Cek route: Route::post("attendance-records/mark/{sessionId}/{enrollmentId}"...)
+        headers: getHeaders(),
+        body: JSON.stringify({ status: status }) // Body mungkin perlu status jika controller butuh
+    }).then(handleResponse),
+
+    // --- ANNOUNCEMENTS ---
     createAnnouncement: (data) => fetch(`${API_BASE}/announcements`, {
         method: 'POST',
         headers: getHeaders(),
@@ -686,13 +727,6 @@ const InstructorAPI = {
         method: 'POST',
         headers: getHeaders()
     }).then(handleResponse),
-
-    // Certificates
-    generateCertificate: (studentId, courseId) => fetch(`${API_BASE}/certificates/generate`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify({ student_id: studentId, course_id: courseId })
-    }).then(handleResponse)
 };
 
 window.InstructorAPI = InstructorAPI;</pre>
@@ -793,115 +827,195 @@ window.InstructorAPI = InstructorAPI;</pre>
                 </div>
             </section>
 
-            <!-- DASHBOARD SECTION -->
-            <section id="dashboard" class="section">
-                <h2>📊 Dashboard Page</h2>
+                                    <!-- DASHBOARD SECTION -->
+                                    <section id="dashboard" class="section">
+                                        <h2>📊 Dashboard Page</h2>
+                                        <p>Halaman dashboard utama dengan statistics cards, courses overview, dan pending submissions.</p>
 
-                <p>Halaman dashboard utama dengan statistics cards, courses overview, dan pending submissions.</p>
+                                        <h3>Struktur Blade View</h3>
+                                        <p>Berikut adalah struktur dasar dari file <code>dashboard.blade.php</code>. Perhatikan div <code>#coursesList</code> yang akan menjadi target untuk render data dari JavaScript.</p>
+                                        <div class="code-block">
+                                            <div class="code-label">resources/views/instructor/dashboard.blade.php</div>
+                                            <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                            <pre>
+                        @extends('layouts.instructor')
+                        @section('title', 'Dashboard')
 
-                <div class="code-block">
-                    <div class="code-label">resources/views/instructor/dashboard.blade.php (Core)</div>
-                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
-                    <pre>
-@extends('layouts.instructor')
-@section('title', 'Dashboard')
+                        @section('content')
+                        &lt;h2&gt;Dashboard&lt;/h2&gt;
 
-@section('content')
-&lt;h2&gt;Dashboard&lt;/h2&gt;
+                        &lt;!-- Statistics Cards --&gt;
+                        &lt;div class="row g-3 mb-4"&gt;
+                            &lt;div class="col-md-3"&gt;
+                                &lt;div class="card"&gt;
+                                    &lt;div class="card-body text-center"&gt;
+                                        &lt;h6 class="text-muted"&gt;Total Courses&lt;/h6&gt;
+                                        &lt;h2 id="totalCourses" class="text-primary"&gt;-&lt;/h2&gt;
+                                    &lt;/div&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                            &lt;!-- Other statistic cards here... --&gt;
+                        &lt;/div&gt;
 
-&lt;!-- Statistics Cards --&gt;
-&lt;div class="row g-3 mb-4"&gt;
-    &lt;div class="col-md-3"&gt;
-        &lt;div class="card"&gt;
-            &lt;div class="card-body text-center"&gt;
-                &lt;h6 class="text-muted"&gt;Total Courses&lt;/h6&gt;
-                &lt;h2 id="totalCourses" class="text-primary"&gt;-&lt;/h2&gt;
-            &lt;/div&gt;
-        &lt;/div&gt;
-    &lt;/div&gt;
-    &lt;div class="col-md-3"&gt;
-        &lt;div class="card"&gt;
-            &lt;div class="card-body text-center"&gt;
-                &lt;h6 class="text-muted"&gt;Total Students&lt;/h6&gt;
-                &lt;h2 id="totalStudents" class="text-success"&gt;-&lt;/h2&gt;
-            &lt;/div&gt;
-        &lt;/div&gt;
-    &lt;/div&gt;
-    &lt;div class="col-md-3"&gt;
-        &lt;div class="card"&gt;
-            &lt;div class="card-body text-center"&gt;
-                &lt;h6 class="text-muted"&gt;Pending Submissions&lt;/h6&gt;
-                &lt;h2 id="pendingSubmissions" class="text-warning"&gt;-&lt;/h2&gt;
-            &lt;/div&gt;
-        &lt;/div&gt;
-    &lt;/div&gt;
-    &lt;div class="col-md-3"&gt;
-        &lt;div class="card"&gt;
-            &lt;div class="card-body text-center"&gt;
-                &lt;h6 class="text-muted"&gt;Assignments&lt;/h6&gt;
-                &lt;h2 id="totalAssignments" class="text-info"&gt;-&lt;/h2&gt;
-            &lt;/div&gt;
-        &lt;/div&gt;
-    &lt;/div&gt;
-&lt;/div&gt;
+                        &lt;!-- Courses List --&gt;
+                        &lt;div class="card"&gt;
+                            &lt;div class="card-header bg-white"&gt;
+                                &lt;h5 class="mb-0"&gt;My Courses&lt;/h5&gt;
+                            &lt;/div&gt;
+                            &lt;div class="card-body"&gt;
+                                &lt;div id="coursesList" class="row g-3"&gt;
+                                    &lt;!-- Course cards will be rendered here by JavaScript --&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                        @endsection
 
-&lt;!-- Courses List --&gt;
-&lt;div class="card"&gt;
-    &lt;div class="card-header bg-white"&gt;
-        &lt;h5 class="mb-0"&gt;My Courses&lt;/h5&gt;
-    &lt;/div&gt;
-    &lt;div class="card-body"&gt;
-        &lt;div id="coursesList" class="row g-3"&gt;&lt;/div&gt;
-    &lt;/div&gt;
-&lt;/div&gt;
-@endsection
+                        @section('extra-js')
+                        &lt;script src="{{ asset('js/instructor/api.js') }}"&gt;&lt;/script&gt;
+                        &lt;script&gt;
+                            // JavaScript logic goes here
+                        &lt;/script&gt;
+                        @endsection</pre>
+                                        </div>
 
-@section('extra-js')
-&lt;script src="{{ asset('js/instructor/api.js') }}"&gt;&lt;/script&gt;
-&lt;script&gt;
-async function loadDashboard() {
-    const user = await InstructorAPI.getCurrentUser();
-    const courses = await InstructorAPI.getCourses(user.instructor.id);
+                                        <h3>Contoh Kode HTML Hasil Render</h3>
+                                        <p>JavaScript akan menghasilkan struktur HTML seperti di bawah ini untuk setiap kartu mata kuliah.</p>
 
-    document.getElementById('totalCourses').textContent = courses.length;
+                                        <div class="code-block">
+                                            <div class="code-label">Contoh HTML untuk satu kartu</div>
+                                            <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                            <pre>
+                        &lt;div class="col-md-4"&gt;
+                            &lt;div class="card h-100"&gt;
+                                &lt;div class="card-body d-flex flex-column"&gt;
+                                    &lt;h5 class="card-title"&gt;Nama Mata Kuliah&lt;/h5&gt;
+                                    &lt;h6 class="card-subtitle mb-2 text-muted"&gt;KODE101&lt;/h6&gt;
+                                    &lt;p class="card-text small"&gt;Deskripsi singkat mata kuliah akan muncul di sini, dibatasi hingga 80 karakter...&lt;/p&gt;
+                                    &lt;button class="btn btn-primary btn-sm mt-auto"&gt;
+                                        Manage Course
+                                    &lt;/button&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;</pre>
+                                        </div>
 
-    document.getElementById('coursesList').innerHTML = courses.map(c =&gt; `
-        &lt;div class="col-md-4"&gt;
-            &lt;div class="card"&gt;
-                &lt;div class="card-body"&gt;
-                    &lt;h5&gt;${c.title}&lt;/h5&gt;
-                    &lt;p class="text-muted small"&gt;${c.description?.substring(0, 80)}...&lt;/p&gt;
-                    &lt;a href="/instructor/courses/${c.id}" class="btn btn-primary btn-sm"&gt;
-                        Manage
-                    &lt;/a&gt;
-                &lt;/div&gt;
-            &lt;/div&gt;
-        &lt;/div&gt;
-    `).join('');
-}
+                                        <h3>Logika JavaScript</h3>
+                                        <p>Kode berikut, ditempatkan di dalam section <code>@section('extra-js')</code>, bertanggung jawab untuk mengambil data dari API dan me-render kartu-kartu di atas.</p>
 
-document.addEventListener('DOMContentLoaded', loadDashboard);
-&lt;/script&gt;
-@endsection</pre>
-                </div>
-            </section>
+                                        <div class="code-block">
+                                            <div class="code-label">JavaScript Logic</div>
+                                            <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                            <pre>
+                        async function loadDashboard() {
+                            try {
+                                const user = await InstructorAPI.getCurrentUser();
+                                // Pastikan user adalah instructor
+                                if (user.role !== 'instructor' && user.role !== 'admin') {
+                                    alert('Access Denied. Not an instructor.');
+                                    return;
+                                }
 
-            <!-- COURSES SECTION -->
+                                // Ambil semua course milik instruktur (endpoint ini me-return array courses)
+                                // NOTE: Karena di backend index() me-return semua course,
+                                // kamu mungkin perlu filter manual di JS jika endpoint tidak otomatis filter by instructor login
+                                // TAPI: Jika user login, biasanya backend filter.
+                                // Cek CourseController: $courses = Course::with("instructor")->get(); (INI RETURN SEMUA)
+                                // Jadi kita filter manual di frontend supaya aman:
+
+                                const allCourses = await InstructorAPI.getCourses();
+                                const myCourses = allCourses.filter(c => c.instructor?.user?.id === user.id || user.role === 'admin');
+
+                                document.getElementById('totalCourses').textContent = myCourses.length;
+
+                                // Render List
+                                document.getElementById('coursesList').innerHTML = myCourses.map(c => `
+                                    &lt;div class="col-md-4"&gt;
+                                        &lt;div class="card h-100"&gt;
+                                            &lt;div class="card-body"&gt;
+                                                &lt;h5 class="card-title"&gt;${c.course_name}&lt;/h5&gt;
+                                                &lt;h6 class="card-subtitle mb-2 text-muted"&gt;${c.course_code}&lt;/h6&gt;
+                                                &lt;p class="card-text small"&gt;${c.description ? c.description.substring(0, 80) + '...' : 'No description'}&lt;/p&gt;
+                                                &lt;button onclick="loadCourseDetail(${c.id})" class="btn btn-primary btn-sm"&gt;
+                                                    Manage Course
+                                                &lt;/button&gt;
+                                            &lt;/div&gt;
+                                        &lt;/div&gt;
+                                    &lt;/div&gt;
+                                `).join('');
+
+                            } catch (error) {
+                                console.error(error);
+                                // alert('Failed to load dashboard: ' + error.message);
+                            }
+                        }
+
+                        document.addEventListener('DOMContentLoaded', loadDashboard);</pre>
+                                        </div>
+                                    </section>            <!-- COURSES SECTION -->
             <section id="courses" class="section">
                 <h2>📚 My Courses Page</h2>
 
-                <p>Halaman untuk manage courses dengan CRUD operations.</p>
+                <p>Halaman untuk manage courses dengan CRUD operations. Halaman ini juga digunakan untuk menampilkan detail sebuah course saat dipilih dari dashboard.</p>
 
-                <div class="alert alert-info">
-                    <strong>💡 Key Features:</strong>
-                    <ul>
-                        <li>Create new course dengan modal form</li>
-                        <li>Search dan filter courses</li>
-                        <li>Edit dan delete operations</li>
-                        <li>View course details</li>
-                    </ul>
+                <h3>Logika Pemuatan Detail Course</h3>
+                <p>Fungsi berikut dipanggil saat tombol "Manage Course" di dashboard diklik. Fungsi ini mengambil data detail, lalu memanggil fungsi lain untuk me-render daftar assignment.</p>
+                <div class="code-block">
+                    <div class="code-label">JavaScript Logic for Course Detail</div>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                    <pre>
+// Global variable untuk menyimpan state course yang sedang dibuka
+let currentCourseId = null;
+
+async function loadCourseDetail(courseId) {
+    currentCourseId = courseId;
+    showSection('courses'); // Pindah ke tab courses
+
+    try {
+        const course = await InstructorAPI.getCourseDetail(courseId);
+
+        // TODO: Render info dasar course di sini (misal, di #courseInfoContainer)
+        console.log("Loaded Course:", course);
+
+        // Render daftar assignment milik course ini ke dalam section "Assignments"
+        renderAssignmentsList(course.assignments, course.id);
+
+        alert(`Loaded course: ${course.course_name}. Check console for data.`);
+
+    } catch (error) {
+        alert('Error loading course detail: ' + error.message);
+    }
+}
+
+function renderAssignmentsList(assignments, courseId) {
+    const container = document.getElementById('assignmentsList');
+    if(!container) {
+        console.error('Element with id "assignmentsList" not found!');
+        return;
+    }
+
+    container.innerHTML = assignments.length ? assignments.map(a => `
+        &lt;div class="card mb-3"&gt;
+            &lt;div class="card-body d-flex justify-content-between align-items-center"&gt;
+                &lt;div&gt;
+                    &lt;h5&gt;${a.title}&lt;/h5&gt;
+                    &lt;small class="text-muted"&gt;Due: ${a.due_date || 'No due date'}&lt;/small&gt;
+                    &lt;span class="badge bg-${a.status === 'published' ? 'success' : 'secondary'} ms-2"&gt;
+                        ${a.status}
+                    &lt;/span&gt;
+                &lt;/div&gt;
+                &lt;div&gt;
+                    &lt;button onclick="loadAssignmentSubmissions(${a.id})" class="btn btn-outline-primary btn-sm"&gt;
+                        View Submissions
+                    &lt;/button&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    `).join('') : '&lt;p class="text-muted"&gt;No assignments found for this course.&lt;/p&gt;';
+}
+                    </pre>
                 </div>
 
+                <h3>Contoh Fungsi Create Course</h3>
                 <div class="code-block">
                     <div class="code-label">Create Course Function</div>
                     <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
@@ -921,7 +1035,7 @@ async function createCourse() {
         await InstructorAPI.createCourse(data);
         bootstrap.Modal.getInstance(document.getElementById('createModal')).hide();
         form.reset();
-        await loadCourses();
+        await loadCourses(); // Asumsi ada fungsi ini
         alert('Course created successfully!');
     } catch (error) {
         alert('Error: ' + error.message);
@@ -936,13 +1050,21 @@ async function createCourse() {
 
                 <p>Create dan manage assignments untuk courses.</p>
 
+                <h3>Daftar Assignment</h3>
+                <div id="assignmentsList" class="card">
+                    <div class="card-body">
+                        <p class="text-muted">Pilih sebuah course dari dashboard untuk melihat assignments di sini.</p>
+                    </div>
+                </div>
+
+                <h3>Create Assignment</h3>
                 <div class="code-block">
                     <div class="code-label">Create Assignment Example</div>
                     <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
                     <pre>
 async function createAssignment() {
     const data = {
-        course_id: courseId,
+        course_id: currentCourseId, // Menggunakan course yang sedang aktif
         title: document.getElementById('title').value,
         description: document.getElementById('description').value,
         due_date: document.getElementById('dueDate').value,
@@ -952,7 +1074,7 @@ async function createAssignment() {
     try {
         await InstructorAPI.createAssignment(data);
         alert('Assignment created!');
-        loadAssignments();
+        loadCourseDetail(currentCourseId); // Reload data
     } catch (error) {
         alert('Error: ' + error.message);
     }
@@ -989,69 +1111,85 @@ async function createAssignment() {
             <!-- SUBMISSIONS SECTION -->
             <section id="submissions" class="section">
                 <h2>✅ Submissions Review</h2>
+                <p>Review dan grade student submissions untuk sebuah assignment.</p>
 
-                <p>Review dan grade student submissions.</p>
+                <h3>Daftar Submission</h3>
+                <div id="submissionsList" class="card">
+                    <div class="card-body">
+                        <p class="text-muted">Pilih sebuah assignment untuk melihat daftar submission di sini.</p>
+                    </div>
+                </div>
 
+                <h3>Logika Pemuatan Submission</h3>
+                <p>Fungsi ini dipanggil saat tombol "View Submissions" pada sebuah assignment diklik.</p>
+                <div class="code-block">
+                    <div class="code-label">JavaScript Logic for Submissions</div>
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                    <pre>
+async function loadAssignmentSubmissions(assignmentId) {
+    showSection('submissions');
+
+    try {
+        // Fetch detail assignment (sudah include submissions)
+        const assignment = await InstructorAPI.getAssignmentDetail(assignmentId);
+        const submissions = assignment.submissions || [];
+
+        document.getElementById('submissionsList').innerHTML = submissions.length ? submissions.map(s => `
+            &lt;div class="card mb-3"&gt;
+                &lt;div class="card-body"&gt;
+                    &lt;div class="d-flex justify-content-between"&gt;
+                        &lt;div&gt;
+                            &lt;h5&gt;Student ID: ${s.student_id}&lt;/h5&gt;
+                            &lt;p&gt;Submitted: ${new Date(s.created_at).toLocaleDateString()}&lt;/p&gt;
+                            &lt;a href="${s.file_path || '#'}" target="_blank" class="btn btn-sm btn-link"&gt;View File&lt;/a&gt;
+                        &lt;/div&gt;
+                        &lt;div&gt;
+                            ${s.grade ?
+                                `&lt;strong&gt;Score: ${s.grade.score}&lt;/strong&gt;` :
+                                `&lt;button onclick="openGradingModal(${s.id})" class="btn btn-primary btn-sm"&gt;Grade&lt;/button&gt;`
+                            }
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        `).join('') : '&lt;p&gt;No submissions yet.&lt;/p&gt;';
+
+    } catch (error) {
+        alert('Error loading submissions: ' + error.message);
+    }
+}
+                    </pre>
+                </div>
+
+                <h3>Contoh Fungsi Grading</h3>
+                <p>Fungsi ini bisa dipanggil dari modal grading untuk mengirim nilai.</p>
                 <div class="code-block">
                     <div class="code-label">Grade Submission Function</div>
                     <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
                     <pre>
-async function gradeSubmission(submissionId) {
-    const score = document.getElementById('score').value;
-    const feedback = document.getElementById('feedback').value;
-
-    if (!score || score < 0 || score > 100) {
-        alert('Please enter valid score (0-100)');
-        return;
-    }
+async function gradeSubmission(submissionId, score, feedback) {
+    // Logika untuk mengambil score dan feedback dari modal
+    // ...
 
     try {
-        await InstructorAPI.gradeSubmission(
-            submissionId,
-            parseFloat(score),
-            feedback
-        );
+        // Asumsi endpoint createGrade membutuhkan: enrollment_id, grade_component_id, score
+        // Kita perlu mapping submission_id ke enrollment_id dan grade_component_id
+        // Ini adalah contoh yang disederhanakan
+        const data = {
+            submission_id: submissionId, // atau enrollment_id
+            score: score,
+            feedback: feedback
+        };
+
+        // Panggil API untuk create grade
+        await InstructorAPI.createGrade(data);
+
         alert('Submission graded successfully!');
-        loadSubmissions();
+        // Reload data submissions
+        // loadAssignmentSubmissions(currentAssignmentId);
     } catch (error) {
         alert('Error: ' + error.message);
     }
-}</pre>
-                </div>
-
-                <h3>Render Submissions</h3>
-                <div class="code-block">
-                    <div class="code-label">Display Submissions</div>
-                    <pre>
-function renderSubmissions(submissions) {
-    const html = submissions.map(s =&gt; `
-        &lt;div class="card mb-3"&gt;
-            &lt;div class="card-body"&gt;
-                &lt;div class="d-flex justify-content-between"&gt;
-                    &lt;div&gt;
-                        &lt;h5&gt;${s.student.full_name}&lt;/h5&gt;
-                        &lt;p&gt;Submitted: ${new Date(s.submission_date).toLocaleDateString()}&lt;/p&gt;
-                        &lt;span class="badge bg-${getStatusColor(s.status)}"&gt;
-                            ${s.status}
-                        &lt;/span&gt;
-                    &lt;/div&gt;
-                    ${s.status === 'pending' ? `
-                        &lt;button class="btn btn-primary"
-                                onclick="showGradeModal(${s.id})"&gt;
-                            Grade
-                        &lt;/button&gt;
-                    ` : `
-                        &lt;div&gt;
-                            &lt;strong&gt;Score: ${s.score}&lt;/strong&gt;
-                            &lt;p&gt;${s.feedback}&lt;/p&gt;
-                        &lt;/div&gt;
-                    `}
-                &lt;/div&gt;
-            &lt;/div&gt;
-        &lt;/div&gt;
-    `).join('');
-
-    document.getElementById('submissionsList').innerHTML = html;
 }</pre>
                 </div>
             </section>

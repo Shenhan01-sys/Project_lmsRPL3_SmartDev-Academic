@@ -20,14 +20,14 @@
         }
     ],
     "paths": {
-        "/api/announcements": {
+        "/api/v1/announcements": {
             "get": {
                 "tags": [
                     "Announcements"
                 ],
                 "summary": "Get all announcements",
                 "description": "Retrieve announcements with filtering options (students see only published announcements for enrolled courses)",
-                "operationId": "db5cc7760908e6bf2004c96a3b464cdf",
+                "operationId": "39357d6d098d652a7407c15f64937381",
                 "parameters": [
                     {
                         "name": "course_id",
@@ -59,19 +59,6 @@
                                 "draft",
                                 "published",
                                 "archived"
-                            ]
-                        }
-                    },
-                    {
-                        "name": "priority",
-                        "in": "query",
-                        "description": "Filter by priority",
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "normal",
-                                "high",
-                                "urgent"
                             ]
                         }
                     }
@@ -109,7 +96,7 @@
                 ],
                 "summary": "Create new announcement",
                 "description": "Create a new announcement (global or course-specific)",
-                "operationId": "20135e9f182659a591d51380e1cb4045",
+                "operationId": "1d360e8615523cfd09e3f0a845c6b216",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -118,8 +105,7 @@
                                 "required": [
                                     "title",
                                     "content",
-                                    "announcement_type",
-                                    "priority"
+                                    "announcement_type"
                                 ],
                                 "properties": {
                                     "title": {
@@ -137,15 +123,6 @@
                                             "course"
                                         ],
                                         "example": "course"
-                                    },
-                                    "priority": {
-                                        "type": "string",
-                                        "enum": [
-                                            "normal",
-                                            "high",
-                                            "urgent"
-                                        ],
-                                        "example": "high"
                                     },
                                     "course_id": {
                                         "type": "integer",
@@ -202,14 +179,14 @@
                 ]
             }
         },
-        "/api/announcements/{id}": {
+        "/api/v1/announcements/{id}": {
             "get": {
                 "tags": [
                     "Announcements"
                 ],
                 "summary": "Get announcement by ID",
                 "description": "Retrieve a specific announcement and increment view count",
-                "operationId": "dc66b964f3b44c8b8f191404ec22c38f",
+                "operationId": "a80f41730ef68bb7b968f2433e783a30",
                 "parameters": [
                     {
                         "name": "id",
@@ -254,7 +231,7 @@
                 ],
                 "summary": "Update announcement",
                 "description": "Update an existing announcement",
-                "operationId": "f52daedfce11e502f399e7b1aec714bf",
+                "operationId": "50a7fde0a4122131346d374a64d52e23",
                 "parameters": [
                     {
                         "name": "id",
@@ -274,8 +251,7 @@
                                 "required": [
                                     "title",
                                     "content",
-                                    "announcement_type",
-                                    "priority"
+                                    "announcement_type"
                                 ],
                                 "properties": {
                                     "title": {
@@ -291,14 +267,6 @@
                                         "enum": [
                                             "global",
                                             "course"
-                                        ]
-                                    },
-                                    "priority": {
-                                        "type": "string",
-                                        "enum": [
-                                            "normal",
-                                            "high",
-                                            "urgent"
                                         ]
                                     },
                                     "course_id": {
@@ -363,7 +331,7 @@
                 ],
                 "summary": "Delete announcement",
                 "description": "Remove an announcement",
-                "operationId": "2fbff4261de9b3825fc455b374364b63",
+                "operationId": "17e77e4012dbd212aa9951daac49a0ef",
                 "parameters": [
                     {
                         "name": "id",
@@ -409,14 +377,14 @@
                 ]
             }
         },
-        "/api/announcements/{id}/publish": {
+        "/api/v1/announcements/{id}/publish": {
             "post": {
                 "tags": [
                     "Announcements"
                 ],
                 "summary": "Publish announcement",
                 "description": "Change announcement status to published",
-                "operationId": "7f164aa9a178bca8e8439e209ef370f3",
+                "operationId": "981da2de184ecf6e9e1e3e11af1cb490",
                 "parameters": [
                     {
                         "name": "id",
@@ -465,14 +433,14 @@
                 ]
             }
         },
-        "/api/announcements/{id}/archive": {
+        "/api/v1/announcements/{id}/archive": {
             "post": {
                 "tags": [
                     "Announcements"
                 ],
                 "summary": "Archive announcement",
                 "description": "Change announcement status to archived",
-                "operationId": "670a5952339e22550649db19db2d551a",
+                "operationId": "b5587996824bf53791b46b27cf1d998b",
                 "parameters": [
                     {
                         "name": "id",
@@ -521,14 +489,14 @@
                 ]
             }
         },
-        "/api/announcements/course/{courseId}": {
+        "/api/v1/announcements/course/{courseId}": {
             "get": {
                 "tags": [
                     "Announcements"
                 ],
                 "summary": "Get course announcements",
                 "description": "Retrieve all announcements for a specific course (including global announcements)",
-                "operationId": "93a8732d92180c3783de0353e233e3dc",
+                "operationId": "ad80e9b2631cc773b3de0494eaa31018",
                 "parameters": [
                     {
                         "name": "courseId",
@@ -571,14 +539,14 @@
                 ]
             }
         },
-        "/api/announcements/global": {
+        "/api/v1/announcements/global/list": {
             "get": {
                 "tags": [
                     "Announcements"
                 ],
                 "summary": "Get global announcements",
                 "description": "Retrieve all published global announcements",
-                "operationId": "cd584e1bc67ff8e2380a6b451300740c",
+                "operationId": "71f205decaee261c0b547a8d7c4abb8b",
                 "responses": {
                     "200": {
                         "description": "Global announcements retrieved successfully",
@@ -604,14 +572,14 @@
                 ]
             }
         },
-        "/api/announcements/active": {
+        "/api/v1/announcements/active/list": {
             "get": {
                 "tags": [
                     "Announcements"
                 ],
                 "summary": "Get active announcements",
                 "description": "Retrieve all active (non-expired) announcements for the user",
-                "operationId": "07a7bcf1d8e32d6332583f6e060e7e9b",
+                "operationId": "ccdc1404ab1cea0dba8917c4ffeb0595",
                 "responses": {
                     "200": {
                         "description": "Active announcements retrieved successfully",
@@ -4809,6 +4777,26 @@
                 "description": "Enter your bearer token in the format: Bearer {token}",
                 "bearerFormat": "Sanctum Token",
                 "scheme": "bearer"
+            },
+            "passport": {
+                "type": "oauth2",
+                "description": "Laravel passport oauth2 security.",
+                "in": "header",
+                "scheme": "https",
+                "flows": {
+                    "password": {
+                        "authorizationUrl": "http://localhost:8000/oauth/authorize",
+                        "tokenUrl": "http://localhost:8000/oauth/token",
+                        "refreshUrl": "http://localhost:8000/token/refresh",
+                        "scopes": []
+                    }
+                }
+            },
+            "sanctum": {
+                "type": "apiKey",
+                "description": "Enter token in format (Bearer <token>)",
+                "name": "Authorization",
+                "in": "header"
             }
         }
     },
