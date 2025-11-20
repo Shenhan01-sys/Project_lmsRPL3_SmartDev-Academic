@@ -17,7 +17,7 @@ class AnnouncementController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/announcements",
+     *     path="/api/v1/announcements",
      *     tags={"Announcements"},
      *     summary="Get all announcements",
      *     description="Retrieve announcements with filtering options (students see only published announcements for enrolled courses)",
@@ -40,12 +40,6 @@ class AnnouncementController extends Controller
      *         description="Filter by status",
      *         @OA\Schema(type="string", enum={"draft", "published", "archived"})
      *     ),
-     *     @OA\Parameter(
-     *         name="priority",
-     *         in="query",
-     *         description="Filter by priority",
-     *         @OA\Schema(type="string", enum={"normal", "high", "urgent"})
-     *     ),
      *     @OA\Response(
      *         response=200,
      *         description="Announcements retrieved successfully",
@@ -61,7 +55,7 @@ class AnnouncementController extends Controller
 
         try {
             $user = Auth::user();
-            $query = Announcement::with(["creator.user", "course"]);
+            $query = Announcement::with(["creator", "course"]);
 
             // Filtering
             if ($request->has("course_id")) {
@@ -74,10 +68,6 @@ class AnnouncementController extends Controller
 
             if ($request->has("status")) {
                 $query->where("status", $request->status);
-            }
-
-            if ($request->has("priority")) {
-                $query->where("priority", $request->priority);
             }
 
             // Authorization: Students only see published & active announcements for their courses
@@ -100,7 +90,6 @@ class AnnouncementController extends Controller
 
             // Sorting
             $announcements = $query
-                ->orderBy("priority", "desc")
                 ->orderBy("published_at", "desc")
                 ->paginate(15);
 
@@ -118,7 +107,7 @@ class AnnouncementController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/announcements",
+     *     path="/api/v1/announcements",
      *     tags={"Announcements"},
      *     summary="Create new announcement",
      *     description="Create a new announcement (global or course-specific)",
@@ -126,11 +115,10 @@ class AnnouncementController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"title", "content", "announcement_type", "priority"},
+     *             required={"title", "content", "announcement_type"},
      *             @OA\Property(property="title", type="string", example="Important Update"),
      *             @OA\Property(property="content", type="string", example="This is an important announcement..."),
      *             @OA\Property(property="announcement_type", type="string", enum={"global", "course"}, example="course"),
-     *             @OA\Property(property="priority", type="string", enum={"normal", "high", "urgent"}, example="high"),
      *             @OA\Property(property="course_id", type="integer", example=1),
      *             @OA\Property(property="status", type="string", enum={"draft", "published", "archived"}, example="draft"),
      *             @OA\Property(property="published_at", type="string", format="date-time"),
@@ -157,7 +145,6 @@ class AnnouncementController extends Controller
             "title" => "required|string|max:255",
             "content" => "required|string",
             "announcement_type" => "required|in:global,course",
-            "priority" => "required|in:normal,high,urgent",
             "course_id" =>
                 "required_if:announcement_type,course|nullable|exists:courses,id",
             "status" => "nullable|in:draft,published,archived",
@@ -189,7 +176,7 @@ class AnnouncementController extends Controller
             }
 
             $announcement = Announcement::create($validated);
-            $announcement->load(["creator.user", "course"]);
+            $announcement->load(["creator", "course"]);
 
             return response()->json($announcement, 201);
         } catch (\Exception $e) {
@@ -205,7 +192,7 @@ class AnnouncementController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/announcements/{id}",
+     *     path="/api/v1/announcements/{id}",
      *     tags={"Announcements"},
      *     summary="Get announcement by ID",
      *     description="Retrieve a specific announcement and increment view count",
@@ -252,7 +239,7 @@ class AnnouncementController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/announcements/{id}",
+     *     path="/api/v1/announcements/{id}",
      *     tags={"Announcements"},
      *     summary="Update announcement",
      *     description="Update an existing announcement",
@@ -267,11 +254,10 @@ class AnnouncementController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"title", "content", "announcement_type", "priority"},
+     *             required={"title", "content", "announcement_type"},
      *             @OA\Property(property="title", type="string", example="Updated Title"),
      *             @OA\Property(property="content", type="string", example="Updated content..."),
      *             @OA\Property(property="announcement_type", type="string", enum={"global", "course"}),
-     *             @OA\Property(property="priority", type="string", enum={"normal", "high", "urgent"}),
      *             @OA\Property(property="course_id", type="integer", example=1),
      *             @OA\Property(property="status", type="string", enum={"draft", "published", "archived"}),
      *             @OA\Property(property="published_at", type="string", format="date-time"),
@@ -297,7 +283,6 @@ class AnnouncementController extends Controller
             "title" => "required|string|max:255",
             "content" => "required|string",
             "announcement_type" => "required|in:global,course",
-            "priority" => "required|in:normal,high,urgent",
             "course_id" =>
                 "required_if:announcement_type,course|nullable|exists:courses,id",
             "status" => "nullable|in:draft,published,archived",
@@ -337,7 +322,7 @@ class AnnouncementController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/announcements/{id}",
+     *     path="/api/v1/announcements/{id}",
      *     tags={"Announcements"},
      *     summary="Delete announcement",
      *     description="Remove an announcement",
@@ -387,7 +372,7 @@ class AnnouncementController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/announcements/{id}/publish",
+     *     path="/api/v1/announcements/{id}/publish",
      *     tags={"Announcements"},
      *     summary="Publish announcement",
      *     description="Change announcement status to published",
@@ -437,7 +422,7 @@ class AnnouncementController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/announcements/{id}/archive",
+     *     path="/api/v1/announcements/{id}/archive",
      *     tags={"Announcements"},
      *     summary="Archive announcement",
      *     description="Change announcement status to archived",
@@ -487,7 +472,7 @@ class AnnouncementController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/announcements/course/{courseId}",
+     *     path="/api/v1/announcements/course/{courseId}",
      *     tags={"Announcements"},
      *     summary="Get course announcements",
      *     description="Retrieve all announcements for a specific course (including global announcements)",
@@ -577,7 +562,7 @@ class AnnouncementController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/announcements/global",
+     *     path="/api/v1/announcements/global/list",
      *     tags={"Announcements"},
      *     summary="Get global announcements",
      *     description="Retrieve all published global announcements",
@@ -615,7 +600,7 @@ class AnnouncementController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/announcements/active",
+     *     path="/api/v1/announcements/active/list",
      *     tags={"Announcements"},
      *     summary="Get active announcements",
      *     description="Retrieve all active (non-expired) announcements for the user",
