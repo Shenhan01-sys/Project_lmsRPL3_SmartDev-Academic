@@ -451,7 +451,7 @@
         </div>
     </div>
 
-    <!-- 3. Create Session Modal -->
+    <!-- 3. Create Session Modal (UPDATED WITH CORRECT FIELDS) -->
     <div class="modal fade" id="createSessionModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -515,7 +515,7 @@
         </div>
     </div>
 
-    <!-- 5. Announcement Modal -->
+    <!-- 5. Announcement Modal (VALIDATED) -->
     <div class="modal fade" id="announcementModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -540,6 +540,7 @@
                                 <label>Target Course</label>
                                 <select id="annCourseId" class="form-select">
                                     <option value="">Global (All)</option>
+                                    <!-- Filled by JS -->
                                 </select>
                             </div>
                             <div class="col-md-6">
@@ -580,7 +581,7 @@
         </div>
     </div>
     
-    <!-- 6. Issue Certificate Modal -->
+    <!-- 6. Issue Certificate Modal (FIXED ENDPOINT) -->
     <div class="modal fade" id="issueCertificateModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -591,27 +592,20 @@
                 <div class="modal-body">
                     <form id="formIssueCertificate">
                         <div class="mb-3">
-                            <label>Student</label>
-                            <select id="certStudentId" class="form-select" required>
+                            <label>Student (Enrollment)</label>
+                            <select id="certEnrollmentId" class="form-select" required>
                                 <option value="">Select Student...</option>
                             </select>
+                            <small class="text-muted">Certificate generated for Enrollment ID</small>
                         </div>
                          <div class="mb-3">
-                            <label>Certificate Code</label>
-                            <div class="input-group">
-                                <input type="text" id="certCode" class="form-control" required readonly>
-                                <button class="btn btn-outline-secondary" type="button" onclick="generateCertCode()">Generate</button>
-                            </div>
-                            <small class="text-muted">Auto-generated unique code.</small>
-                        </div>
-                        <div class="mb-3">
-                            <label>Issued Date</label>
-                            <input type="date" id="certIssuedDate" class="form-control" required>
+                            <label>Certificate Code (Optional)</label>
+                            <input type="text" id="certCode" class="form-control" placeholder="Auto-generated if empty">
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="submitCertificate()">Issue</button>
+                    <button type="button" class="btn btn-primary" onclick="submitCertificate()">Generate</button>
                 </div>
             </div>
         </div>
@@ -623,8 +617,7 @@
     <script>
         /**
          * SMARTDEV LMS INSTRUCTOR LOGIC
-         * FINAL FIXED VERSION
-         * Features: CRUD (Inc. Revoke) for Certs, Robust JSON Parsing, Pagination, Auto-Forms
+         * FINAL FIXED VERSION - With Certificates Feature (Corrected Routes & Attendance Payload)
          */
 
         let BASE_API = document.getElementById('ngrokUrl').value + '/api/v1';
@@ -896,6 +889,7 @@
             }
         }
 
+        // FIX: UPDATED TO MATCH YOUR JSON REQUIREMENTS
         async function submitSession() {
             const start = document.getElementById('sessionStartTime').value;
             const end = document.getElementById('sessionEndTime').value;
@@ -962,8 +956,8 @@
             tbody.innerHTML = recs.map(r => `
                 <tr>
                     <td>
-                        <div class="fw-bold">${r.enrollment?.student?.user?.full_name || 'Student'}</div>
-                        <small class="text-muted">${r.enrollment?.student?.user?.email || ''}</small>
+                        <div class="fw-bold">${r.enrollment?.student?.full_name || 'Student'}</div>
+                        <small class="text-muted">${r.enrollment?.user?.email || ''}</small>
                     </td>
                     <td class="text-center"><span class="badge bg-secondary">${r.status}</span></td>
                     <td class="text-end">
@@ -996,14 +990,17 @@
             new bootstrap.Modal(document.getElementById('createSessionModal')).show();
         }
 
-        // --- CERTIFICATES FEATURE (UPDATED: DELETE) ---
+        // --- CERTIFICATES FEATURE (UPDATED: Generate by Enrollment) ---
 
         async function loadCertificatesTab() {
             const tbody = document.getElementById('certificatesTableBody');
             tbody.innerHTML = '<tr><td colspan="4" class="text-center">Loading...</td></tr>';
 
+            // Usually filtered by course_id in backend or we filter manually
             const res = await fetchApi(`/certificates?course_id=${currentCourseId}`);
             let list = Array.isArray(res) ? res : (res?.data || []);
+            
+            // Strict Filter
             list = list.filter(c => c.course_id == currentCourseId);
 
             if (list.length === 0) {
@@ -1014,7 +1011,7 @@
             tbody.innerHTML = list.map(c => `
                 <tr>
                     <td><span class="badge bg-dark">${c.certificate_code}</span></td>
-                    <td>${c.student?.user?.full_name || 'Student ID: ' + c.student_id}</td>
+                    <td>${c.student?.full_name || 'Student ID: ' + c.student_id}</td>
                     <td>${new Date(c.issued_at).toLocaleDateString()}</td>
                     <td class="text-end pe-4">
                         <button class="btn btn-sm btn-outline-primary me-1" onclick="downloadCertificate('${c.id}')">
@@ -1039,43 +1036,37 @@
         }
 
         function openIssueCertificateModal() {
-            const sel = document.getElementById('certStudentId');
+            const sel = document.getElementById('certEnrollmentId');
             sel.innerHTML = '<option value="">Select Student...</option>';
             if (currentEnrollments.length === 0) { alert("No students enrolled."); return; }
 
+            // We need Enrollment ID, not Student ID for generation endpoint
             currentEnrollments.forEach(e => {
-                if(e.student) sel.innerHTML += `<option value="${e.student.id}">${e.student.full_name} (${e.student.student_number})</option>`;
+                if(e.student) sel.innerHTML += `<option value="${e.id}">${e.student.full_name} (ID: ${e.id})</option>`;
             });
             
             document.getElementById('formIssueCertificate').reset();
-            document.getElementById('certIssuedDate').valueAsDate = new Date();
-            generateCertCode();
             new bootstrap.Modal(document.getElementById('issueCertificateModal')).show();
         }
 
-        function generateCertCode() {
-            const rand = Math.floor(1000 + Math.random() * 9000);
-            const code = `CERT-${currentCourseId}-${new Date().getFullYear()}-${rand}`;
-            document.getElementById('certCode').value = code;
-        }
-
         async function submitCertificate() {
-            const studentId = document.getElementById('certStudentId').value;
-            const code = document.getElementById('certCode').value;
-            const date = document.getElementById('certIssuedDate').value;
+            const enrollmentId = document.getElementById('certEnrollmentId').value;
+            const codeInput = document.getElementById('certCode').value; // Optional custom code
 
-            if (!studentId || !code || !date) { alert("All fields required"); return; }
+            if (!enrollmentId) { alert("Select a student enrollment"); return; }
 
-            const data = {
-                course_id: parseInt(currentCourseId),
-                student_id: parseInt(studentId),
-                certificate_code: code,
-                issued_at: date
-            };
+            // Endpoint: POST api/v1/certificates/generate/{enrollmentId}
+            // It might accept custom data in body (e.g. certificate_code override)
+            const data = {};
+            if(codeInput) data.certificate_code = codeInput;
 
-            const res = await fetchApi('/certificates', { method: 'POST', body: JSON.stringify(data) });
+            const res = await fetchApi(`/certificates/generate/${enrollmentId}`, { 
+                method: 'POST', 
+                body: JSON.stringify(data) 
+            });
+
             if(res) {
-                alert('Certificate Issued!');
+                alert('Certificate Generated Successfully!');
                 bootstrap.Modal.getInstance(document.getElementById('issueCertificateModal')).hide();
                 loadCertificatesTab();
             }
@@ -1147,7 +1138,7 @@
                 if(!list.length) tbody.innerHTML = '<tr><td colspan="5" class="text-center p-4">No submissions yet.</td></tr>';
                 else tbody.innerHTML = list.map(s => `
                     <tr>
-                        <td>${s.enrollment?.student?.user?.full_name || 'Student'}</td>
+                        <td>${s.enrollment?.student?.full_name || 'Student'}</td>
                         <td>${new Date(s.created_at).toLocaleDateString()}</td>
                         <td>${s.file_path ? `<a href="${s.file_path}" target="_blank">Link</a>`:'-'}</td>
                         <td>${s.grade ? s.grade.score : '-'}</td>

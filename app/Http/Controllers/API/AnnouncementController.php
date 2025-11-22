@@ -540,7 +540,7 @@ class AnnouncementController extends Controller
             }
 
             // Get global announcements + course-specific announcements
-            $announcements = Announcement::with(["creator.user", "course"])
+            $announcements = Announcement::with(["creator", "course"])
                 ->forCourse($courseId)
                 ->published()
                 ->active()

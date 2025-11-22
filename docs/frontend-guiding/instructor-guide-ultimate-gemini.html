@@ -517,7 +517,7 @@
         function getHeaders() {
             const token = localStorage.getItem('auth_token');
             if(!token) {
-                token = '23|rXzUtYIOjx6svVsn8UMopTQ0JBEmcRDjKwJtAtj38febbb29';
+                token = '24|CNMkfWDIvxnDPpnSaXJHSw8Si0zMMu29vfQWoMJ2f7ff58d7';
             }
             return {
                 'Content-Type': 'application/json',
@@ -560,17 +560,16 @@
 
                 // Handle Error Responses (4xx, 5xx)
                 if(!res.ok) {
-                    const errorData = await res.json().catch(() => ({ message: res.statusText }));
-                    console.error("Server Error Response:", errorData);
+                    console.error("Server Error Response:", responseData); // <--- Tambahan Debugging
                     
-                    // Construct detailed error message
-                    let errorMessage = errorData.message || `HTTP Error ${res.status}`;
-                    if (errorData.errors) {
-                        // Laravel validation errors format
-                        errorMessage += "\nDetails:\n" + Object.values(errorData.errors).flat().join("\n");
+                    // Logika baru untuk menyusun pesan error detail dari validasi Laravel
+                    let msg = responseData.message || `HTTP Error ${res.status}`;
+                    if(responseData.errors) {
+                        msg += "\nDetails:\n" + Object.entries(responseData.errors)
+                            .map(([key, val]) => `- ${key}: ${val[0]}`)
+                            .join("\n");
                     }
-                    
-                    throw new Error(errorMessage);
+                    throw new Error(msg);
                 }
 
                 const data = await res.json();
@@ -968,33 +967,93 @@
 
         // --- ANNOUNCEMENTS ---
 
-        async function loadAnnouncements() {
-            // GET /announcements (Assuming backend filters by instructor's courses or global)
-            // Or use specific endpoint: /announcements/active/list
-            const data = await fetchApi('/announcements'); 
+        async function loadAnnouncements(filters = {}) {
             const container = document.getElementById('announcementList');
-            
-            if(!data || data.length === 0) {
-                container.innerHTML = '<p class="text-muted">No announcements posted.</p>';
-                return;
-            }
+            container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
 
-            container.innerHTML = data.map(a => `
-                <div class="col-md-6">
-                    <div class="card h-100 border-start border-5 border-info">
-                        <div class="card-body">
-                            <h5 class="card-title">${a.title}</h5>
-                            <h6 class="card-subtitle mb-2 text-muted small">
-                                ${a.course ? `Course: ${a.course.course_name}` : 'Global Announcement'}
-                            </h6>
-                            <p class="card-text">${a.content}</p>
-                            <div class="text-end">
-                                <small class="text-muted">${new Date(a.created_at).toLocaleDateString()}</small>
+            try {
+                // 1. Construct Query Params
+                let endpoint = '/announcements';
+                const params = new URLSearchParams();
+                if (filters.status) params.append('status', filters.status);
+                if (filters.course_id) params.append('course_id', filters.course_id);
+                
+                if (params.toString()) endpoint += `?${params.toString()}`;
+
+                // 2. Fetch Data
+                const res = await fetchApi(endpoint);
+                console.log("Announcements Resp:", res); // Cek Console F12
+
+                // 3. EKSTRAKSI DATA (Perbaikan Utama)
+                // Backend Laravel dengan pagination mengembalikan object { data: [...] }
+                // Backend tanpa pagination mengembalikan array [...]
+                let list = [];
+                
+                if (res && Array.isArray(res.data)) {
+                    list = res.data; // Kasus Pagination
+                } else if (Array.isArray(res)) {
+                    list = res; // Kasus Array Langsung
+                } else {
+                    // Jika format tidak dikenal, anggap kosong (jangan error)
+                    console.warn("Format data tidak dikenali, dianggap kosong.");
+                    list = [];
+                }
+
+                // 4. Render
+                if (list.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-12 text-center py-5">
+                            <div class="text-muted mb-3"><i class="bi bi-megaphone display-4"></i></div>
+                            <h5>No announcements found.</h5>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = list.map(a => {
+                    // Safe properties with defaults
+                    const title = a.title || 'Untitled';
+                    const content = a.content || '';
+                    const priority = a.priority || 'normal';
+                    const status = a.status || 'published';
+                    const dateStr = a.published_at || a.created_at || new Date();
+                    
+                    // Styling Badge
+                    let borderClass = 'secondary';
+                    if(priority === 'high') borderClass = 'danger';
+                    if(priority === 'urgent') borderClass = 'warning';
+
+                    // Context Badge Logic
+                    let contextBadge = '<span class="badge bg-dark">Global</span>';
+                    if (a.course) {
+                        contextBadge = `<span class="badge bg-primary">${a.course.course_code || 'Course'}</span>`;
+                    } else if (a.course_id) {
+                        contextBadge = `<span class="badge bg-info text-dark">Course #${a.course_id}</span>`;
+                    }
+
+                    return `
+                        <div class="col-md-6">
+                            <div class="card h-100 border-start border-4 border-${borderClass} shadow-sm">
+                                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                    <div>${contextBadge}</div>
+                                    <span class="badge bg-light text-dark border text-uppercase">${priority}</span>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold">${title}</h5>
+                                    <p class="card-text text-secondary small">${content}</p>
+                                </div>
+                                <div class="card-footer bg-white border-0 pt-0 d-flex justify-content-between small text-muted">
+                                    <span><i class="bi bi-calendar3 me-1"></i> ${new Date(dateStr).toLocaleDateString()}</span>
+                                    <span class="text-capitalize badge bg-light text-dark border">${status}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            `).join('');
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error("Load Announcements Error:", err);
+                container.innerHTML = `<div class="alert alert-danger">Error displaying announcements: ${err.message}</div>`;
+            }
         }
 
         function openAnnouncementModal() {
