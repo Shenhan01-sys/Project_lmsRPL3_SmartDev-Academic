@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,10 +15,1000 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ============================================
+           SMARTDev Academic Landing Page - Custom CSS
+           GSAP-Inspired Professional Animations
+           ============================================ */
+        :root {
+            --transition-speed: 0.3s;
+            --animation-speed: 5.0s;
+        }
+
+        /* Global Styles */
+        * {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        /* ==========================================
+           GSAP-INSPIRED ANIMATIONS
+           ========================================== */
+
+        /* Smooth Fade In Up with Momentum */
+        @keyframes fadeInUpSmooth {
+            0% {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            60% {
+                opacity: 1;
+                transform: translateY(-5px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Fade In with Scale - Breathing Effect */
+        @keyframes fadeInScale {
+            0% {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Slide In from Left with Ease Out Back */
+        @keyframes slideInLeftSmooth {
+            0% {
+                opacity: 0;
+                transform: translateX(-60px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Slide In from Right with Ease Out Back */
+        @keyframes slideInRightSmooth {
+            0% {
+                opacity: 0;
+                transform: translateX(60px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Slide Down with Bounce */
+        @keyframes slideDownBounce {
+            0% {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            60% {
+                transform: translateY(10px);
+                opacity: 1;
+            }
+
+            80% {
+                transform: translateY(-5px);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        /* Smooth Gradient Shift */
+        @keyframes gradientFlow {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Floating Animation - Subtle */
+        @keyframes floatSubtle {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+
+        /* Breathing Animation - Very Subtle */
+        @keyframes breathe {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.03);
+            }
+        }
+
+        /* Spin - Smooth */
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Shimmer Effect */
+        @keyframes shimmer {
+            0% {
+                left: -150%;
+            }
+
+            100% {
+                left: 150%;
+            }
+        }
+
+        /* Pulse Scale - Subtle */
+        @keyframes pulseScale {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        /* ==========================================
+           NAVIGATION
+           ========================================== */
+        nav {
+            backdrop-filter: blur(12px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideDownBounce 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        nav.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Nav Links with Smooth Underline */
+        nav a {
+            position: relative;
+            transition: color 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        nav a::after {
+            content: "";
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 2px;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        nav a:hover {
+            color: #667eea;
+        }
+
+        /* ==========================================
+           HERO SECTION
+           ========================================== */
+
+        /* Animated Gradient Background */
+        section:first-of-type {
+            background: linear-gradient(-45deg, #667eea, #764ba2, #667eea, #5568d3);
+            background-size: 300% 300%;
+            animation: gradientFlow 20s ease infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Hero Glass Effect Overlay */
+        section:first-of-type::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%,
+                    rgba(255, 255, 255, 0.1) 0%,
+                    transparent 50%);
+            pointer-events: none;
+        }
+
+        /* Hero Content Stagger Animation */
+        section:first-of-type .container>div>div:first-child>* {
+            animation: fadeInUpSmooth 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        section:first-of-type .container>div>div:first-child>*:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        section:first-of-type .container>div>div:first-child>*:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        section:first-of-type .container>div>div:first-child>*:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        section:first-of-type .container>div>div:first-child>*:nth-child(4) {
+            animation-delay: 0.8s;
+        }
+
+        /* Hero Image Float */
+        section:first-of-type .container>div>div:last-child {
+            animation: floatSubtle 4s ease-in-out infinite;
+        }
+
+        /* CTA Buttons */
+        /* CTA Buttons */
+        section:first-of-type a[class*="bg-"] {
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        section:first-of-type a[class*="bg-"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        section:first-of-type a[class*="bg-"]:active {
+            transform: translateY(0);
+        }
+
+        /* ==========================================
+           CARDS - PROFESSIONAL HOVER
+           ========================================== */
+
+        /* Base Card Styles */
+        /* Base Card Styles */
+        .card-hover,
+        #roles .bg-white,
+        #features .bg-gray-50,
+        #courses .bg-white {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        /* Card Hover Effect */
+        .card-hover:hover,
+        #roles .bg-white:hover,
+        #features .bg-gray-50:hover,
+        #courses .bg-white:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+        }
+
+        /* Icon Animations */
+        #roles .bg-white i,
+        #features .bg-gray-50 i {
+            transition: transform 0.3s ease;
+        }
+
+        #roles .bg-white:hover i,
+        #features .bg-gray-50:hover i {
+            transform: scale(1.1);
+        }
+
+        /* Button in Cards */
+        #roles .bg-white a,
+        #courses .bg-white a {
+            transition: all 0.2s ease;
+        }
+
+        #roles .bg-white a:hover,
+        #courses .bg-white a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ==========================================
+           ROLE CARDS - STAGGERED ENTRANCE
+           ========================================== */
+
+        #roles .bg-white {
+            animation: fadeInUpSmooth 1s cubic-bezier(0.4, 0, 0.2, 1);
+            animation-fill-mode: both;
+        }
+
+        #roles .bg-white:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        #roles .bg-white:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+
+        #roles .bg-white:nth-child(3) {
+            animation-delay: 0.5s;
+        }
+
+        /* ==========================================
+           FEATURES SECTION
+           ========================================== */
+
+        #features .bg-gray-50 {
+            animation: fadeInScale 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            animation-fill-mode: both;
+        }
+
+        #features .bg-gray-50:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        #features .bg-gray-50:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        #features .bg-gray-50:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        #features .bg-gray-50:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        #features .bg-gray-50:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        #features .bg-gray-50:nth-child(6) {
+            animation-delay: 0.6s;
+        }
+
+        #features .bg-gray-50:nth-child(7) {
+            animation-delay: 0.7s;
+        }
+
+        #features .bg-gray-50:nth-child(8) {
+            animation-delay: 0.8s;
+        }
+
+        /* ==========================================
+           COURSE TABS
+           ========================================== */
+
+        .course-tab {
+            color: #6b7280;
+            transition:
+                all 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .course-tab::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            opacity: 0;
+            border-radius: 9999px;
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: -1;
+        }
+
+        .course-tab.active::before {
+            opacity: 1;
+        }
+
+        .course-tab.active {
+            color: white;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+            transform: scale(1.03);
+        }
+
+        .course-tab:hover:not(.active) {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        /* Course Content Fade */
+        .course-content {
+            display: none;
+        }
+
+        .course-content.active {
+            display: block;
+            animation: fadeInScale 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ==========================================
+           FAQ ACCORDION
+           ========================================== */
+
+        .faq-item {
+            transition:
+                all 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .faq-item::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 0;
+            background: linear-gradient(180deg, #667eea, #764ba2);
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 0.75rem 0 0 0.75rem;
+        }
+
+        .faq-item:hover::after {
+            width: 4px;
+        }
+
+        .faq-item:hover {
+            transform: translateX(8px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.12);
+        }
+
+        .faq-item.active {
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 500px;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+            color: #667eea;
+        }
+
+        .faq-question i {
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ==========================================
+           COUNTER ANIMATION
+           ========================================== */
+
+        .counter {
+            display: inline-block;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .counter:hover {
+            transform: scale(1.08);
+        }
+
+        /* Stats Section Stagger */
+        #stats>div>div {
+            animation: fadeInUpSmooth 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            animation-fill-mode: both;
+        }
+
+        #stats>div>div:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        #stats>div>div:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        #stats>div>div:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        #stats>div>div:nth-child(4) {
+            animation-delay: 0.8s;
+        }
+
+        /* ==========================================
+           HOW IT WORKS - TIMELINE
+           ========================================== */
+
+        #how-it-works .bg-white {
+            transition:
+                all 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        #how-it-works .bg-white::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg,
+                    rgba(102, 126, 234, 0.05),
+                    rgba(118, 75, 162, 0.05));
+            opacity: 0;
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: inherit;
+        }
+
+        #how-it-works .bg-white:hover::before {
+            opacity: 1;
+        }
+
+        #how-it-works .bg-white:hover {
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.15);
+            transform: translateX(8px) scale(1.02);
+        }
+
+        /* Step Numbers */
+        #how-it-works .rounded-full {
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: breathe 4s ease-in-out infinite;
+        }
+
+        #how-it-works .rounded-full:hover {
+            transform: scale(1.1) rotate(3deg);
+            animation: none;
+        }
+
+        /* ==========================================
+           BUTTONS - PROFESSIONAL
+           ========================================== */
+
+        button,
+        a[class*="bg-gradient"],
+        a[class*="bg-primary"],
+        a[class*="bg-blue"],
+        a[class*="bg-purple"],
+        a[class*="bg-green"] {
+            transition:
+                all 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover,
+        a[class*="bg-gradient"]:hover,
+        a[class*="bg-primary"]:hover,
+        a[class*="bg-blue"]:hover,
+        a[class*="bg-purple"]:hover,
+        a[class*="bg-green"]:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 8px 24px -4px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active,
+        a[class*="bg-gradient"]:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        /* ==========================================
+           STICKY CTA BAR
+           ========================================== */
+
+        #stickyCTA {
+            z-index: 40;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #stickyCTA.show {
+            transform: translateY(0) !important;
+        }
+
+        /* ==========================================
+           SCROLL ANIMATIONS
+           ========================================== */
+
+        /* Scroll reveal elements */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .scroll-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ==========================================
+           FOOTER
+           ========================================== */
+
+        footer {
+            animation: fadeInScale 1s ease;
+        }
+
+        footer a {
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        footer a::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        footer a:hover::after {
+            width: 100%;
+        }
+
+        footer a:hover {
+            color: #667eea;
+            transform: translateX(4px);
+        }
+
+        /* Social icons */
+        footer .fab,
+        footer .fa-facebook-f,
+        footer .fa-twitter,
+        footer .fa-instagram,
+        footer .fa-youtube {
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        footer a:hover .fab,
+        footer a:hover .fa-facebook-f,
+        footer a:hover .fa-twitter,
+        footer a:hover .fa-instagram,
+        footer a:hover .fa-youtube {
+            transform: scale(1.25) rotate(5deg);
+            color: #667eea;
+        }
+
+        /* ==========================================
+           BACK TO TOP BUTTON
+           ========================================== */
+
+        #backToTop {
+            transition:
+                all 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #backToTop:hover {
+            transform: translateY(-6px) scale(1.08);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.5);
+        }
+
+        #backToTop i {
+            animation: floatSubtle 2s ease-in-out infinite;
+        }
+
+        /* ==========================================
+           SCROLL PROGRESS BAR
+           ========================================== */
+
+        #scrollProgress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            z-index: 999;
+            transition: width 0.1s ease;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+        }
+
+        /* ==========================================
+           CUSTOM SCROLLBAR
+           ========================================== */
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 5px;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #653a8a 100%);
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+        }
+
+        /* ==========================================
+           SMOOTH SCROLL OFFSET
+           ========================================== */
+
+        section {
+            scroll-margin-top: 80px;
+        }
+
+        /* ==========================================
+           GRADIENT TEXT
+           ========================================== */
+
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ==========================================
+           LOADING SPINNER
+           ========================================== */
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* ==========================================
+           GLASSMORPHISM
+           ========================================== */
+
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* ==========================================
+           PARALLAX HELPER
+           ========================================== */
+
+        .parallax {
+            transition: transform 0.1s ease-out;
+            will-change: transform;
+        }
+
+        /* ==========================================
+           MICRO-INTERACTIONS
+           ========================================== */
+
+        /* Checkbox/Radio smooth scale */
+        input[type="checkbox"],
+        input[type="radio"] {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        input[type="checkbox"]:checked,
+        input[type="radio"]:checked {
+            transform: scale(1.1);
+        }
+
+        /* Input focus glow */
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            transition: box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* ==========================================
+           RESPONSIVE UTILITIES
+           ========================================== */
+
+        @media (max-width: 768px) {
+
+            /* Reduce animation intensity on mobile */
+            * {
+                animation-duration: 0.5s !important;
+            }
+
+            .card-hover:hover,
+            #roles .bg-white:hover,
+            #features .bg-gray-50:hover,
+            #courses .bg-white:hover {
+                transform: translateY(-6px) scale(1.01);
+            }
+
+            #how-it-works .rounded-full {
+                animation: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+
+            /* Minimal animations on small mobile */
+            nav {
+                animation: fadeInScale 0.5s ease;
+            }
+
+            section:first-of-type .container>div>div:first-child>* {
+                animation-duration: 0.6s;
+            }
+        }
+
+        /* ==========================================
+           REDUCED MOTION SUPPORT
+           ========================================== */
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        /* ==========================================
+           FOCUS STYLES - ACCESSIBILITY
+           ========================================== */
+
+        a:focus,
+        button:focus {
+            outline: 3px solid #667eea;
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        a:focus:not(:focus-visible),
+        button:focus:not(:focus-visible) {
+            outline: none;
+        }
+
+        /* ==========================================
+           PRINT OPTIMIZATION
+           ========================================== */
+
+        @media print {
+
+            nav,
+            footer,
+            #stickyCTA,
+            #backToTop,
+            #scrollProgress {
+                display: none !important;
+            }
+
+            section {
+                page-break-inside: avoid;
+            }
+
+            * {
+                animation: none !important;
+                transition: none !important;
+                box-shadow: none !important;
+            }
+        }
+
+        /* ==========================================
+           PERFORMANCE OPTIMIZATION
+           ========================================== */
+
+        .will-change-transform {
+            will-change: transform;
+        }
+
+        .will-change-opacity {
+            will-change: opacity;
+        }
+
+        /* GPU Acceleration */
+        .gpu-accelerated {
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+        }
+
+        /* ==========================================
+           UTILITY CLASSES
+           ========================================== */
+
+        .fade-in {
+            animation: fadeInScale 0.6s ease;
+        }
+
+        .fade-in-up {
+            animation: fadeInUpSmooth 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .slide-in-left {
+            animation: slideInLeftSmooth 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .slide-in-right {
+            animation: slideInRightSmooth 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* ==========================================
+           SHADOW TRANSITIONS
+           ========================================== */
+
+        .shadow-sm,
+        .shadow,
+        .shadow-md,
+        .shadow-lg,
+        .shadow-xl {
+            transition: box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* ==========================================
+           TEXT SELECTION
+           ========================================== */
+
+        ::selection {
+            background: #667eea;
+            color: white;
+        }
+
+        ::-moz-selection {
+            background: #667eea;
+            color: white;
+        }
+
+        /* ==========================================
+           SMOOTH PAGE LOAD
+           ========================================== */
+
+        body {
+            animation: fadeInScale 0.6s ease;
+        }
+    </style>
 
     <!-- Tailwind Config -->
     <script>
@@ -41,6 +1032,7 @@
         }
     </script>
 </head>
+
 <body class="font-sans antialiased">
 
     <!-- Navigation -->
@@ -62,7 +1054,9 @@
                     <a href="#courses" class="text-gray-600 hover:text-primary transition">Kursus</a>
                     <a href="#faq" class="text-gray-600 hover:text-primary transition">FAQ</a>
                     <a href="#login" class="text-primary hover:text-primaryDark font-medium transition">Login</a>
-                    <a href="#register" class="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full hover:shadow-lg transition transform hover:scale-105">Daftar Sekarang</a>
+                    <a href="#register"
+                        class="bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full hover:shadow-lg transition transform hover:scale-105">Daftar
+                        Sekarang</a>
                 </div>
                 <button class="md:hidden text-gray-600" id="mobileMenuBtn">
                     <i class="fas fa-bars text-2xl"></i>
@@ -75,7 +1069,9 @@
                 <a href="#courses" class="block text-gray-600 hover:text-primary transition">Kursus</a>
                 <a href="#faq" class="block text-gray-600 hover:text-primary transition">FAQ</a>
                 <a href="#login" class="block text-primary hover:text-primaryDark font-medium transition">Login</a>
-                <a href="#register" class="block bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full text-center">Daftar Sekarang</a>
+                <a href="#register"
+                    class="block bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full text-center">Daftar
+                    Sekarang</a>
             </div>
         </div>
     </nav>
@@ -95,11 +1091,13 @@
                         Kelola kursus, tugas, dan nilai dengan sistem terintegrasi untuk siswa, pengajar, dan orang tua
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4 mb-8">
-                        <a href="#register" class="bg-white text-primary px-8 py-4 rounded-full font-bold hover:shadow-2xl transition transform hover:scale-105 text-center">
+                        <a href="#register"
+                            class="bg-white text-primary px-8 py-4 rounded-full font-bold hover:shadow-2xl transition transform hover:scale-105 text-center">
                             <i class="fas fa-user-plus mr-2"></i>
                             Daftar Sebagai Siswa
                         </a>
-                        <a href="#login" class="bg-white/10 backdrop-blur-sm border-2 border-white text-white px-8 py-4 rounded-full font-bold hover:bg-white/20 transition text-center">
+                        <a href="#login"
+                            class="bg-white/10 backdrop-blur-sm border-2 border-white text-white px-8 py-4 rounded-full font-bold hover:bg-white/20 transition text-center">
                             <i class="fas fa-sign-in-alt mr-2"></i>
                             Login
                         </a>
@@ -121,7 +1119,8 @@
                 </div>
                 <div class="hidden md:block">
                     <div class="bg-white/10 backdrop-blur-sm p-5 rounded-3xl shadow-2xl">
-                        <img src="https://www.ispringsolutions.com/blog/wp-content/uploads/editor/2025/01/TalentLMS%20(1).png" alt="Dashboard Preview" class="rounded-xl shadow-lg">
+                        <img src="https://www.ispringsolutions.com/blog/wp-content/uploads/editor/2025/01/TalentLMS%20(1).png"
+                            alt="Dashboard Preview" class="rounded-xl shadow-lg">
                     </div>
                 </div>
             </div>
@@ -133,13 +1132,16 @@
         <div class="container mx-auto px-6">
             <div class="text-center mb-16">
                 <h2 class="text-4xl font-bold text-gray-800 mb-4">Siapa Yang Bisa Menggunakan?</h2>
-                <p class="text-xl text-gray-600">Platform kami dirancang untuk tiga peran utama dalam ekosistem pembelajaran</p>
+                <p class="text-xl text-gray-600">Platform kami dirancang untuk tiga peran utama dalam ekosistem
+                    pembelajaran</p>
             </div>
             <div class="grid md:grid-cols-3 gap-8">
                 <!-- Student Card -->
-                <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 overflow-hidden">
+                <div
+                    class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 overflow-hidden">
                     <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-8 text-white">
-                        <div class="bg-white/20 backdrop-blur-sm w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                        <div
+                            class="bg-white/20 backdrop-blur-sm w-16 h-16 rounded-full flex items-center justify-center mb-4">
                             <i class="fas fa-user-graduate text-3xl"></i>
                         </div>
                         <h3 class="text-2xl font-bold mb-2">Untuk Siswa</h3>
@@ -164,16 +1166,19 @@
                                 <span class="text-gray-700">Track progress akademik real-time</span>
                             </li>
                         </ul>
-                        <a href="#register" class="block w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white text-center px-6 py-3 rounded-full font-bold hover:shadow-lg transition transform hover:scale-105">
+                        <a href="#register"
+                            class="block w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white text-center px-6 py-3 rounded-full font-bold hover:shadow-lg transition transform hover:scale-105">
                             Daftar Sekarang
                         </a>
                     </div>
                 </div>
 
                 <!-- Instructor Card -->
-                <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 overflow-hidden">
+                <div
+                    class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 overflow-hidden">
                     <div class="bg-gradient-to-br from-purple-500 to-purple-600 p-8 text-white">
-                        <div class="bg-white/20 backdrop-blur-sm w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                        <div
+                            class="bg-white/20 backdrop-blur-sm w-16 h-16 rounded-full flex items-center justify-center mb-4">
                             <i class="fas fa-chalkboard-teacher text-3xl"></i>
                         </div>
                         <h3 class="text-2xl font-bold mb-2">Untuk Pengajar</h3>
@@ -198,16 +1203,19 @@
                                 <span class="text-gray-700">Monitoring progress kelas</span>
                             </li>
                         </ul>
-                        <a href="#contact" class="block w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white text-center px-6 py-3 rounded-full font-bold hover:shadow-lg transition transform hover:scale-105">
+                        <a href="#contact"
+                            class="block w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white text-center px-6 py-3 rounded-full font-bold hover:shadow-lg transition transform hover:scale-105">
                             Hubungi Admin
                         </a>
                     </div>
                 </div>
 
                 <!-- Parent Card -->
-                <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 overflow-hidden">
+                <div
+                    class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 overflow-hidden">
                     <div class="bg-gradient-to-br from-green-500 to-green-600 p-8 text-white">
-                        <div class="bg-white/20 backdrop-blur-sm w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                        <div
+                            class="bg-white/20 backdrop-blur-sm w-16 h-16 rounded-full flex items-center justify-center mb-4">
                             <i class="fas fa-users text-3xl"></i>
                         </div>
                         <h3 class="text-2xl font-bold mb-2">Untuk Orang Tua</h3>
@@ -232,7 +1240,8 @@
                                 <span class="text-gray-700">Akses rapor digital</span>
                             </li>
                         </ul>
-                        <a href="#contact" class="block w-full bg-gradient-to-r from-green-500 to-green-600 text-white text-center px-6 py-3 rounded-full font-bold hover:shadow-lg transition transform hover:scale-105">
+                        <a href="#contact"
+                            class="block w-full bg-gradient-to-r from-green-500 to-green-600 text-white text-center px-6 py-3 rounded-full font-bold hover:shadow-lg transition transform hover:scale-105">
                             Info Lebih Lanjut
                         </a>
                     </div>
@@ -246,7 +1255,8 @@
         <div class="container mx-auto px-6">
             <div class="text-center mb-16">
                 <h2 class="text-4xl font-bold text-gray-800 mb-4">Fitur Unggulan</h2>
-                <p class="text-xl text-gray-600">Platform lengkap dengan fitur-fitur yang mendukung pembelajaran modern</p>
+                <p class="text-xl text-gray-600">Platform lengkap dengan fitur-fitur yang mendukung pembelajaran modern
+                </p>
             </div>
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- Feature 1 -->
@@ -255,7 +1265,8 @@
                         <i class="fas fa-book text-blue-600 text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-800 mb-3">Materi Terstruktur</h3>
-                    <p class="text-gray-600 mb-4">Kursus → Module → Materi dengan struktur hierarchical yang jelas. Berbagai tipe: PDF, video, link, dan teks.</p>
+                    <p class="text-gray-600 mb-4">Kursus → Module → Materi dengan struktur hierarchical yang jelas.
+                        Berbagai tipe: PDF, video, link, dan teks.</p>
                     <div class="flex items-center text-sm text-primary font-medium">
                         <span>Pelajari lebih lanjut</span>
                         <i class="fas fa-arrow-right ml-2"></i>
@@ -268,7 +1279,8 @@
                         <i class="fas fa-tasks text-purple-600 text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-800 mb-3">Manajemen Tugas</h3>
-                    <p class="text-gray-600 mb-4">Submit file atau teks, track deadline otomatis, dan dapatkan feedback langsung dari pengajar.</p>
+                    <p class="text-gray-600 mb-4">Submit file atau teks, track deadline otomatis, dan dapatkan feedback
+                        langsung dari pengajar.</p>
                     <div class="flex items-center text-sm text-primary font-medium">
                         <span>Pelajari lebih lanjut</span>
                         <i class="fas fa-arrow-right ml-2"></i>
@@ -281,7 +1293,8 @@
                         <i class="fas fa-chart-line text-green-600 text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-800 mb-3">Monitoring Nilai</h3>
-                    <p class="text-gray-600 mb-4">Grade components fleksibel (UTS, UAS, Quiz, Tugas) dengan weighted scoring otomatis dan grafik progress.</p>
+                    <p class="text-gray-600 mb-4">Grade components fleksibel (UTS, UAS, Quiz, Tugas) dengan weighted
+                        scoring otomatis dan grafik progress.</p>
                     <div class="flex items-center text-sm text-primary font-medium">
                         <span>Pelajari lebih lanjut</span>
                         <i class="fas fa-arrow-right ml-2"></i>
@@ -294,7 +1307,8 @@
                         <i class="fas fa-pencil-ruler text-yellow-600 text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-800 mb-3">Course Builder</h3>
-                    <p class="text-gray-600 mb-4">Buat module & materi dengan mudah, upload berbagai format file, dan set urutan pembelajaran.</p>
+                    <p class="text-gray-600 mb-4">Buat module & materi dengan mudah, upload berbagai format file, dan
+                        set urutan pembelajaran.</p>
                     <div class="flex items-center text-sm text-primary font-medium">
                         <span>Pelajari lebih lanjut</span>
                         <i class="fas fa-arrow-right ml-2"></i>
@@ -307,7 +1321,8 @@
                         <i class="fas fa-star text-red-600 text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-800 mb-3">Grading System</h3>
-                    <p class="text-gray-600 mb-4">Komponen nilai fleksibel, bulk grading untuk efisiensi, dan auto-calculate weighted scores.</p>
+                    <p class="text-gray-600 mb-4">Komponen nilai fleksibel, bulk grading untuk efisiensi, dan
+                        auto-calculate weighted scores.</p>
                     <div class="flex items-center text-sm text-primary font-medium">
                         <span>Pelajari lebih lanjut</span>
                         <i class="fas fa-arrow-right ml-2"></i>
@@ -320,7 +1335,8 @@
                         <i class="fas fa-eye text-indigo-600 text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-800 mb-3">Parent Monitoring</h3>
-                    <p class="text-gray-600 mb-4">Orang tua dapat melihat aktivitas anak real-time, notifikasi nilai baru, dan dashboard dedicated.</p>
+                    <p class="text-gray-600 mb-4">Orang tua dapat melihat aktivitas anak real-time, notifikasi nilai
+                        baru, dan dashboard dedicated.</p>
                     <div class="flex items-center text-sm text-primary font-medium">
                         <span>Pelajari lebih lanjut</span>
                         <i class="fas fa-arrow-right ml-2"></i>
@@ -333,7 +1349,8 @@
                         <i class="fas fa-shield-alt text-pink-600 text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-800 mb-3">Keamanan Terjamin</h3>
-                    <p class="text-gray-600 mb-4">Laravel Sanctum authentication, role-based access control, dan encrypted data storage.</p>
+                    <p class="text-gray-600 mb-4">Laravel Sanctum authentication, role-based access control, dan
+                        encrypted data storage.</p>
                     <div class="flex items-center text-sm text-primary font-medium">
                         <span>Pelajari lebih lanjut</span>
                         <i class="fas fa-arrow-right ml-2"></i>
@@ -346,7 +1363,8 @@
                         <i class="fas fa-mobile-alt text-teal-600 text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-800 mb-3">Responsive Design</h3>
-                    <p class="text-gray-600 mb-4">Akses dari desktop, tablet, atau mobile dengan UI modern menggunakan Tailwind CSS.</p>
+                    <p class="text-gray-600 mb-4">Akses dari desktop, tablet, atau mobile dengan UI modern menggunakan
+                        Tailwind CSS.</p>
                     <div class="flex items-center text-sm text-primary font-medium">
                         <span>Pelajari lebih lanjut</span>
                         <i class="fas fa-arrow-right ml-2"></i>
@@ -367,7 +1385,8 @@
                 <!-- Step 1 -->
                 <div class="flex flex-col md:flex-row items-start mb-12">
                     <div class="flex-shrink-0 mb-4 md:mb-0">
-                        <div class="bg-gradient-to-br from-primary to-secondary w-20 h-20 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                        <div
+                            class="bg-gradient-to-br from-primary to-secondary w-20 h-20 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg">
                             1
                         </div>
                     </div>
@@ -377,9 +1396,11 @@
                                 <i class="fas fa-edit text-primary text-3xl mr-4"></i>
                                 <h3 class="text-2xl font-bold text-gray-800">Daftar Online</h3>
                             </div>
-                            <p class="text-gray-600 mb-4">Isi form pendaftaran calon siswa dengan data diri lengkap dan informasi orang tua.</p>
+                            <p class="text-gray-600 mb-4">Isi form pendaftaran calon siswa dengan data diri lengkap dan
+                                informasi orang tua.</p>
                             <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
-                                <p class="text-sm text-yellow-800"><strong>Status:</strong> <span class="font-mono">pending_documents</span></p>
+                                <p class="text-sm text-yellow-800"><strong>Status:</strong> <span
+                                        class="font-mono">pending_documents</span></p>
                             </div>
                         </div>
                     </div>
@@ -393,7 +1414,8 @@
                 <!-- Step 2 -->
                 <div class="flex flex-col md:flex-row items-start mb-12">
                     <div class="flex-shrink-0 mb-4 md:mb-0">
-                        <div class="bg-gradient-to-br from-primary to-secondary w-20 h-20 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                        <div
+                            class="bg-gradient-to-br from-primary to-secondary w-20 h-20 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg">
                             2
                         </div>
                     </div>
@@ -423,7 +1445,8 @@
                                 </li>
                             </ul>
                             <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
-                                <p class="text-sm text-blue-800"><strong>Status:</strong> <span class="font-mono">pending_approval</span></p>
+                                <p class="text-sm text-blue-800"><strong>Status:</strong> <span
+                                        class="font-mono">pending_approval</span></p>
                             </div>
                         </div>
                     </div>
@@ -437,7 +1460,8 @@
                 <!-- Step 3 -->
                 <div class="flex flex-col md:flex-row items-start mb-12">
                     <div class="flex-shrink-0 mb-4 md:mb-0">
-                        <div class="bg-gradient-to-br from-primary to-secondary w-20 h-20 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                        <div
+                            class="bg-gradient-to-br from-primary to-secondary w-20 h-20 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg">
                             3
                         </div>
                     </div>
@@ -447,9 +1471,12 @@
                                 <i class="fas fa-check-double text-primary text-3xl mr-4"></i>
                                 <h3 class="text-2xl font-bold text-gray-800">Verifikasi Admin</h3>
                             </div>
-                            <p class="text-gray-600 mb-4">Admin akan mereview dokumen Anda dalam 1-3 hari kerja. Anda akan mendapat notifikasi hasil verifikasi.</p>
+                            <p class="text-gray-600 mb-4">Admin akan mereview dokumen Anda dalam 1-3 hari kerja. Anda
+                                akan mendapat notifikasi hasil verifikasi.</p>
                             <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded">
-                                <p class="text-sm text-green-800"><strong>Status:</strong> <span class="font-mono">approved</span> → Role berubah menjadi <span class="font-mono font-bold">student</span></p>
+                                <p class="text-sm text-green-800"><strong>Status:</strong> <span
+                                        class="font-mono">approved</span> → Role berubah menjadi <span
+                                        class="font-mono font-bold">student</span></p>
                             </div>
                         </div>
                     </div>
@@ -457,7 +1484,8 @@
 
                 <!-- CTA -->
                 <div class="text-center mt-12">
-                    <a href="#register" class="inline-block bg-gradient-to-r from-primary to-secondary text-white px-10 py-4 rounded-full text-lg font-bold hover:shadow-2xl transition transform hover:scale-105">
+                    <a href="#register"
+                        class="inline-block bg-gradient-to-r from-primary to-secondary text-white px-10 py-4 rounded-full text-lg font-bold hover:shadow-2xl transition transform hover:scale-105">
                         <i class="fas fa-rocket mr-2"></i>
                         Mulai Pendaftaran Sekarang
                     </a>
@@ -514,7 +1542,8 @@
             <div class="course-content active" id="smp-courses">
                 <div class="grid md:grid-cols-3 gap-8">
                     <!-- Course 1 -->
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2">
+                    <div
+                        class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2">
                         <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white">
                             <div class="text-sm font-bold mb-2">MTK-SMP-01</div>
                             <h3 class="text-xl font-bold mb-2">Matematika Kelas 7</h3>
@@ -535,14 +1564,16 @@
                                     <div class="text-xs text-gray-500">Materi</div>
                                 </div>
                             </div>
-                            <a href="#" class="block w-full bg-blue-500 text-white text-center py-3 rounded-lg font-bold hover:bg-blue-600 transition">
+                            <a href="#"
+                                class="block w-full bg-blue-500 text-white text-center py-3 rounded-lg font-bold hover:bg-blue-600 transition">
                                 Lihat Detail
                             </a>
                         </div>
                     </div>
 
                     <!-- Course 2 -->
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2">
+                    <div
+                        class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2">
                         <div class="bg-gradient-to-br from-green-500 to-green-600 p-6 text-white">
                             <div class="text-sm font-bold mb-2">IPA-SMP-01</div>
                             <h3 class="text-xl font-bold mb-2">IPA Terpadu Kelas 7</h3>
@@ -563,14 +1594,16 @@
                                     <div class="text-xs text-gray-500">Materi</div>
                                 </div>
                             </div>
-                            <a href="#" class="block w-full bg-green-500 text-white text-center py-3 rounded-lg font-bold hover:bg-green-600 transition">
+                            <a href="#"
+                                class="block w-full bg-green-500 text-white text-center py-3 rounded-lg font-bold hover:bg-green-600 transition">
                                 Lihat Detail
                             </a>
                         </div>
                     </div>
 
                     <!-- Course 3 -->
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2">
+                    <div
+                        class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2">
                         <div class="bg-gradient-to-br from-purple-500 to-purple-600 p-6 text-white">
                             <div class="text-sm font-bold mb-2">BHS-SMP-01</div>
                             <h3 class="text-xl font-bold mb-2">Bahasa Indonesia Kelas 7</h3>
@@ -591,7 +1624,8 @@
                                     <div class="text-xs text-gray-500">Materi</div>
                                 </div>
                             </div>
-                            <a href="#" class="block w-full bg-purple-500 text-white text-center py-3 rounded-lg font-bold hover:bg-purple-600 transition">
+                            <a href="#"
+                                class="block w-full bg-purple-500 text-white text-center py-3 rounded-lg font-bold hover:bg-purple-600 transition">
                                 Lihat Detail
                             </a>
                         </div>
@@ -603,7 +1637,8 @@
             <div class="course-content" id="sma-courses">
                 <div class="grid md:grid-cols-3 gap-8">
                     <!-- Course 1 -->
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2">
+                    <div
+                        class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2">
                         <div class="bg-gradient-to-br from-red-500 to-red-600 p-6 text-white">
                             <div class="text-sm font-bold mb-2">FIS-SMA-01</div>
                             <h3 class="text-xl font-bold mb-2">Fisika Kelas 10</h3>
@@ -624,14 +1659,16 @@
                                     <div class="text-xs text-gray-500">Materi</div>
                                 </div>
                             </div>
-                            <a href="#" class="block w-full bg-red-500 text-white text-center py-3 rounded-lg font-bold hover:bg-red-600 transition">
+                            <a href="#"
+                                class="block w-full bg-red-500 text-white text-center py-3 rounded-lg font-bold hover:bg-red-600 transition">
                                 Lihat Detail
                             </a>
                         </div>
                     </div>
 
                     <!-- Course 2 -->
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2">
+                    <div
+                        class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2">
                         <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 p-6 text-white">
                             <div class="text-sm font-bold mb-2">KIM-SMA-01</div>
                             <h3 class="text-xl font-bold mb-2">Kimia Kelas 10</h3>
@@ -652,14 +1689,16 @@
                                     <div class="text-xs text-gray-500">Materi</div>
                                 </div>
                             </div>
-                            <a href="#" class="block w-full bg-yellow-500 text-white text-center py-3 rounded-lg font-bold hover:bg-yellow-600 transition">
+                            <a href="#"
+                                class="block w-full bg-yellow-500 text-white text-center py-3 rounded-lg font-bold hover:bg-yellow-600 transition">
                                 Lihat Detail
                             </a>
                         </div>
                     </div>
 
                     <!-- Course 3 -->
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2">
+                    <div
+                        class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2">
                         <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 p-6 text-white">
                             <div class="text-sm font-bold mb-2">MAT-SMA-01</div>
                             <h3 class="text-xl font-bold mb-2">Matematika Peminatan</h3>
@@ -680,7 +1719,8 @@
                                     <div class="text-xs text-gray-500">Materi</div>
                                 </div>
                             </div>
-                            <a href="#" class="block w-full bg-indigo-500 text-white text-center py-3 rounded-lg font-bold hover:bg-indigo-600 transition">
+                            <a href="#"
+                                class="block w-full bg-indigo-500 text-white text-center py-3 rounded-lg font-bold hover:bg-indigo-600 transition">
                                 Lihat Detail
                             </a>
                         </div>
@@ -690,7 +1730,8 @@
 
             <!-- View All CTA -->
             <div class="text-center mt-12">
-                <a href="#" class="inline-block border-2 border-primary text-primary px-8 py-3 rounded-full font-bold hover:bg-primary hover:text-white transition">
+                <a href="#"
+                    class="inline-block border-2 border-primary text-primary px-8 py-3 rounded-full font-bold hover:bg-primary hover:text-white transition">
                     Lihat Semua Kursus
                     <i class="fas fa-arrow-right ml-2"></i>
                 </a>
@@ -708,30 +1749,36 @@
             <div class="max-w-3xl mx-auto space-y-4">
                 <!-- FAQ 1 -->
                 <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
-                    <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                    <button
+                        class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
                         <span class="text-lg font-bold text-gray-800">Siapa yang bisa mendaftar?</span>
                         <i class="fas fa-chevron-down text-primary transition-transform"></i>
                     </button>
                     <div class="faq-answer px-6 pb-6 text-gray-600">
-                        <p>Calon siswa SMP dan SMA dapat mendaftar sendiri melalui form online. Untuk pengajar dan orang tua, akun akan dibuatkan oleh administrator setelah proses verifikasi internal.</p>
+                        <p>Calon siswa SMP dan SMA dapat mendaftar sendiri melalui form online. Untuk pengajar dan orang
+                            tua, akun akan dibuatkan oleh administrator setelah proses verifikasi internal.</p>
                     </div>
                 </div>
 
                 <!-- FAQ 2 -->
                 <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
-                    <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                    <button
+                        class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
                         <span class="text-lg font-bold text-gray-800">Berapa lama proses approval pendaftaran?</span>
                         <i class="fas fa-chevron-down text-primary transition-transform"></i>
                     </button>
                     <div class="faq-answer px-6 pb-6 text-gray-600 hidden">
-                        <p>Proses verifikasi dokumen biasanya memakan waktu 1-3 hari kerja setelah semua dokumen lengkap diupload. Anda akan mendapat notifikasi via email mengenai status pendaftaran Anda.</p>
+                        <p>Proses verifikasi dokumen biasanya memakan waktu 1-3 hari kerja setelah semua dokumen lengkap
+                            diupload. Anda akan mendapat notifikasi via email mengenai status pendaftaran Anda.</p>
                     </div>
                 </div>
 
                 <!-- FAQ 3 -->
                 <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
-                    <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
-                        <span class="text-lg font-bold text-gray-800">Dokumen apa saja yang diperlukan untuk pendaftaran?</span>
+                    <button
+                        class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                        <span class="text-lg font-bold text-gray-800">Dokumen apa saja yang diperlukan untuk
+                            pendaftaran?</span>
                         <i class="fas fa-chevron-down text-primary transition-transform"></i>
                     </button>
                     <div class="faq-answer px-6 pb-6 text-gray-600 hidden">
@@ -742,62 +1789,79 @@
                             <li>Foto siswa terbaru ukuran 3x4</li>
                             <li>Bukti pembayaran pendaftaran</li>
                         </ul>
-                        <p class="mt-2">Semua dokumen harus dalam format JPG, PNG, atau PDF dengan ukuran maksimal 2MB.</p>
+                        <p class="mt-2">Semua dokumen harus dalam format JPG, PNG, atau PDF dengan ukuran maksimal 2MB.
+                        </p>
                     </div>
                 </div>
 
                 <!-- FAQ 4 -->
                 <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
-                    <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                    <button
+                        class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
                         <span class="text-lg font-bold text-gray-800">Apakah ada biaya pendaftaran?</span>
                         <i class="fas fa-chevron-down text-primary transition-transform"></i>
                     </button>
                     <div class="faq-answer px-6 pb-6 text-gray-600 hidden">
-                        <p>Ya, terdapat biaya pendaftaran yang bervariasi tergantung jenjang pendidikan. Untuk informasi lebih detail mengenai biaya, silakan hubungi bagian administrasi kami melalui WhatsApp atau email yang tertera di bagian footer.</p>
+                        <p>Ya, terdapat biaya pendaftaran yang bervariasi tergantung jenjang pendidikan. Untuk informasi
+                            lebih detail mengenai biaya, silakan hubungi bagian administrasi kami melalui WhatsApp atau
+                            email yang tertera di bagian footer.</p>
                     </div>
                 </div>
 
                 <!-- FAQ 5 -->
                 <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
-                    <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
-                        <span class="text-lg font-bold text-gray-800">Bagaimana cara orang tua memantau perkembangan anak?</span>
+                    <button
+                        class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                        <span class="text-lg font-bold text-gray-800">Bagaimana cara orang tua memantau perkembangan
+                            anak?</span>
                         <i class="fas fa-chevron-down text-primary transition-transform"></i>
                     </button>
                     <div class="faq-answer px-6 pb-6 text-gray-600 hidden">
-                        <p>Setelah siswa terdaftar, orang tua akan dibuatkan akun khusus oleh admin dengan akses ke Parent Dashboard. Melalui dashboard ini, orang tua dapat melihat nilai real-time, kehadiran, tugas yang dikerjakan, dan berkomunikasi dengan pengajar.</p>
+                        <p>Setelah siswa terdaftar, orang tua akan dibuatkan akun khusus oleh admin dengan akses ke
+                            Parent Dashboard. Melalui dashboard ini, orang tua dapat melihat nilai real-time, kehadiran,
+                            tugas yang dikerjakan, dan berkomunikasi dengan pengajar.</p>
                     </div>
                 </div>
 
                 <!-- FAQ 6 -->
                 <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
-                    <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                    <button
+                        class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
                         <span class="text-lg font-bold text-gray-800">Apakah bisa akses dari smartphone?</span>
                         <i class="fas fa-chevron-down text-primary transition-transform"></i>
                     </button>
                     <div class="faq-answer px-6 pb-6 text-gray-600 hidden">
-                        <p>Ya! Platform kami sepenuhnya responsive dan dapat diakses dari berbagai perangkat termasuk desktop, tablet, dan smartphone. Anda bisa belajar, mengerjakan tugas, dan memantau nilai kapan saja dan di mana saja.</p>
+                        <p>Ya! Platform kami sepenuhnya responsive dan dapat diakses dari berbagai perangkat termasuk
+                            desktop, tablet, dan smartphone. Anda bisa belajar, mengerjakan tugas, dan memantau nilai
+                            kapan saja dan di mana saja.</p>
                     </div>
                 </div>
 
                 <!-- FAQ 7 -->
                 <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
-                    <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                    <button
+                        class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
                         <span class="text-lg font-bold text-gray-800">Bagaimana jika lupa password?</span>
                         <i class="fas fa-chevron-down text-primary transition-transform"></i>
                     </button>
                     <div class="faq-answer px-6 pb-6 text-gray-600 hidden">
-                        <p>Anda dapat menggunakan fitur "Lupa Password" di halaman login. Kami akan mengirimkan link reset password ke email yang terdaftar. Ikuti instruksi di email untuk membuat password baru.</p>
+                        <p>Anda dapat menggunakan fitur "Lupa Password" di halaman login. Kami akan mengirimkan link
+                            reset password ke email yang terdaftar. Ikuti instruksi di email untuk membuat password
+                            baru.</p>
                     </div>
                 </div>
 
                 <!-- FAQ 8 -->
                 <div class="faq-item bg-white rounded-xl shadow-md overflow-hidden">
-                    <button class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                    <button
+                        class="faq-question w-full text-left p-6 flex justify-between items-center hover:bg-gray-50 transition">
                         <span class="text-lg font-bold text-gray-800">Apakah data saya aman?</span>
                         <i class="fas fa-chevron-down text-primary transition-transform"></i>
                     </button>
                     <div class="faq-answer px-6 pb-6 text-gray-600 hidden">
-                        <p>Keamanan data adalah prioritas utama kami. Platform ini menggunakan Laravel Sanctum untuk autentikasi, enkripsi data, dan role-based access control. Semua data pribadi dan dokumen disimpan dengan aman dan hanya dapat diakses oleh pihak yang berwenang.</p>
+                        <p>Keamanan data adalah prioritas utama kami. Platform ini menggunakan Laravel Sanctum untuk
+                            autentikasi, enkripsi data, dan role-based access control. Semua data pribadi dan dokumen
+                            disimpan dengan aman dan hanya dapat diakses oleh pihak yang berwenang.</p>
                     </div>
                 </div>
             </div>
@@ -808,13 +1872,16 @@
     <section class="py-20 bg-gradient-to-r from-primary to-secondary text-white">
         <div class="container mx-auto px-6 text-center">
             <h2 class="text-4xl md:text-5xl font-bold mb-6">Siap Memulai Perjalanan Belajar Anda?</h2>
-            <p class="text-xl mb-8 text-white/90">Bergabunglah dengan ribuan siswa yang sudah merasakan pengalaman belajar modern</p>
+            <p class="text-xl mb-8 text-white/90">Bergabunglah dengan ribuan siswa yang sudah merasakan pengalaman
+                belajar modern</p>
             <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <a href="#register" class="bg-white text-primary px-10 py-4 rounded-full text-lg font-bold hover:shadow-2xl transition transform hover:scale-105">
+                <a href="#register"
+                    class="bg-white text-primary px-10 py-4 rounded-full text-lg font-bold hover:shadow-2xl transition transform hover:scale-105">
                     <i class="fas fa-user-plus mr-2"></i>
                     Daftar Sekarang
                 </a>
-                <a href="#contact" class="bg-white/10 backdrop-blur-sm border-2 border-white text-white px-10 py-4 rounded-full text-lg font-bold hover:bg-white/20 transition">
+                <a href="#contact"
+                    class="bg-white/10 backdrop-blur-sm border-2 border-white text-white px-10 py-4 rounded-full text-lg font-bold hover:bg-white/20 transition">
                     <i class="fas fa-phone mr-2"></i>
                     Hubungi Kami
                 </a>
@@ -837,18 +1904,23 @@
                             <p class="text-xs text-gray-400">Learning Management System</p>
                         </div>
                     </div>
-                    <p class="text-gray-400 mb-4">Platform pembelajaran modern untuk SMP & SMA dengan sistem terintegrasi.</p>
+                    <p class="text-gray-400 mb-4">Platform pembelajaran modern untuk SMP & SMA dengan sistem
+                        terintegrasi.</p>
                     <div class="flex space-x-4">
-                        <a href="#" class="bg-white/10 w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition">
+                        <a href="#"
+                            class="bg-white/10 w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition">
                             <i class="fab fa-facebook-f"></i>
                         </a>
-                        <a href="#" class="bg-white/10 w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition">
+                        <a href="#"
+                            class="bg-white/10 w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition">
                             <i class="fab fa-twitter"></i>
                         </a>
-                        <a href="#" class="bg-white/10 w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition">
+                        <a href="#"
+                            class="bg-white/10 w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition">
                             <i class="fab fa-instagram"></i>
                         </a>
-                        <a href="#" class="bg-white/10 w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition">
+                        <a href="#"
+                            class="bg-white/10 w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition">
                             <i class="fab fa-youtube"></i>
                         </a>
                     </div>
@@ -859,7 +1931,8 @@
                     <h4 class="text-lg font-bold mb-4">Quick Links</h4>
                     <ul class="space-y-2">
                         <li><a href="#" class="text-gray-400 hover:text-white transition">Tentang Kami</a></li>
-                        <li><a href="#how-it-works" class="text-gray-400 hover:text-white transition">Cara Pendaftaran</a></li>
+                        <li><a href="#how-it-works" class="text-gray-400 hover:text-white transition">Cara
+                                Pendaftaran</a></li>
                         <li><a href="#faq" class="text-gray-400 hover:text-white transition">FAQ</a></li>
                         <li><a href="#" class="text-gray-400 hover:text-white transition">Kebijakan Privasi</a></li>
                         <li><a href="#" class="text-gray-400 hover:text-white transition">Syarat & Ketentuan</a></li>
@@ -870,10 +1943,14 @@
                 <div>
                     <h4 class="text-lg font-bold mb-4">Portal Login</h4>
                     <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white transition"><i class="fas fa-user-graduate mr-2"></i>Login Siswa</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition"><i class="fas fa-chalkboard-teacher mr-2"></i>Login Pengajar</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition"><i class="fas fa-users mr-2"></i>Login Orang Tua</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition"><i class="fas fa-user-shield mr-2"></i>Admin Login</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition"><i
+                                    class="fas fa-user-graduate mr-2"></i>Login Siswa</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition"><i
+                                    class="fas fa-chalkboard-teacher mr-2"></i>Login Pengajar</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition"><i
+                                    class="fas fa-users mr-2"></i>Login Orang Tua</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition"><i
+                                    class="fas fa-user-shield mr-2"></i>Admin Login</a></li>
                     </ul>
                 </div>
 
@@ -885,14 +1962,16 @@
                             <i class="fas fa-envelope text-primary mr-3 mt-1"></i>
                             <div>
                                 <p class="text-gray-400 text-sm">Email</p>
-                                <a href="mailto:info@smartdevacademic.sch.id" class="text-white hover:text-primary transition">info@smartdevacademic.sch.id</a>
+                                <a href="mailto:info@smartdevacademic.sch.id"
+                                    class="text-white hover:text-primary transition">info@smartdevacademic.sch.id</a>
                             </div>
                         </li>
                         <li class="flex items-start">
                             <i class="fab fa-whatsapp text-accent mr-3 mt-1"></i>
                             <div>
                                 <p class="text-gray-400 text-sm">WhatsApp</p>
-                                <a href="https://wa.me/6281234567890" class="text-white hover:text-accent transition">0812-3456-7890</a>
+                                <a href="https://wa.me/6281234567890"
+                                    class="text-white hover:text-accent transition">0812-3456-7890</a>
                             </div>
                         </li>
                         <li class="flex items-start">
@@ -915,14 +1994,17 @@
     </footer>
 
     <!-- Sticky CTA Bar -->
-    <div class="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-primary to-secondary text-white py-4 shadow-2xl transform translate-y-full transition-transform duration-300" id="stickyCTA">
+    <div class="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-primary to-secondary text-white py-4 shadow-2xl transform translate-y-full transition-transform duration-300"
+        id="stickyCTA">
         <div class="container mx-auto px-6 flex flex-col sm:flex-row justify-between items-center">
             <p class="text-lg font-bold mb-2 sm:mb-0">Siap bergabung dengan SMARTDev Academic?</p>
             <div class="flex gap-3">
-                <a href="#register" class="bg-white text-primary px-6 py-2 rounded-full font-bold hover:shadow-lg transition">
+                <a href="#register"
+                    class="bg-white text-primary px-6 py-2 rounded-full font-bold hover:shadow-lg transition">
                     Daftar Sekarang
                 </a>
-                <a href="#login" class="bg-white/20 backdrop-blur-sm border-2 border-white text-white px-6 py-2 rounded-full font-bold hover:bg-white/30 transition">
+                <a href="#login"
+                    class="bg-white/20 backdrop-blur-sm border-2 border-white text-white px-6 py-2 rounded-full font-bold hover:bg-white/30 transition">
                     Login
                 </a>
             </div>
@@ -930,6 +2012,719 @@
     </div>
 
     <!-- Custom JavaScript -->
-    <script src="script.js"></script>
+    <script>
+        // ============================================
+        // SMARTDev Academic Landing Page - JavaScript
+        // GSAP-Inspired Smooth & Fluid Interactions
+        // ============================================
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // ==========================================
+            // SMOOTH SCROLL SETUP
+            // ==========================================
+            let lastScrollTop = 0;
+            let ticking = false;
+
+            // ==========================================
+            // Navigation - Smooth Scroll Effect
+            // ==========================================
+            const nav = document.querySelector("nav");
+
+            function updateNavigation(scrollTop) {
+                if (scrollTop > 100) {
+                    nav.classList.add("scrolled");
+                } else {
+                    nav.classList.remove("scrolled");
+                }
+            }
+
+            // ==========================================
+            // Parallax Effect - Hero Section
+            // ==========================================
+            const heroImage = document.querySelector(
+                "section:first-of-type .container > div > div:last-child",
+            );
+
+            function applyParallax(scrollTop) {
+                if (heroImage && window.innerWidth > 768) {
+                    const speed = 0.5;
+                    const yPos = -(scrollTop * speed);
+                    heroImage.style.transform = `translateY(${yPos}px)`;
+                }
+            }
+
+            // ==========================================
+            // Optimized Scroll Handler with RAF
+            // ==========================================
+            window.addEventListener("scroll", function () {
+                lastScrollTop = window.pageYOffset;
+
+                if (!ticking) {
+                    window.requestAnimationFrame(function () {
+                        updateNavigation(lastScrollTop);
+                        applyParallax(lastScrollTop);
+                        updateScrollProgress(lastScrollTop);
+                        updateStickyCTA(lastScrollTop);
+                        updateBackToTop(lastScrollTop);
+                        ticking = false;
+                    });
+
+                    ticking = true;
+                }
+            });
+
+            // ==========================================
+            // Mobile Menu Toggle
+            // ==========================================
+            const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+            const mobileMenu = document.getElementById("mobileMenu");
+
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener("click", () => {
+                    const isHidden = mobileMenu.classList.contains("hidden");
+                    mobileMenu.classList.toggle("hidden");
+
+                    const icon = mobileMenuBtn.querySelector("i");
+                    if (isHidden) {
+                        icon.classList.remove("fa-bars");
+                        icon.classList.add("fa-times");
+                    } else {
+                        icon.classList.remove("fa-times");
+                        icon.classList.add("fa-bars");
+                    }
+                });
+
+                // Close mobile menu when clicking a link
+                const mobileLinks = mobileMenu.querySelectorAll("a");
+                mobileLinks.forEach((link) => {
+                    link.addEventListener("click", () => {
+                        mobileMenu.classList.add("hidden");
+                        const icon = mobileMenuBtn.querySelector("i");
+                        icon.classList.remove("fa-times");
+                        icon.classList.add("fa-bars");
+                    });
+                });
+            }
+
+            // ==========================================
+            // Smooth Scroll for Anchor Links
+            // ==========================================
+            document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+                anchor.addEventListener("click", function (e) {
+                    const href = this.getAttribute("href");
+
+                    if (
+                        href === "#" ||
+                        href === "#register" ||
+                        href === "#login" ||
+                        href === "#contact"
+                    ) {
+                        e.preventDefault();
+                        return;
+                    }
+
+                    const target = document.querySelector(href);
+                    if (target) {
+                        e.preventDefault();
+                        const offsetTop = target.offsetTop - 80;
+
+                        // Smooth scroll with custom easing
+                        smoothScrollTo(offsetTop, 800);
+                    }
+                });
+            });
+
+            // Custom smooth scroll function with easing
+            function smoothScrollTo(targetPosition, duration) {
+                const startPosition = window.pageYOffset;
+                const distance = targetPosition - startPosition;
+                let startTime = null;
+
+                function easeInOutCubic(t) {
+                    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+                }
+
+                function animation(currentTime) {
+                    if (startTime === null) startTime = currentTime;
+                    const timeElapsed = currentTime - startTime;
+                    const progress = Math.min(timeElapsed / duration, 1);
+                    const ease = easeInOutCubic(progress);
+
+                    window.scrollTo(0, startPosition + distance * ease);
+
+                    if (timeElapsed < duration) {
+                        requestAnimationFrame(animation);
+                    }
+                }
+
+                requestAnimationFrame(animation);
+            }
+
+            // ==========================================
+            // Counter Animation with Smooth Easing
+            // ==========================================
+            const counters = document.querySelectorAll(".counter");
+            let countersAnimated = false;
+
+            // Custom easing functions
+            function easeOutExpo(x) {
+                return x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
+            }
+
+            function easeOutQuart(x) {
+                return 1 - Math.pow(1 - x, 4);
+            }
+
+            function animateCounters() {
+                if (countersAnimated) return;
+
+                counters.forEach((counter, index) => {
+                    const target = +counter.getAttribute("data-target");
+                    const duration = 3500;
+                    const startTime = performance.now();
+
+                    function updateCounter(currentTime) {
+                        const elapsed = currentTime - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        const eased = easeOutExpo(progress);
+                        const current = Math.floor(eased * target);
+
+                        counter.textContent = current.toLocaleString();
+
+                        if (progress < 1) {
+                            requestAnimationFrame(updateCounter);
+                        } else {
+                            counter.textContent = target.toLocaleString() + "+";
+                        }
+                    }
+
+                    // Stagger the animation start
+                    setTimeout(() => {
+                        requestAnimationFrame(updateCounter);
+                    }, index * 100);
+                });
+
+                countersAnimated = true;
+            }
+
+            // ==========================================
+            // Intersection Observer for Scroll Reveals
+            // ==========================================
+            const observerOptions = {
+                threshold: 0.15,
+                rootMargin: "0px 0px -50px 0px",
+            };
+
+            const revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("revealed");
+                        entry.target.style.opacity = "1";
+                        entry.target.style.transform = "translateY(0)";
+                    }
+                });
+            }, observerOptions);
+
+            // Stats section observer (for counter animation)
+            const statsSection = document.getElementById("stats");
+            if (statsSection) {
+                const statsObserver = new IntersectionObserver(
+                    (entries) => {
+                        entries.forEach((entry) => {
+                            if (entry.isIntersecting) {
+                                animateCounters();
+                                statsObserver.unobserve(entry.target);
+                            }
+                        });
+                    },
+                    { threshold: 0.3 },
+                );
+
+                statsObserver.observe(statsSection);
+            }
+
+            // Observe role cards
+            const roleCards = document.querySelectorAll("#roles .bg-white");
+            roleCards.forEach((card) => {
+                card.style.opacity = "0";
+                card.style.transform = "translateY(40px)";
+                revealObserver.observe(card);
+            });
+
+            // Observe feature cards
+            const featureCards = document.querySelectorAll("#features .bg-gray-50");
+            featureCards.forEach((card) => {
+                card.style.opacity = "0";
+                card.style.transform = "translateY(40px)";
+                revealObserver.observe(card);
+            });
+
+            // Observe course cards
+            const courseCards = document.querySelectorAll("#courses .bg-white");
+            courseCards.forEach((card) => {
+                card.style.opacity = "0";
+                card.style.transform = "translateY(40px)";
+                revealObserver.observe(card);
+            });
+
+            // ==========================================
+            // Course Tabs with Smooth Transition
+            // ==========================================
+            const courseTabs = document.querySelectorAll(".course-tab");
+            const courseContents = document.querySelectorAll(".course-content");
+
+            courseTabs.forEach((tab) => {
+                tab.addEventListener("click", () => {
+                    const targetTab = tab.getAttribute("data-tab");
+
+                    // Remove active from all
+                    courseTabs.forEach((t) => t.classList.remove("active"));
+                    courseContents.forEach((c) => c.classList.remove("active"));
+
+                    // Add active to clicked
+                    tab.classList.add("active");
+                    const targetContent = document.getElementById(
+                        `${targetTab}-courses`,
+                    );
+
+                    // Smooth transition
+                    setTimeout(() => {
+                        targetContent.classList.add("active");
+                    }, 50);
+                });
+            });
+
+            // ==========================================
+            // FAQ Accordion with Smooth Animation
+            // ==========================================
+            const faqItems = document.querySelectorAll(".faq-item");
+
+            faqItems.forEach((item) => {
+                const question = item.querySelector(".faq-question");
+                const answer = item.querySelector(".faq-answer");
+
+                question.addEventListener("click", () => {
+                    const isActive = item.classList.contains("active");
+
+                    // Close all items with smooth animation
+                    faqItems.forEach((faq) => {
+                        faq.classList.remove("active");
+                        const faqAnswer = faq.querySelector(".faq-answer");
+                        faqAnswer.classList.add("hidden");
+                    });
+
+                    // Open clicked item if it wasn't active
+                    if (!isActive) {
+                        item.classList.add("active");
+                        answer.classList.remove("hidden");
+                    }
+                });
+            });
+
+            // Open first FAQ by default
+            if (faqItems.length > 0) {
+                faqItems[0].classList.add("active");
+                faqItems[0].querySelector(".faq-answer").classList.remove("hidden");
+            }
+
+            // ==========================================
+            // Sticky CTA Bar
+            // ==========================================
+            const stickyCTA = document.getElementById("stickyCTA");
+            let ctaShown = false;
+
+            function updateStickyCTA(scrollPosition) {
+                if (!stickyCTA) return;
+
+                const windowHeight = window.innerHeight;
+                const footer = document.querySelector("footer");
+
+                if (scrollPosition > windowHeight && !ctaShown) {
+                    stickyCTA.classList.add("show");
+                    ctaShown = true;
+                } else if (scrollPosition <= windowHeight && ctaShown) {
+                    stickyCTA.classList.remove("show");
+                    ctaShown = false;
+                }
+
+                // Hide when near footer
+                if (footer) {
+                    const footerOffset = footer.offsetTop;
+                    if (scrollPosition + windowHeight >= footerOffset - 100) {
+                        stickyCTA.classList.remove("show");
+                    } else if (scrollPosition > windowHeight) {
+                        stickyCTA.classList.add("show");
+                    }
+                }
+            }
+
+            // ==========================================
+            // Scroll Progress Bar
+            // ==========================================
+            const progressBar = document.createElement("div");
+            progressBar.id = "scrollProgress";
+            document.body.appendChild(progressBar);
+
+            function updateScrollProgress(scrollTop) {
+                const docHeight =
+                    document.documentElement.scrollHeight - window.innerHeight;
+                const scrollPercent = (scrollTop / docHeight) * 100;
+                progressBar.style.width = scrollPercent + "%";
+            }
+
+            // ==========================================
+            // Back to Top Button
+            // ==========================================
+            const backToTopBtn = document.createElement("button");
+            backToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+            backToTopBtn.className =
+                "fixed bottom-6 right-6 bg-gradient-to-r from-primary to-secondary text-white w-12 h-12 rounded-full shadow-lg opacity-0 pointer-events-none transition-all duration-300 hover:shadow-2xl z-40";
+            backToTopBtn.id = "backToTop";
+            document.body.appendChild(backToTopBtn);
+
+            function updateBackToTop(scrollTop) {
+                if (scrollTop > 300) {
+                    backToTopBtn.style.opacity = "1";
+                    backToTopBtn.style.pointerEvents = "auto";
+                } else {
+                    backToTopBtn.style.opacity = "0";
+                    backToTopBtn.style.pointerEvents = "none";
+                }
+            }
+
+            backToTopBtn.addEventListener("click", () => {
+                smoothScrollTo(0, 1000);
+            });
+
+            // ==========================================
+            // Magnetic Button Effect (Subtle)
+            // ==========================================
+            const buttons = document.querySelectorAll(
+                'a[class*="bg-gradient"], button[class*="bg-"]',
+            );
+
+            buttons.forEach((button) => {
+                button.addEventListener("mouseenter", function () {
+                    this.style.transition = "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
+                });
+
+                button.addEventListener("mousemove", function (e) {
+                    if (window.innerWidth < 768) return; // Disable on mobile
+
+                    const rect = this.getBoundingClientRect();
+                    const x = e.clientX - rect.left - rect.width / 2;
+                    const y = e.clientY - rect.top - rect.height / 2;
+
+                    // Subtle magnetic effect
+                    const moveX = x * 0.1;
+                    const moveY = y * 0.1;
+
+                    this.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.01)`;
+                });
+
+                button.addEventListener("mouseleave", function () {
+                    this.style.transition = "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
+                    this.style.transform = "";
+                });
+            });
+
+            // ==========================================
+            // Card Tilt Effect (Subtle)
+            // ==========================================
+            const tiltCards = document.querySelectorAll(
+                "#roles .bg-white, #courses .bg-white",
+            );
+
+            tiltCards.forEach((card) => {
+                card.addEventListener("mouseenter", function () {
+                    this.style.transition = "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
+                });
+
+                card.addEventListener("mousemove", function (e) {
+                    if (window.innerWidth < 768) return;
+
+                    const rect = this.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+
+                    const rotateX = (y - centerY) / 30;
+                    const rotateY = (centerX - x) / 30;
+
+                    this.style.transform = `
+                        perspective(1000px)
+                        rotateX(${-rotateX}deg)
+                        rotateY(${rotateY}deg)
+                        translateY(-8px)
+                        scale(1.01)
+                    `;
+                });
+
+                card.addEventListener("mouseleave", function () {
+                    this.style.transition = "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
+                    this.style.transform = "";
+                });
+            });
+
+            // ==========================================
+            // Lazy Load Images
+            // ==========================================
+            const images = document.querySelectorAll("img[data-src]");
+            const imageObserver = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.add("fade-in");
+                        imageObserver.unobserve(img);
+                    }
+                });
+            });
+
+            images.forEach((img) => imageObserver.observe(img));
+
+            // ==========================================
+            // Toast Notification System
+            // ==========================================
+            function showToast(message, type = "info") {
+                const toast = document.createElement("div");
+                const colors = {
+                    success: "bg-green-500",
+                    error: "bg-red-500",
+                    warning: "bg-yellow-500",
+                    info: "bg-blue-500",
+                };
+
+                const icons = {
+                    success: "check-circle",
+                    error: "exclamation-circle",
+                    warning: "exclamation-triangle",
+                    info: "info-circle",
+                };
+
+                toast.className = `fixed top-20 right-6 ${colors[type]} text-white px-6 py-4 rounded-lg shadow-lg z-50 transform translate-x-full transition-all duration-500`;
+                toast.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-${icons[type]}"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+
+                document.body.appendChild(toast);
+
+                // Slide in with smooth animation
+                requestAnimationFrame(() => {
+                    toast.style.transform = "translateX(0)";
+                });
+
+                // Auto remove after 3 seconds
+                setTimeout(() => {
+                    toast.style.transform = "translateX(400px)";
+                    setTimeout(() => {
+                        if (document.body.contains(toast)) {
+                            document.body.removeChild(toast);
+                        }
+                    }, 500);
+                }, 3000);
+            }
+
+            window.showToast = showToast;
+
+            // ==========================================
+            // Form Validation
+            // ==========================================
+            const forms = document.querySelectorAll("form");
+            forms.forEach((form) => {
+                form.addEventListener("submit", (e) => {
+                    e.preventDefault();
+
+                    const submitBtn = form.querySelector('[type="submit"]');
+                    if (submitBtn) {
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.innerHTML =
+                            '<i class="fas fa-spinner fa-spin mr-2"></i>Memproses...';
+                        submitBtn.disabled = true;
+
+                        // Simulate API call
+                        setTimeout(() => {
+                            submitBtn.innerHTML = originalText;
+                            submitBtn.disabled = false;
+                            showToast("Form berhasil dikirim!", "success");
+                        }, 2000);
+                    }
+                });
+            });
+
+            // ==========================================
+            // Keyboard Navigation
+            // ==========================================
+            document.addEventListener("keydown", (e) => {
+                // Close mobile menu on Escape
+                if (
+                    e.key === "Escape" &&
+                    mobileMenu &&
+                    !mobileMenu.classList.contains("hidden")
+                ) {
+                    mobileMenu.classList.add("hidden");
+                    const icon = mobileMenuBtn.querySelector("i");
+                    icon.classList.remove("fa-times");
+                    icon.classList.add("fa-bars");
+                }
+
+                // Scroll to top on Home key
+                if (e.key === "Home" && e.ctrlKey) {
+                    e.preventDefault();
+                    smoothScrollTo(0, 1000);
+                }
+
+                // Scroll to bottom on End key
+                if (e.key === "End" && e.ctrlKey) {
+                    e.preventDefault();
+                    const docHeight = document.documentElement.scrollHeight;
+                    smoothScrollTo(docHeight, 1000);
+                }
+            });
+
+            // ==========================================
+            // Analytics Event Tracking
+            // ==========================================
+            function trackEvent(category, action, label) {
+                console.log(`Event: ${category} - ${action} - ${label}`);
+                // Integrate with GA4, GTM, etc.
+                // if (typeof gtag !== 'undefined') {
+                //     gtag('event', action, {
+                //         'event_category': category,
+                //         'event_label': label
+                //     });
+                // }
+            }
+
+            // Track CTA clicks
+            document.querySelectorAll('a[href="#register"]').forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    trackEvent("CTA", "click", "Register Button");
+                });
+            });
+
+            document.querySelectorAll('a[href="#login"]').forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    trackEvent("CTA", "click", "Login Button");
+                });
+            });
+
+            // ==========================================
+            // Performance Monitoring
+            // ==========================================
+            if ("performance" in window) {
+                window.addEventListener("load", () => {
+                    const perfData = window.performance.timing;
+                    const pageLoadTime =
+                        perfData.loadEventEnd - perfData.navigationStart;
+                    console.log(
+                        `%c⚡ Page Load Time: ${pageLoadTime}ms`,
+                        "color: #28a745; font-weight: bold;",
+                    );
+
+                    // Report FCP (First Contentful Paint)
+                    if ("PerformanceObserver" in window) {
+                        const observer = new PerformanceObserver((list) => {
+                            for (const entry of list.getEntries()) {
+                                if (entry.name === "first-contentful-paint") {
+                                    console.log(
+                                        `%c🎨 First Contentful Paint: ${Math.round(entry.startTime)}ms`,
+                                        "color: #667eea; font-weight: bold;",
+                                    );
+                                }
+                            }
+                        });
+                        observer.observe({ entryTypes: ["paint"] });
+                    }
+                });
+            }
+
+            // ==========================================
+            // Cursor Position Effect (Hero Only)
+            // ==========================================
+            const heroSection = document.querySelector("section:first-of-type");
+            if (heroSection && window.innerWidth > 1024) {
+                heroSection.addEventListener("mousemove", (e) => {
+                    const rect = heroSection.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+
+                    // Create subtle light effect following cursor
+                    const percentX = (x / rect.width) * 100;
+                    const percentY = (y / rect.height) * 100;
+
+                    heroSection.style.backgroundImage = `
+                        radial-gradient(circle at ${percentX}% ${percentY}%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                        linear-gradient(-45deg, #667eea, #764ba2, #667eea, #5568d3)
+                    `;
+                });
+            }
+
+            // ==========================================
+            // Console Welcome Message
+            // ==========================================
+            console.log(
+                "%c🎓 SMARTDev Academic",
+                "font-size: 24px; font-weight: bold; color: #667eea; text-shadow: 2px 2px 4px rgba(102,126,234,0.3);",
+            );
+            console.log(
+                "%cWelcome to SMARTDev Academic LMS!",
+                "font-size: 14px; color: #764ba2; font-weight: 600;",
+            );
+            console.log(
+                "%c✨ GSAP-Inspired Smooth Animations",
+                "font-size: 12px; color: #28a745; font-weight: bold;",
+            );
+            console.log(
+                "%cBuilt with ❤️ using Laravel 12, Tailwind CSS 4, and Vite",
+                "font-size: 11px; color: #6b7280;",
+            );
+
+            console.log(
+                "%c✅ All systems initialized successfully!",
+                "color: #28a745; font-weight: bold; font-size: 13px; margin-top: 8px;",
+            );
+
+            // ==========================================
+            // Initialize Complete
+            // ==========================================
+            document.body.classList.add("loaded");
+        });
+
+        // ==========================================
+        // Utility Functions
+        // ==========================================
+
+        // Debounce function for performance
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Throttle function for scroll events
+        function throttle(func, limit) {
+            let inThrottle;
+            return function (...args) {
+                if (!inThrottle) {
+                    func.apply(this, args);
+                    inThrottle = true;
+                    setTimeout(() => (inThrottle = false), limit);
+                }
+            };
+        }
+    </script>
 </body>
+
 </html>

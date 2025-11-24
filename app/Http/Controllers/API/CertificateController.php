@@ -11,15 +11,60 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+use OpenApi\Annotations as OA;
+
 class CertificateController extends Controller
 {
     use AuthorizesRequests;
 
     /**
-     * Display a listing of certificates with filtering.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/v1/certificates",
+     *     tags={"Certificates"},
+     *     summary="Get all certificates",
+     *     description="Retrieve a list of certificates with optional filtering",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="course_id",
+     *         in="query",
+     *         description="Filter by course ID",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="student_id",
+     *         in="query",
+     *         description="Filter by student ID",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="Filter by certificate status",
+     *         required=false,
+     *         @OA\Schema(type="string", enum={"issued", "revoked"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Page number",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="data", type="array", @OA\Items(type="object")),
+     *             @OA\Property(property="links", type="object"),
+     *             @OA\Property(property="meta", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=401, description="Unauthenticated"),
+     *     @OA\Response(response=403, description="Forbidden")
+     * )
      */
     public function index(Request $request)
     {
@@ -78,10 +123,26 @@ class CertificateController extends Controller
     }
 
     /**
-     * Display the specified certificate and increment verification count.
-     *
-     * @param  \App\Models\Certificate  $certificate
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/v1/certificates/{id}",
+     *     tags={"Certificates"},
+     *     summary="Get certificate details",
+     *     description="Get detailed information about a specific certificate",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Certificate ID",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=404, description="Certificate not found")
+     * )
      */
     public function show(Certificate $certificate)
     {
@@ -103,10 +164,29 @@ class CertificateController extends Controller
     }
 
     /**
-     * Remove the specified certificate.
-     *
-     * @param  \App\Models\Certificate  $certificate
-     * @return \Illuminate\Http\Response
+     * @OA\Delete(
+     *     path="/api/v1/certificates/{id}",
+     *     tags={"Certificates"},
+     *     summary="Delete certificate",
+     *     description="Delete a certificate (Admin only)",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Certificate ID",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Certificate deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Certificate deleted successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Certificate not found"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function destroy(Certificate $certificate)
     {
@@ -127,10 +207,31 @@ class CertificateController extends Controller
     }
 
     /**
-     * Generate certificate for an enrollment.
-     *
-     * @param  int  $enrollmentId
-     * @return \Illuminate\Http\Response
+     * @OA\Post(
+     *     path="/api/v1/certificates/generate/{enrollmentId}",
+     *     tags={"Certificates"},
+     *     summary="Generate certificate",
+     *     description="Generate a certificate for a specific enrollment",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="enrollmentId",
+     *         in="path",
+     *         required=true,
+     *         description="Enrollment ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Certificate generated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Certificate generated successfully"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=400, description="Certificate already exists or not eligible"),
+     *     @OA\Response(response=404, description="Enrollment not found"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function generate($enrollmentId)
     {
@@ -204,10 +305,31 @@ class CertificateController extends Controller
     }
 
     /**
-     * Bulk generate certificates for all eligible students in a course.
-     *
-     * @param  int  $courseId
-     * @return \Illuminate\Http\Response
+     * @OA\Post(
+     *     path="/api/v1/certificates/bulk-generate/{courseId}",
+     *     tags={"Certificates"},
+     *     summary="Bulk generate certificates",
+     *     description="Generate certificates for all eligible students in a course",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="courseId",
+     *         in="path",
+     *         required=true,
+     *         description="Course ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Bulk generation completed",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Bulk certificate generation completed"),
+     *             @OA\Property(property="summary", type="object"),
+     *             @OA\Property(property="results", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Course not found or no enrollments"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function bulkGenerate($courseId)
     {
@@ -319,10 +441,30 @@ class CertificateController extends Controller
     }
 
     /**
-     * Verify certificate by certificate code (public endpoint).
-     *
-     * @param  string  $certificateCode
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/certificates/verify/{certificateCode}",
+     *     tags={"Certificates"},
+     *     summary="Verify certificate by code",
+     *     description="Public endpoint to verify certificate validity by code",
+     *     @OA\Parameter(
+     *         name="certificateCode",
+     *         in="path",
+     *         required=true,
+     *         description="Certificate Code",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Verification result",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="valid", type="boolean"),
+     *             @OA\Property(property="certificate", type="object"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Certificate not found"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function verify($certificateCode)
     {
@@ -368,10 +510,30 @@ class CertificateController extends Controller
     }
 
     /**
-     * Verify certificate by ID (public endpoint).
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/certificates/verify-id/{id}",
+     *     tags={"Certificates"},
+     *     summary="Verify certificate by ID",
+     *     description="Public endpoint to verify certificate validity by ID",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Certificate ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Verification result",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="valid", type="boolean"),
+     *             @OA\Property(property="certificate", type="object"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Certificate not found"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function verifyByCertificate($id)
     {
@@ -410,11 +572,37 @@ class CertificateController extends Controller
     }
 
     /**
-     * Revoke a certificate.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Certificate  $certificate
-     * @return \Illuminate\Http\Response
+     * @OA\Post(
+     *     path="/api/v1/certificates/{id}/revoke",
+     *     tags={"Certificates"},
+     *     summary="Revoke certificate",
+     *     description="Revoke an issued certificate",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Certificate ID",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"reason"},
+     *             @OA\Property(property="reason", type="string", example="Plagiarism detected")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Certificate revoked successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Certificate revoked successfully"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Certificate not found"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function revoke(Request $request, Certificate $certificate)
     {
@@ -443,10 +631,27 @@ class CertificateController extends Controller
     }
 
     /**
-     * Get all certificates for a student.
-     *
-     * @param  int  $studentId
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/v1/students/{studentId}/certificates",
+     *     tags={"Certificates"},
+     *     summary="Get student certificates",
+     *     description="Get all certificates for a specific student",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="studentId",
+     *         in="path",
+     *         required=true,
+     *         description="Student ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(type="object"))
+     *     ),
+     *     @OA\Response(response=403, description="Forbidden"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function getStudentCertificates($studentId)
     {
@@ -489,10 +694,27 @@ class CertificateController extends Controller
     }
 
     /**
-     * Get all certificates for a course.
-     *
-     * @param  int  $courseId
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/v1/courses/{courseId}/certificates",
+     *     tags={"Certificates"},
+     *     summary="Get course certificates",
+     *     description="Get all certificates issued for a specific course",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="courseId",
+     *         in="path",
+     *         required=true,
+     *         description="Course ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(type="object"))
+     *     ),
+     *     @OA\Response(response=403, description="Forbidden"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function getCourseCertificates($courseId)
     {
@@ -528,10 +750,31 @@ class CertificateController extends Controller
     }
 
     /**
-     * Check if enrollment is eligible for certificate.
-     *
-     * @param  int  $enrollmentId
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/v1/certificates/check-eligibility/{enrollmentId}",
+     *     tags={"Certificates"},
+     *     summary="Check certificate eligibility",
+     *     description="Check if a student enrollment is eligible for a certificate",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="enrollmentId",
+     *         in="path",
+     *         required=true,
+     *         description="Enrollment ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Eligibility check result",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="eligible", type="boolean"),
+     *             @OA\Property(property="errors", type="array", @OA\Items(type="string")),
+     *             @OA\Property(property="details", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=403, description="Forbidden"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function checkEligibility($enrollmentId)
     {

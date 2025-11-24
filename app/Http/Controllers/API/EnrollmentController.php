@@ -14,7 +14,7 @@ class EnrollmentController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/enrollments",
+     *     path="/api/v1/enrollments",
      *     tags={"Enrollments"},
      *     summary="Get all enrollments",
      *     description="Retrieve a list of all enrollments with student and course details",
@@ -57,7 +57,7 @@ class EnrollmentController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/enrollments",
+     *     path="/api/v1/enrollments",
      *     tags={"Enrollments"},
      *     summary="Enroll a student in a course",
      *     description="Create a new enrollment for a student in a specific course",
@@ -115,7 +115,7 @@ class EnrollmentController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/enrollments/{id}",
+     *     path="/api/v1/enrollments/{id}",
      *     tags={"Enrollments"},
      *     summary="Get enrollment by ID",
      *     description="Retrieve a specific enrollment with student and course details",
@@ -149,7 +149,7 @@ class EnrollmentController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/enrollments/{id}",
+     *     path="/api/v1/enrollments/{id}",
      *     tags={"Enrollments"},
      *     summary="Update enrollment (not typically supported)",
      *     description="Enrollments are generally not updated, only created or deleted",
@@ -182,7 +182,7 @@ class EnrollmentController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/enrollments/{id}",
+     *     path="/api/v1/enrollments/{id}",
      *     tags={"Enrollments"},
      *     summary="Delete enrollment",
      *     description="Remove a student's enrollment from a course",

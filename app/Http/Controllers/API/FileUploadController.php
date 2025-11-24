@@ -1,25 +1,31 @@
-<?php
-
-namespace App\Http\Controllers\API;
-
-use App\Http\Controllers\Controller;
-use App\Services\FileUploadService;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Http\Request;
-
-class FileUploadController extends Controller
-{
-    use AuthorizesRequests;
-
-    protected $fileUploadService;
-
-    public function __construct(FileUploadService $fileUploadService)
-    {
-        $this->fileUploadService = $fileUploadService;
-    }
-
-    /**
-     * Upload foto profil user
+     *     summary="Upload profile photo",
+     *     description="Upload a profile photo for the authenticated user",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="photo",
+     *                     type="string",
+     *                     format="binary",
+     *                     description="Profile photo file (max 2MB)"
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Photo uploaded successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=400, description="Upload failed or validation error"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function uploadProfilePhoto(Request $request)
     {
@@ -62,7 +68,44 @@ class FileUploadController extends Controller
     }
 
     /**
-     * Upload file materi
+     * @OA\Post(
+     *     path="/api/v1/upload/material/{materialId}",
+     *     tags={"File Upload"},
+     *     summary="Upload material file",
+     *     description="Upload a file for a learning material",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="materialId",
+     *         in="path",
+     *         required=true,
+     *         description="Material ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="file",
+     *                     type="string",
+     *                     format="binary",
+     *                     description="Material file (max 50MB)"
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="File uploaded successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=400, description="Upload failed or validation error"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function uploadMaterialFile(Request $request, $materialId)
     {
@@ -93,7 +136,44 @@ class FileUploadController extends Controller
     }
 
     /**
-     * Upload file tugas (soal)
+     * @OA\Post(
+     *     path="/api/v1/upload/assignment/{assignmentId}",
+     *     tags={"File Upload"},
+     *     summary="Upload assignment file",
+     *     description="Upload a file for an assignment (e.g., instructions, resources)",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="assignmentId",
+     *         in="path",
+     *         required=true,
+     *         description="Assignment ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="file",
+     *                     type="string",
+     *                     format="binary",
+     *                     description="Assignment file (max 10MB)"
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="File uploaded successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=400, description="Upload failed or validation error"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function uploadAssignmentFile(Request $request, $assignmentId)
     {
@@ -124,7 +204,44 @@ class FileUploadController extends Controller
     }
 
     /**
-     * Upload file jawaban tugas (submission)
+     * @OA\Post(
+     *     path="/api/v1/upload/submission/{submissionId}",
+     *     tags={"File Upload"},
+     *     summary="Upload submission file",
+     *     description="Upload a file for an assignment submission",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="submissionId",
+     *         in="path",
+     *         required=true,
+     *         description="Submission ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="file",
+     *                     type="string",
+     *                     format="binary",
+     *                     description="Submission file (max 20MB)"
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="File uploaded successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=400, description="Upload failed or validation error"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function uploadSubmissionFile(Request $request, $submissionId)
     {
@@ -155,7 +272,29 @@ class FileUploadController extends Controller
     }
 
     /**
-     * Hapus file
+     * @OA\Delete(
+     *     path="/api/v1/upload/delete",
+     *     tags={"File Upload"},
+     *     summary="Delete file",
+     *     description="Delete a file from storage",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"file_path"},
+     *             @OA\Property(property="file_path", type="string", description="Path of the file to delete")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="File deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(response=400, description="Failed to delete file"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function deleteFile(Request $request)
     {
@@ -185,7 +324,30 @@ class FileUploadController extends Controller
     }
 
     /**
-     * Get info file
+     * @OA\Get(
+     *     path="/api/v1/upload/info",
+     *     tags={"File Upload"},
+     *     summary="Get file info",
+     *     description="Get information about a file",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="file_path",
+     *         in="query",
+     *         required=true,
+     *         description="Path of the file",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="File info retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="File not found"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function getFileInfo(Request $request)
     {

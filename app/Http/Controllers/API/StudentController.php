@@ -9,10 +9,51 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
+use OpenApi\Annotations as OA;
+
 class StudentController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *     path="/api/v1/students",
+     *     tags={"Students"},
+     *     summary="Get all students",
+     *     description="Retrieve a list of all students with optional filtering",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="Filter by student status",
+     *         required=false,
+     *         @OA\Schema(type="string", enum={"active", "inactive", "graduated", "dropped"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="search",
+     *         in="query",
+     *         description="Search by name, email, or student number",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Items per page",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=15)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="data", type="array", @OA\Items(type="object")),
+     *             @OA\Property(property="links", type="object"),
+     *             @OA\Property(property="meta", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=401, description="Unauthenticated"),
+     *     @OA\Response(response=403, description="Forbidden")
+     * )
      */
     public function index(Request $request)
     {
@@ -39,7 +80,42 @@ class StudentController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @OA\Post(
+     *     path="/api/v1/students",
+     *     tags={"Students"},
+     *     summary="Create new student",
+     *     description="Create a new student record and associated user account",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"student_number", "full_name", "email", "password"},
+     *             @OA\Property(property="student_number", type="string", example="S2023001"),
+     *             @OA\Property(property="full_name", type="string", example="John Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="password123"),
+     *             @OA\Property(property="phone", type="string", example="08123456789"),
+     *             @OA\Property(property="date_of_birth", type="string", format="date", example="2005-01-01"),
+     *             @OA\Property(property="gender", type="string", enum={"male", "female"}),
+     *             @OA\Property(property="address", type="string"),
+     *             @OA\Property(property="emergency_contact_name", type="string"),
+     *             @OA\Property(property="emergency_contact_phone", type="string"),
+     *             @OA\Property(property="parent_id", type="integer"),
+     *             @OA\Property(property="enrollment_year", type="integer", example=2023),
+     *             @OA\Property(property="current_grade", type="string", example="10")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Student created successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Student created successfully"),
+     *             @OA\Property(property="student", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=422, description="Validation error"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function store(Request $request)
     {
@@ -104,7 +180,26 @@ class StudentController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * @OA\Get(
+     *     path="/api/v1/students/{id}",
+     *     tags={"Students"},
+     *     summary="Get student details",
+     *     description="Get detailed information about a specific student",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Student ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=404, description="Student not found")
+     * )
      */
     public function show(string $id)
     {
@@ -115,7 +210,46 @@ class StudentController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * @OA\Put(
+     *     path="/api/v1/students/{id}",
+     *     tags={"Students"},
+     *     summary="Update student",
+     *     description="Update an existing student record",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Student ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="full_name", type="string"),
+     *             @OA\Property(property="email", type="string", format="email"),
+     *             @OA\Property(property="phone", type="string"),
+     *             @OA\Property(property="date_of_birth", type="string", format="date"),
+     *             @OA\Property(property="gender", type="string", enum={"male", "female"}),
+     *             @OA\Property(property="address", type="string"),
+     *             @OA\Property(property="emergency_contact_name", type="string"),
+     *             @OA\Property(property="emergency_contact_phone", type="string"),
+     *             @OA\Property(property="parent_id", type="integer"),
+     *             @OA\Property(property="current_grade", type="string"),
+     *             @OA\Property(property="status", type="string", enum={"active", "inactive", "graduated", "dropped"})
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Student updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Student updated successfully"),
+     *             @OA\Property(property="student", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Student not found"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
      */
     public function update(Request $request, string $id)
     {
@@ -149,7 +283,29 @@ class StudentController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @OA\Delete(
+     *     path="/api/v1/students/{id}",
+     *     tags={"Students"},
+     *     summary="Delete student",
+     *     description="Delete a student record and associated user account",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Student ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Student deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Student deleted successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Student not found"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function destroy(string $id)
     {
@@ -176,7 +332,26 @@ class StudentController extends Controller
     }
 
     /**
-     * Get student enrollments
+     * @OA\Get(
+     *     path="/api/v1/students/{id}/enrollments",
+     *     tags={"Students"},
+     *     summary="Get student enrollments",
+     *     description="Get all courses a student is enrolled in",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Student ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(type="object"))
+     *     ),
+     *     @OA\Response(response=404, description="Student not found")
+     * )
      */
     public function enrollments(string $id)
     {
@@ -187,7 +362,26 @@ class StudentController extends Controller
     }
 
     /**
-     * Get student submissions
+     * @OA\Get(
+     *     path="/api/v1/students/{id}/submissions",
+     *     tags={"Students"},
+     *     summary="Get student submissions",
+     *     description="Get all assignment submissions for a student",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Student ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(type="object"))
+     *     ),
+     *     @OA\Response(response=404, description="Student not found")
+     * )
      */
     public function submissions(string $id)
     {

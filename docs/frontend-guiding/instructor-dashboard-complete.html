@@ -1,1562 +1,1276 @@
-<!--
-==================================================================
-VERIFIKASI PERUBAHAN: File ini terakhir diubah oleh Gemini.
-Jika Anda tidak melihat perubahan di bawah, mohon tutup dan buka kembali file ini dari disk.
-==================================================================
--->
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instructor Dashboard Complete Guide - SmartDev LMS</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <title>SmartDev Instructor - Ultimate Dashboard</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
+    <style>
         :root {
-            --primary: #0ea5e9;
-            --primary-dark: #0284c7;
-            --secondary: #8b5cf6;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --dark: #1e293b;
-            --light: #f8fafc;
-            --gray: #64748b;
-            --border: #e2e8f0;
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #64748b;
+            --bg-light: #f8fafc;
+            --sidebar-width: 260px;
         }
 
         body {
+            background-color: var(--bg-light);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: var(--dark);
-            background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%);
-            min-height: 100vh;
-            padding: 2rem;
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        /* Sidebar */
+        #sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: #1e293b;
             color: white;
-            padding: 3rem 2rem;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        #sidebar .nav-link {
+            color: #cbd5e1;
+            padding: 0.8rem 1.5rem;
+            font-size: 0.95rem;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        #sidebar .nav-link:hover, #sidebar .nav-link.active {
+            color: white;
+            background: rgba(255,255,255,0.08);
+            border-left-color: var(--primary);
+        }
+
+        #sidebar .brand {
+            padding: 1.5rem;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
             text-align: center;
         }
 
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.95;
-        }
-
-        .nav {
-            background: var(--dark);
-            padding: 1rem 2rem;
-            display: flex;
-            gap: 1rem;
-            overflow-x: auto;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .nav-item {
-            color: white;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            transition: all 0.3s;
-            white-space: nowrap;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        .nav-item:hover,
-        .nav-item.active {
-            background: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        .content {
+        /* Main Content */
+        #content {
+            margin-left: var(--sidebar-width);
             padding: 2rem;
+            transition: margin-left 0.3s;
         }
 
-        .section {
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        /* HOVER EFFECTS */
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+
+        /* Progress Cards Hover */
+        .progress-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .progress-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+        }
+
+        .page-section {
             display: none;
+            animation: fadein 0.4s ease-out;
         }
-
-        .section.active {
+        .page-section.active {
             display: block;
         }
 
-        h2 {
-            color: var(--primary);
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 3px solid var(--primary);
+        @keyframes fadein {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        h3 {
-            color: var(--dark);
-            font-size: 1.5rem;
-            margin-top: 2rem;
-            margin-bottom: 1rem;
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.8);
+            z-index: 2000;
+            display: none; /* Default hidden agar aman */
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
         }
-
-        h4 {
-            color: var(--secondary);
-            font-size: 1.2rem;
-            margin-top: 1.5rem;
-            margin-bottom: 0.75rem;
-        }
-
-        p {
-            margin: 1rem 0;
-            line-height: 1.8;
-        }
-
-        .code-block {
-            position: relative;
-            background: var(--dark);
-            border-radius: 12px;
-            margin: 1.5rem 0;
-            overflow: hidden;
-        }
-
-        .code-label {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            padding: 0.5rem 1rem;
-            font-size: 0.85rem;
-            font-weight: 600;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .code-block pre {
-            color: #e2e8f0;
-            padding: 1.5rem;
-            overflow-x: auto;
-            margin: 0;
-            font-family: "Consolas", "Monaco", monospace;
-            font-size: 0.85rem;
-            line-height: 1.6;
-        }
-
-        .copy-btn {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.3s;
-        }
-
-        .copy-btn:hover {
-            background: var(--primary-dark);
-        }
-
-        .alert {
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            margin: 1.5rem 0;
-            border-left: 4px solid;
-        }
-
-        .alert-info {
-            background: #dbeafe;
-            border-color: #3b82f6;
-            color: #1e40af;
-        }
-
-        .alert-success {
-            background: #d1fae5;
-            border-color: var(--success);
-            color: #065f46;
-        }
-
-        .alert-warning {
-            background: #fef3c7;
-            border-color: var(--warning);
-            color: #92400e;
-        }
-
-        .alert-danger {
-            background: #fee2e2;
-            border-color: var(--danger);
-            color: #991b1b;
-        }
-
-        .card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1rem;
-            margin: 1.5rem 0;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-        }
-
-        th {
-            background: var(--light);
-            padding: 0.75rem;
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 2px solid var(--border);
-        }
-
-        td {
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        tr:hover {
-            background: var(--light);
-        }
-
-        ul, ol {
-            margin: 1rem 0 1rem 2rem;
-            line-height: 2;
-        }
-
-        li {
-            margin: 0.5rem 0;
-        }
-
-        code {
-            background: #f1f5f9;
-            color: #e11d48;
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            font-family: "Consolas", "Monaco", monospace;
-            font-size: 0.9em;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-left: 0.5rem;
-        }
-
-        .badge-new {
-            background: var(--success);
-            color: white;
-        }
-
-        .badge-important {
-            background: var(--danger);
-            color: white;
-        }
-
-        .footer {
-            background: var(--dark);
-            color: white;
-            padding: 2rem;
-            text-align: center;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 0;
-            }
-
-            .container {
-                border-radius: 0;
-            }
-
-            .header h1 {
-                font-size: 1.75rem;
-            }
-
-            .content {
-                padding: 1rem;
-            }
-
-            .nav {
-                padding: 0.5rem 1rem;
-            }
-
-            .grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        
+        /* Helpers */
+        .badge-soft-primary { background-color: rgba(79, 70, 229, 0.1); color: #4f46e5; }
+        .badge-soft-success { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .badge-soft-warning { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        .badge-soft-danger { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>👨‍🏫 Instructor Dashboard Complete Guide</h1>
-            <p>Panduan Lengkap Frontend dengan Ngrok Integration</p>
-            <p style="font-size: 0.9rem; margin-top: 1rem;">
-                <strong>Ngrok URL:</strong> https://loraine-seminiferous-snappily.ngrok-free.dev
-            </p>
-        </div>
 
-        <!-- Navigation -->
-        <div class="nav">
-            <a class="nav-item active" onclick="showSection('overview')">📋 Overview</a>
-            <a class="nav-item" onclick="showSection('setup')">⚙️ Setup</a>
-            <a class="nav-item" onclick="showSection('api')">🔌 API Helper</a>
-            <a class="nav-item" onclick="showSection('layout')">🎨 Layout</a>
-            <a class="nav-item" onclick="showSection('dashboard')">📊 Dashboard</a>
-            <a class="nav-item" onclick="showSection('courses')">📚 Courses</a>
-            <a class="nav-item" onclick="showSection('assignments')">📝 Assignments</a>
-            <a class="nav-item" onclick="showSection('submissions')">✅ Submissions</a>
-            <a class="nav-item" onclick="showSection('grading')">⭐ Grading</a>
-            <a class="nav-item" onclick="showSection('attendance')">📅 Attendance</a>
-            <a class="nav-item" onclick="showSection('announcements')">📢 Announcements</a>
-            <a class="nav-item" onclick="showSection('certificates')">🎓 Certificates</a>
-        </div>
-
-        <!-- Content -->
-        <div class="content">
-            <!-- OVERVIEW SECTION -->
-            <section id="overview" class="section active">
-                <h2>📋 Overview</h2>
-
-                <div class="alert alert-info">
-                    <strong>ℹ️ Informasi Penting:</strong><br>
-                    Tutorial</strong> ini menggunakan <strong>Ngrok</strong> untuk mengakses Laravel backend API.<br>
-                    <strong>Base URL:</strong> <code>https://loraine-seminiferous-snappily.ngrok-free.dev</code>
-                </div>
-
-                <h3>🎯 Apa yang Akan Dibuat?</h3>
-                <div class="grid">
-                    <div class="card">
-                        <h4>📊 Dashboard</h4>
-                        <p>Overview statistik courses, students, submissions, assignments</p>
-                    </div>
-                    <div class="card">
-                        <h4>📚 My Courses</h4>
-                        <p>CRUD courses dengan search dan filter</p>
-                    </div>
-                    <div class="card">
-                        <h4>📝 Assignments</h4>
-                        <p>Create dan manage assignments untuk courses</p>
-                    </div>
-                    <div class="card">
-                        <h4>✅ Submissions</h4>
-                        <p>Review dan grade student submissions</p>
-                    </div>
-                    <div class="card">
-                        <h4>⭐ Grading</h4>
-                        <p>Input grades dengan grade components</p>
-                    </div>
-                    <div class="card">
-                        <h4>📅 Attendance</h4>
-                        <p>Create sessions dan mark attendance</p>
-                    </div>
-                    <div class="card">
-                        <h4>👥 Students</h4></h4>
-                        <p>View enrolled students in courses</p>
-                    </div>
-                    <div class="card">
-                        <h4>📢 Announcements</h4>
-                        <p>Create dan publish announcements</p>
-                    </div>
-                    <div class="card">
-                        <h4>🎓 Certificates</h4>
-                        <p>Generate certificates untuk students</p>
-                    </div>
-                </div>
-
-                <h3>🛠️ Tech Stack</h3>
-                <ul>
-                    <li><strong>Laravel Blade:</strong> Template engine</li>
-                    <li><strong>Bootstrap 5.3:</strong> UI framework</li>
-                    <li><strong>Chart.js:</strong> Data visualization</li>
-                    <li><strong>Vanilla JavaScript:</strong> API calls dengan Fetch API</li>
-                    <li><strong>Ngrok:</strong> Backend API tunneling</li>
-                </ul>
-
-                <h3>📁 Struktur Folder</h3>
-                <div class="code-block">
-                    <div class="code-label">Project Structure</div>
-                    <pre>
-resources/views/
-├── layouts/
-│   └── instructor.blade.php       # Base layout
-└── instructor/
-    ├── dashboard.blade.php        # Main dashboard
-    ├── courses.blade.php          # My courses
-    ├── course-detail.blade.php    # Course management
-    ├── assignments.blade.php      # Assignments
-    ├── submissions.blade.php      # Review submissions
-    ├── grading.blade.php          # Grading interface
-    ├── attendance.blade.php       # Attendance
-    ├── students.blade.php         # Students
-    ├── announcements.blade.php    # Announcements
-    └── certificates.blade.php     # Certificates
-
-public/js/instructor/
-└── api.js                         # API helper
-
-routes/
-└── web.php                        # Web routes</pre>
-                </div>
-
-                <div class="alert alert-success">
-                    <strong>✅ Prerequisites:</strong>
-                    Backend API sudah running dan accessible via ngrok. Token authentication sudah setup di localStorage.
-                </div>
-            </section>
-
-            <!-- SETUP SECTION -->
-            <section id="setup" class="section">
-                <h2>⚙️ Setup & Configuration</h2>
-
-                <h3>Step 1: Web Routes</h3>
-                <p>Buat routes untuk instructor dashboard pages.</p>
-
-                <div class="code-block">
-                    <div class="code-label">routes/web.php</div>
-                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
-                    <pre>
-&lt;?php
-
-use Illuminate\Support\Facades\Route;
-
-// Instructor Dashboard Routes
-Route::prefix('instructor')->name('instructor.')->group(function () {
-
-    Route::get('/dashboard', function () {
-        return view('instructor.dashboard');
-    })->name('dashboard');
-
-    Route::get('/courses', function () {
-        return view('instructor.courses');
-    })->name('courses');
-
-    Route::get('/courses/{id}', function ($id) {
-        return view('instructor.course-detail', ['courseId' => $id]);
-    })->name('course.detail');
-
-    Route::get('/assignments', function () {
-        return view('instructor.assignments');
-    })->name('assignments');
-
-    Route::get('/submissions', function () {
-        return view('instructor.submissions');
-    })->name('submissions');
-
-    Route::get('/grading', function () {
-        return view('instructor.grading');
-    })->name('grading');
-
-    Route::get('/attendance', function () {
-        return view('instructor.attendance');
-    })->name('attendance');
-
-    Route::get('/students', function () {
-        return view('instructor.students');
-    })->name('students');
-
-    Route::get('/announcements', function () {
-        return view('instructor.announcements');
-    })->name('announcements');
-
-    Route::get('/certificates', function () {
-        return view('instructor.certificates');
-    })->name('certificates');
-});</pre>
-                </div>
-
-                <div class="alert alert-warning">
-                    <strong>⚠️ Production Note:</strong> Tambahkan middleware <code>auth:sanctum</code> pada route group untuk protect halaman.
-                </div>
-            </section>
-
-            <!-- API SECTION -->
-            <section id="api" class="section">
-                <h2>🔌 API Helper</h2>
-
-                <h3>📡 Available Endpoints</h3>
-                <p>API endpoints yang tersedia dari backend melalui ngrok:</p>
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Method</th>
-                            <th>Endpoint</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>GET</strong></td>
-                            <td><code>/api/user</code></td>
-                            <td>Get current authenticated user</td>
-                        </tr>
-                        <tr>
-                            <td><strong>GET</strong></td>
-                            <td><code>/api/v1/instructors/{id}/courses</code></td>
-                            <td>Get instructor's courses</td>
-                        </tr>
-                        <tr>
-                            <td><strong>POST</strong></td>
-                            <td><code>/api/v1/courses</code></td>
-                            <td>Create course</td>
-                        </tr>
-                        <tr>
-                            <td><strong>GET/PUT/DELETE</strong></td>
-                            <td><code>/api/v1/courses/{id}</code></td>
-                            <td>Course CRUD operations</td>
-                        </tr>
-                        <tr>
-                            <td><strong>POST</strong></td>
-                            <td><code>/api/v1/assignments</code></td>
-                            <td>Create assignment</td>
-                        </tr>
-                        <tr>
-                            <td><strong>GET</strong></td>
-                            <td><code>/api/v1/assignments/{id}/submissions</code></td>
-                            <td>Get submissions</td>
-                        </tr>
-                        <tr>
-                            <td><strong>POST</strong></td>
-                            <td><code>/api/v1/submissions/{id}/grade</code></td>
-                            <td>Grade submission</td>
-                        </tr>
-                        <tr>
-                            <td><strong>POST</strong></td>
-                            <td><code>/api/v1/attendance/sessions</code></td>
-                            <td>Create attendance session</td>
-                        </tr>
-                        <tr>
-                            <td><strong>POST</strong></td>
-                            <td><code>/api/v1/announcements</code></td>
-                            <td>Create announcement</td>
-                        </tr>
-                        <tr>
-                            <td><strong>POST</strong></td>
-                            <td><code>/api/v1/certificates/generate</code></td>
-                            <td>Generate certificate</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h3>🔐 API Helper JavaScript</h3>
-                <p>Buat file helper untuk semua API calls dengan ngrok integration.</p>
-
-                <div class="code-block">
-                    <div class="code-label">public/js/instructor/api.js</div>
-                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
-                    <pre>
-/**
- * Instructor Dashboard API Helper - REFACTORED
- * Matches Laravel Project Structure
- */
-
-const NGROK_BASE = 'https://loraine-seminiferous-snappily.ngrok-free.dev'; // Sesuaikan URL Ngrok kamu
-const API_BASE = NGROK_BASE + '/api/v1';
-
-function getToken() {
-    return localStorage.getItem('auth_token');
-}
-
-function getHeaders() {
-    return {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${getToken()}`,
-        'ngrok-skip-browser-warning': 'true'
-    };
-}
-
-async function handleResponse(response) {
-    if (!response.ok) {
-        if (response.status === 401) {
-            console.warn('Unauthorized, redirecting to login...');
-            // window.location.href = '/login.html'; // Uncomment jika sudah ada page login
-        }
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP ${response.status}`);
-    }
-    // Handle 204 No Content (biasanya delete)
-    if (response.status === 204) return null;
-    return await response.json();
-}
-
-const InstructorAPI = {
-    // --- AUTH & USER ---
-    getCurrentUser: () => fetch(NGROK_BASE + '/api/user', {
-        headers: getHeaders()
-    }).then(handleResponse),
-
-    // --- COURSES ---
-    // Get All Courses (with Instructor info)
-    getCourses: () => fetch(`${API_BASE}/courses`, {
-        headers: getHeaders()
-    }).then(handleResponse),
-
-    // Get Single Course Detail (Termasuk Enrollments, Modules, Assignments)
-    // Endpoint ini PENTING untuk fitur "Assignments per Course"
-    getCourseDetail: (id) => fetch(`${API_BASE}/courses/${id}`, {
-        headers: getHeaders()
-    }).then(handleResponse),
-
-    createCourse: (data) => fetch(`${API_BASE}/courses`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(data)
-    }).then(handleResponse),
-
-    updateCourse: (id, data) => fetch(`${API_BASE}/courses/${id}`, {
-        method: 'PUT',
-        headers: getHeaders(),
-        body: JSON.stringify(data)
-    }).then(handleResponse),
-
-    deleteCourse: (id) => fetch(`${API_BASE}/courses/${id}`, {
-        method: 'DELETE',
-        headers: getHeaders()
-    }).then(handleResponse),
-
-    // --- ASSIGNMENTS ---
-    // Get ALL Assignments (Global List)
-    getAllAssignments: () => fetch(`${API_BASE}/assignments`, {
-        headers: getHeaders()
-    }).then(handleResponse),
-
-    // Create Assignment
-    // Payload harus ada: course_id, title, description, dll.
-    createAssignment: (data) => fetch(`${API_BASE}/assignments`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(data)
-    }).then(handleResponse),
-
-    // Get Detail Assignment (Termasuk Submissions)
-    // Backend: $assignment->load('submissions.student')
-    getAssignmentDetail: (id) => fetch(`${API_BASE}/assignments/${id}`, {
-        headers: getHeaders()
-    }).then(handleResponse),
-
-    updateAssignment: (id, data) => fetch(`${API_BASE}/assignments/${id}`, {
-        method: 'PUT',
-        headers: getHeaders(),
-        body: JSON.stringify(data)
-    }).then(handleResponse),
-
-    deleteAssignment: (id) => fetch(`${API_BASE}/assignments/${id}`, {
-        method: 'DELETE',
-        headers: getHeaders()
-    }).then(handleResponse),
-
-    // --- GRADING (SUBMISSIONS) ---
-    // Grade Submission
-    // Endpoint ini asumsinya kamu pakai GradingController atau update Submission langsung?
-    // Berdasarkan routes/api.php kamu: Route::apiResource('grades', GradeController::class)
-    // Tapi grading biasanya menempel ke submission atau enrollment.
-    // Mari gunakan endpoint '/api/v1/grades/bulk' atau create grade manual.
-    // Untuk kesederhanaan, kita asumsikan update submission score dulu jika ada fiturnya,
-    // Jika tidak, kita pakai GradeController.
-
-    // Cek SubmissionController kamu: tidak ada method khusus 'grade'.
-    // Jadi kita harus buat Grade entry baru via GradeController.
-    createGrade: (data) => fetch(`${API_BASE}/grades`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(data)
-    }).then(handleResponse),
-
-    // --- ATTENDANCE ---
-    // Get Sessions by Course
-    getSessionsByCourse: (courseId) => fetch(`${API_BASE}/attendance-sessions/course/${courseId}/all`, {
-        headers: getHeaders()
-    }).then(handleResponse),
-
-    createSession: (data) => fetch(`${API_BASE}/attendance-sessions`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(data)
-    }).then(handleResponse),
-
-    // Mark Attendance (Single Student)
-    markAttendance: (sessionId, enrollmentId, status) => fetch(`${API_BASE}/attendance-records/mark/${sessionId}/${enrollmentId}`, {
-        method: 'POST', // Cek route: Route::post("attendance-records/mark/{sessionId}/{enrollmentId}"...)
-        headers: getHeaders(),
-        body: JSON.stringify({ status: status }) // Body mungkin perlu status jika controller butuh
-    }).then(handleResponse),
-
-    // --- ANNOUNCEMENTS ---
-    createAnnouncement: (data) => fetch(`${API_BASE}/announcements`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(data)
-    }).then(handleResponse),
-
-    publishAnnouncement: (id) => fetch(`${API_BASE}/announcements/${id}/publish`, {
-        method: 'POST',
-        headers: getHeaders()
-    }).then(handleResponse),
-};
-
-window.InstructorAPI = InstructorAPI;</pre>
-                </div>
-
-                <div class="alert alert-info">
-                    <strong>ℹ️ Ngrok Header:</strong> Header <code>ngrok-skip-browser-warning: true</code> digunakan untuk bypass warning page ngrok saat development.
-                </div>
-            </section>
-
-            <!-- LAYOUT SECTION -->
-            <section id="layout" class="section">
-                <h2>🎨 Base Layout</h2>
-
-                <p>Layout template dengan sidebar navigation, Bootstrap 5.3, dan instructor-themed colors (blue gradient).</p>
-
-                <div class="code-block">
-                    <div class="code-label">resources/views/layouts/instructor.blade.php (Key Parts)</div>
-                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
-                    <pre>
-&lt;!DOCTYPE html&gt;
-&lt;html lang="id"&gt;
-&lt;head&gt;
-    &lt;meta charset="UTF-8"&gt;
-    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
-    &lt;title&gt;@yield('title') - Instructor Dashboard&lt;/title&gt;
-
-    &lt;!-- Bootstrap 5.3 --&gt;
-    &lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"&gt;
-    &lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"&gt;
-
-    &lt;style&gt;
-        :root {
-            --primary: #0ea5e9;
-            --secondary: #8b5cf6;
-        }
-        .sidebar {
-            background: linear-gradient(180deg, var(--primary), var(--secondary));
-            min-height: 100vh;
-        }
-        .sidebar .nav-link {
-            color: rgba(255,255,255,0.8);
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-        }
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            color: white;
-            background: rgba(255,255,255,0.15);
-        }
-    &lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-    &lt;div class="container-fluid"&gt;
-        &lt;div class="row"&gt;
-            &lt;nav class="col-md-3 col-lg-2 sidebar p-3"&gt;
-                &lt;div class="text-center mb-4"&gt;
-                    &lt;h4 class="text-white fw-bold"&gt;SmartDev LMS&lt;/h4&gt;
-                    &lt;p class="text-white-50 small"&gt;Instructor Dashboard&lt;/p&gt;
-                &lt;/div&gt;
-
-                &lt;ul class="nav flex-column"&gt;
-                    &lt;li class="nav-item"&gt;
-                        &lt;a class="nav-link" href="{{ route('instructor.dashboard') }}"&gt;
-                            &lt;i class="bi bi-speedometer2 me-2"&gt;&lt;/i&gt; Dashboard
-                        &lt;/a&gt;
-                    &lt;/li&gt;
-                    &lt;li class="nav-item"&gt;
-                        &lt;a class="nav-link" href="{{ route('instructor.courses') }}"&gt;
-                            &lt;i class="bi bi-book me-2"&gt;&lt;/i&gt; My Courses
-                        &lt;/a&gt;
-                    &lt;/li&gt;
-                    &lt;!-- More nav items... --&gt;
-                &lt;/ul&gt;
-            &lt;/nav&gt;
-
-            &lt;main class="col-md-9 ms-sm-auto col-lg-10 px-4 py-4"&gt;
-                @yield('content')
-            &lt;/main&gt;
-        &lt;/div&gt;
-    &lt;/div&gt;
-
-    &lt;script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"&gt;&lt;/script&gt;
-    &lt;script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"&gt;&lt;/script&gt;
-
-    &lt;script&gt;
-        const NGROK_BASE = 'https://loraine-seminiferous-snappily.ngrok-free.dev';
-        const API_BASE = NGROK_BASE + '/api/v1';
-    &lt;/script&gt;
-
-    @yield('extra-js')
-&lt;/body&gt;
-&lt;/html&gt;</pre>
-                </div>
-
-                <div class="alert alert-success">
-                    <strong>✅ Layout Complete!</strong> Base template dengan blue gradient theme untuk instructor.
-                </div>
-            </section>
-
-                                    <!-- DASHBOARD SECTION -->
-                                    <section id="dashboard" class="section">
-                                        <h2>📊 Dashboard Page</h2>
-                                        <p>Halaman dashboard utama dengan statistics cards, courses overview, dan pending submissions.</p>
-
-                                        <h3>Struktur Blade View</h3>
-                                        <p>Berikut adalah struktur dasar dari file <code>dashboard.blade.php</code>. Perhatikan div <code>#coursesList</code> yang akan menjadi target untuk render data dari JavaScript.</p>
-                                        <div class="code-block">
-                                            <div class="code-label">resources/views/instructor/dashboard.blade.php</div>
-                                            <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
-                                            <pre>
-                        @extends('layouts.instructor')
-                        @section('title', 'Dashboard')
-
-                        @section('content')
-                        &lt;h2&gt;Dashboard&lt;/h2&gt;
-
-                        &lt;!-- Statistics Cards --&gt;
-                        &lt;div class="row g-3 mb-4"&gt;
-                            &lt;div class="col-md-3"&gt;
-                                &lt;div class="card"&gt;
-                                    &lt;div class="card-body text-center"&gt;
-                                        &lt;h6 class="text-muted"&gt;Total Courses&lt;/h6&gt;
-                                        &lt;h2 id="totalCourses" class="text-primary"&gt;-&lt;/h2&gt;
-                                    &lt;/div&gt;
-                                &lt;/div&gt;
-                            &lt;/div&gt;
-                            &lt;!-- Other statistic cards here... --&gt;
-                        &lt;/div&gt;
-
-                        &lt;!-- Courses List --&gt;
-                        &lt;div class="card"&gt;
-                            &lt;div class="card-header bg-white"&gt;
-                                &lt;h5 class="mb-0"&gt;My Courses&lt;/h5&gt;
-                            &lt;/div&gt;
-                            &lt;div class="card-body"&gt;
-                                &lt;div id="coursesList" class="row g-3"&gt;
-                                    &lt;!-- Course cards will be rendered here by JavaScript --&gt;
-                                &lt;/div&gt;
-                            &lt;/div&gt;
-                        &lt;/div&gt;
-                        @endsection
-
-                        @section('extra-js')
-                        &lt;script src="{{ asset('js/instructor/api.js') }}"&gt;&lt;/script&gt;
-                        &lt;script&gt;
-                            // JavaScript logic goes here
-                        &lt;/script&gt;
-                        @endsection</pre>
-                                        </div>
-
-                                        <h3>Contoh Kode HTML Hasil Render</h3>
-                                        <p>JavaScript akan menghasilkan struktur HTML seperti di bawah ini untuk setiap kartu mata kuliah.</p>
-
-                                        <div class="code-block">
-                                            <div class="code-label">Contoh HTML untuk satu kartu</div>
-                                            <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
-                                            <pre>
-                        &lt;div class="col-md-4"&gt;
-                            &lt;div class="card h-100"&gt;
-                                &lt;div class="card-body d-flex flex-column"&gt;
-                                    &lt;h5 class="card-title"&gt;Nama Mata Kuliah&lt;/h5&gt;
-                                    &lt;h6 class="card-subtitle mb-2 text-muted"&gt;KODE101&lt;/h6&gt;
-                                    &lt;p class="card-text small"&gt;Deskripsi singkat mata kuliah akan muncul di sini, dibatasi hingga 80 karakter...&lt;/p&gt;
-                                    &lt;button class="btn btn-primary btn-sm mt-auto"&gt;
-                                        Manage Course
-                                    &lt;/button&gt;
-                                &lt;/div&gt;
-                            &lt;/div&gt;
-                        &lt;/div&gt;</pre>
-                                        </div>
-
-                                        <h3>Logika JavaScript</h3>
-                                        <p>Kode berikut, ditempatkan di dalam section <code>@section('extra-js')</code>, bertanggung jawab untuk mengambil data dari API dan me-render kartu-kartu di atas.</p>
-
-                                        <div class="code-block">
-                                            <div class="code-label">JavaScript Logic</div>
-                                            <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
-                                            <pre>
-                        async function loadDashboard() {
-                            try {
-                                const user = await InstructorAPI.getCurrentUser();
-                                // Pastikan user adalah instructor
-                                if (user.role !== 'instructor' && user.role !== 'admin') {
-                                    alert('Access Denied. Not an instructor.');
-                                    return;
-                                }
-
-                                // Ambil semua course milik instruktur (endpoint ini me-return array courses)
-                                // NOTE: Karena di backend index() me-return semua course,
-                                // kamu mungkin perlu filter manual di JS jika endpoint tidak otomatis filter by instructor login
-                                // TAPI: Jika user login, biasanya backend filter.
-                                // Cek CourseController: $courses = Course::with("instructor")->get(); (INI RETURN SEMUA)
-                                // Jadi kita filter manual di frontend supaya aman:
-
-                                const allCourses = await InstructorAPI.getCourses();
-                                const myCourses = allCourses.filter(c => c.instructor?.user?.id === user.id || user.role === 'admin');
-
-                                document.getElementById('totalCourses').textContent = myCourses.length;
-
-                                // Render List
-                                document.getElementById('coursesList').innerHTML = myCourses.map(c => `
-                                    &lt;div class="col-md-4"&gt;
-                                        &lt;div class="card h-100"&gt;
-                                            &lt;div class="card-body"&gt;
-                                                &lt;h5 class="card-title"&gt;${c.course_name}&lt;/h5&gt;
-                                                &lt;h6 class="card-subtitle mb-2 text-muted"&gt;${c.course_code}&lt;/h6&gt;
-                                                &lt;p class="card-text small"&gt;${c.description ? c.description.substring(0, 80) + '...' : 'No description'}&lt;/p&gt;
-                                                &lt;button onclick="loadCourseDetail(${c.id})" class="btn btn-primary btn-sm"&gt;
-                                                    Manage Course
-                                                &lt;/button&gt;
-                                            &lt;/div&gt;
-                                        &lt;/div&gt;
-                                    &lt;/div&gt;
-                                `).join('');
-
-                            } catch (error) {
-                                console.error(error);
-                                // alert('Failed to load dashboard: ' + error.message);
-                            }
-                        }
-
-                        document.addEventListener('DOMContentLoaded', loadDashboard);</pre>
-                                        </div>
-                                    </section>            <!-- COURSES SECTION -->
-            <section id="courses" class="section">
-                <h2>📚 My Courses Page</h2>
-
-                <p>Halaman untuk manage courses dengan CRUD operations. Halaman ini juga digunakan untuk menampilkan detail sebuah course saat dipilih dari dashboard.</p>
-
-                <h3>Logika Pemuatan Detail Course</h3>
-                <p>Fungsi berikut dipanggil saat tombol "Manage Course" di dashboard diklik. Fungsi ini mengambil data detail, lalu memanggil fungsi lain untuk me-render daftar assignment.</p>
-                <div class="code-block">
-                    <div class="code-label">JavaScript Logic for Course Detail</div>
-                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
-                    <pre>
-// Global variable untuk menyimpan state course yang sedang dibuka
-let currentCourseId = null;
-
-async function loadCourseDetail(courseId) {
-    currentCourseId = courseId;
-    showSection('courses'); // Pindah ke tab courses
-
-    try {
-        const course = await InstructorAPI.getCourseDetail(courseId);
-
-        // TODO: Render info dasar course di sini (misal, di #courseInfoContainer)
-        console.log("Loaded Course:", course);
-
-        // Render daftar assignment milik course ini ke dalam section "Assignments"
-        renderAssignmentsList(course.assignments, course.id);
-
-        alert(`Loaded course: ${course.course_name}. Check console for data.`);
-
-    } catch (error) {
-        alert('Error loading course detail: ' + error.message);
-    }
-}
-
-function renderAssignmentsList(assignments, courseId) {
-    const container = document.getElementById('assignmentsList');
-    if(!container) {
-        console.error('Element with id "assignmentsList" not found!');
-        return;
-    }
-
-    container.innerHTML = assignments.length ? assignments.map(a => `
-        &lt;div class="card mb-3"&gt;
-            &lt;div class="card-body d-flex justify-content-between align-items-center"&gt;
-                &lt;div&gt;
-                    &lt;h5&gt;${a.title}&lt;/h5&gt;
-                    &lt;small class="text-muted"&gt;Due: ${a.due_date || 'No due date'}&lt;/small&gt;
-                    &lt;span class="badge bg-${a.status === 'published' ? 'success' : 'secondary'} ms-2"&gt;
-                        ${a.status}
-                    &lt;/span&gt;
-                &lt;/div&gt;
-                &lt;div&gt;
-                    &lt;button onclick="loadAssignmentSubmissions(${a.id})" class="btn btn-outline-primary btn-sm"&gt;
-                        View Submissions
-                    &lt;/button&gt;
-                &lt;/div&gt;
-            &lt;/div&gt;
-        &lt;/div&gt;
-    `).join('') : '&lt;p class="text-muted"&gt;No assignments found for this course.&lt;/p&gt;';
-}
-                    </pre>
-                </div>
-
-                <h3>Contoh Fungsi Create Course</h3>
-                <div class="code-block">
-                    <div class="code-label">Create Course Function</div>
-                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
-                    <pre>
-async function createCourse() {
-    const form = document.getElementById('courseForm');
-    const formData = new FormData(form);
-
-    const data = {
-        title: formData.get('title'),
-        description: formData.get('description'),
-        category: formData.get('category'),
-        status: 'active'
-    };
-
-    try {
-        await InstructorAPI.createCourse(data);
-        bootstrap.Modal.getInstance(document.getElementById('createModal')).hide();
-        form.reset();
-        await loadCourses(); // Asumsi ada fungsi ini
-        alert('Course created successfully!');
-    } catch (error) {
-        alert('Error: ' + error.message);
-    }
-}</pre>
-                </div>
-            </section>
-
-            <!-- ASSIGNMENTS SECTION -->
-            <section id="assignments" class="section">
-                <h2>📝 Assignments Page</h2>
-
-                <p>Create dan manage assignments untuk courses.</p>
-
-                <h3>Daftar Assignment</h3>
-                <div id="assignmentsList" class="card">
-                    <div class="card-body">
-                        <p class="text-muted">Pilih sebuah course dari dashboard untuk melihat assignments di sini.</p>
-                    </div>
-                </div>
-
-                <h3>Create Assignment</h3>
-                <div class="code-block">
-                    <div class="code-label">Create Assignment Example</div>
-                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
-                    <pre>
-async function createAssignment() {
-    const data = {
-        course_id: currentCourseId, // Menggunakan course yang sedang aktif
-        title: document.getElementById('title').value,
-        description: document.getElementById('description').value,
-        due_date: document.getElementById('dueDate').value,
-        max_score: parseInt(document.getElementById('maxScore').value)
-    };
-
-    try {
-        await InstructorAPI.createAssignment(data);
-        alert('Assignment created!');
-        loadCourseDetail(currentCourseId); // Reload data
-    } catch (error) {
-        alert('Error: ' + error.message);
-    }
-}</pre>
-                </div>
-
-                <h3>Assignment Form HTML</h3>
-                <div class="code-block">
-                    <div class="code-label">Form Template</div>
-                    <pre>
-&lt;form id="assignmentForm"&gt;
-    &lt;div class="mb-3"&gt;
-        &lt;label&gt;Title&lt;/label&gt;
-        &lt;input type="text" class="form-control" name="title" required&gt;
-    &lt;/div&gt;
-    &lt;div class="mb-3"&gt;
-        &lt;label&gt;Description&lt;/label&gt;
-        &lt;textarea class="form-control" name="description" rows="4"&gt;&lt;/textarea&gt;
-    &lt;/div&gt;
-    &lt;div class="row"&gt;
-        &lt;div class="col-md-6"&gt;
-            &lt;label&gt;Due Date&lt;/label&gt;
-            &lt;input type="datetime-local" class="form-control" name="due_date"&gt;
-        &lt;/div&gt;
-        &lt;div class="col-md-6"&gt;
-            &lt;label&gt;Max Score&lt;/label&gt;
-            &lt;input type="number" class="form-control" name="max_score" value="100"&gt;
-        &lt;/div&gt;
-    &lt;/div&gt;
-&lt;/form&gt;</pre>
-                </div>
-            </section>
-
-            <!-- SUBMISSIONS SECTION -->
-            <section id="submissions" class="section">
-                <h2>✅ Submissions Review</h2>
-                <p>Review dan grade student submissions untuk sebuah assignment.</p>
-
-                <h3>Daftar Submission</h3>
-                <div id="submissionsList" class="card">
-                    <div class="card-body">
-                        <p class="text-muted">Pilih sebuah assignment untuk melihat daftar submission di sini.</p>
-                    </div>
-                </div>
-
-                <h3>Logika Pemuatan Submission</h3>
-                <p>Fungsi ini dipanggil saat tombol "View Submissions" pada sebuah assignment diklik.</p>
-                <div class="code-block">
-                    <div class="code-label">JavaScript Logic for Submissions</div>
-                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
-                    <pre>
-async function loadAssignmentSubmissions(assignmentId) {
-    showSection('submissions');
-
-    try {
-        // Fetch detail assignment (sudah include submissions)
-        const assignment = await InstructorAPI.getAssignmentDetail(assignmentId);
-        const submissions = assignment.submissions || [];
-
-        document.getElementById('submissionsList').innerHTML = submissions.length ? submissions.map(s => `
-            &lt;div class="card mb-3"&gt;
-                &lt;div class="card-body"&gt;
-                    &lt;div class="d-flex justify-content-between"&gt;
-                        &lt;div&gt;
-                            &lt;h5&gt;Student ID: ${s.student_id}&lt;/h5&gt;
-                            &lt;p&gt;Submitted: ${new Date(s.created_at).toLocaleDateString()}&lt;/p&gt;
-                            &lt;a href="${s.file_path || '#'}" target="_blank" class="btn btn-sm btn-link"&gt;View File&lt;/a&gt;
-                        &lt;/div&gt;
-                        &lt;div&gt;
-                            ${s.grade ?
-                                `&lt;strong&gt;Score: ${s.grade.score}&lt;/strong&gt;` :
-                                `&lt;button onclick="openGradingModal(${s.id})" class="btn btn-primary btn-sm"&gt;Grade&lt;/button&gt;`
-                            }
-                        &lt;/div&gt;
-                    &lt;/div&gt;
-                &lt;/div&gt;
-            &lt;/div&gt;
-        `).join('') : '&lt;p&gt;No submissions yet.&lt;/p&gt;';
-
-    } catch (error) {
-        alert('Error loading submissions: ' + error.message);
-    }
-}
-                    </pre>
-                </div>
-
-                <h3>Contoh Fungsi Grading</h3>
-                <p>Fungsi ini bisa dipanggil dari modal grading untuk mengirim nilai.</p>
-                <div class="code-block">
-                    <div class="code-label">Grade Submission Function</div>
-                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
-                    <pre>
-async function gradeSubmission(submissionId, score, feedback) {
-    // Logika untuk mengambil score dan feedback dari modal
-    // ...
-
-    try {
-        // Asumsi endpoint createGrade membutuhkan: enrollment_id, grade_component_id, score
-        // Kita perlu mapping submission_id ke enrollment_id dan grade_component_id
-        // Ini adalah contoh yang disederhanakan
-        const data = {
-            submission_id: submissionId, // atau enrollment_id
-            score: score,
-            feedback: feedback
-        };
-
-        // Panggil API untuk create grade
-        await InstructorAPI.createGrade(data);
-
-        alert('Submission graded successfully!');
-        // Reload data submissions
-        // loadAssignmentSubmissions(currentAssignmentId);
-    } catch (error) {
-        alert('Error: ' + error.message);
-    }
-}</pre>
-                </div>
-            </section>
-
-            <!-- GRADING SECTION -->
-            <section id="grading" class="section">
-                <h2>⭐ Grading System</h2>
-
-                <p>Input grades dengan grade components (UTS, UAS, Tugas, dll).</p>
-
-                <div class="code-block">
-                    <div class="code-label">Grade Components Setup</div>
-                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
-                    <pre>
-// Grade components example
-const gradeComponents = [
-    { name: 'UTS', weight: 30 },
-    { name: 'UAS', weight: 40 },
-    { name: 'Tugas', weight: 20 },
-    { name: 'Kehadiran', weight: 10 }
-];
-
-// Create grade with component
-async function createGrade(enrollmentId, componentId, score) {
-    const data = {
-        enrollment_id: enrollmentId,
-        grade_component_id: componentId,
-        score: parseFloat(score),
-        feedback: document.getElementById('feedback').value
-    };
-
-    try {
-        await InstructorAPI.createGrade(data);
-        alert('Grade saved!');
-        loadGrades();
-    } catch (error) {
-        alert('Error: ' + error.message);
-    }
-}</pre>
-                </div>
-
-                <h3>Calculate Final Grade</h3>
-                <div class="code-block">
-                    <div class="code-label">Final Grade Calculation</div>
-                    <pre>
-function calculateFinalGrade(grades, components) {
-    let totalWeight = 0;
-    let weightedScore = 0;
-
-    grades.forEach(grade => {
-        const component = components.find(c => c.id === grade.grade_component_id);
-        if (component) {
-            weightedScore += (grade.score * component.weight / 100);
-            totalWeight += component.weight;
-        }
-    });
-
-    return totalWeight > 0 ? (weightedScore / totalWeight * 100) : 0;
-}</pre>
-                </div>
-            </section>
-
-            <!-- ATTENDANCE SECTION -->
-            <section id="attendance" class="section">
-                <h2>📅 Attendance Management</h2>
-
-                <p>Create sessions dan mark student attendance.</p>
-
-                <div class="code-block">
-                    <div class="code-label">Create Attendance Session</div>
-                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
-                    <pre>
-async function createSession() {
-    const data = {
-        course_id: courseId,
-        session_date: document.getElementById('sessionDate').value,
-        topic: document.getElementById('topic').value
-    };
-
-    try {
-        const session = await InstructorAPI.createAttendanceSession(data);
-        // Auto-open the session
-        await InstructorAPI.openAttendanceSession(session.id);
-        alert('Session created and opened!');
-        loadSessions();
-    } catch (error) {
-        alert('Error: ' + error.message);
-    }
-}</pre>
-                </div>
-
-                <h3>Mark Attendance</h3>
-                <div class="code-block">
-                    <div class="code-label">Mark Student Attendance</div>
-                    <pre>
-async function markAttendance(sessionId, studentId, status) {
-    try {
-        await InstructorAPI.markAttendance(sessionId, studentId, status);
-        // Update UI
-        const button = document.querySelector(`[data-student="${studentId}"]`);
-        button.className = `btn btn-sm btn-${getStatusColor(status)}`;
-        button.textContent = status.toUpperCase();
-    } catch (error) {
-        alert('Error: ' + error.message);
-    }
-}
-
-function getStatusColor(status) {
-    const colors = {
-        'present': 'success',
-        'absent': 'danger',
-        'sick': 'warning',
-        'permission': 'info'
-    };
-    return colors[status] || 'secondary';
-}</pre>
-                </div>
-
-                <h3>Attendance UI Example</h3>
-                <div class="code-block">
-                    <div class="code-label">Student Attendance List</div>
-                    <pre>
-function renderAttendanceList(students, sessionId) {
-    const html = students.map(student =&gt; `
-        &lt;tr&gt;
-            &lt;td&gt;${student.full_name}&lt;/td&gt;
-            &lt;td&gt;
-                &lt;div class="btn-group" role="group"&gt;
-                    &lt;button class="btn btn-sm btn-success"
-                            onclick="markAttendance(${sessionId}, ${student.id}, 'present')"&gt;
-                        Present
-                    &lt;/button&gt;
-                    &lt;button class="btn btn-sm btn-danger"
-                            onclick="markAttendance(${sessionId}, ${student.id}, 'absent')"&gt;
-                        Absent
-                    &lt;/button&gt;
-                    &lt;button class="btn btn-sm btn-warning"
-                            onclick="markAttendance(${sessionId}, ${student.id}, 'sick')"&gt;
-                        Sick
-                    &lt;/button&gt;
-                    &lt;button class="btn btn-sm btn-info"
-                            onclick="markAttendance(${sessionId}, ${student.id}, 'permission')"&gt;
-                        Permission
-                    &lt;/button&gt;
-                &lt;/div&gt;
-            &lt;/td&gt;
-        &lt;/tr&gt;
-    `).join('');
-
-    document.getElementById('attendanceTable').innerHTML = html;
-}</pre>
-                </div>
-            </section>
-
-            <!-- ANNOUNCEMENTS SECTION -->
-            <section id="announcements" class="section">
-                <h2>📢 Announcements</h2>
-
-                <p>Create dan publish announcements untuk course atau global.</p>
-
-                <div class="code-block">
-                    <div class="code-label">Create Announcement</div>
-                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
-                    <pre>
-async function createAnnouncement() {
-    const data = {
-        title: document.getElementById('title').value,
-        content: document.getElementById('content').value,
-        scope: document.getElementById('scope').value, // 'global' or 'course'
-        course_id: document.getElementById('scope').value === 'course'
-            ? document.getElementById('courseId').value
-            : null
-    };
-
-    try {
-        const announcement = await InstructorAPI.createAnnouncement(data);
-
-        // Auto-publish if needed
-        if (confirm('Publish this announcement now?')) {
-            await InstructorAPI.publishAnnouncement(announcement.id);
-        }
-
-        alert('Announcement created!');
-        loadAnnouncements();
-    } catch (error) {
-        alert('Error: ' + error.message);
-    }
-}</pre>
-                </div>
-
-                <h3>Announcement Form</h3>
-                <div class="code-block">
-                    <div class="code-label">Form Template</div>
-                    <pre>
-&lt;form id="announcementForm"&gt;
-    &lt;div class="mb-3"&gt;
-        &lt;label&gt;Title&lt;/label&gt;
-        &lt;input type="text" class="form-control" id="title" required&gt;
-    &lt;/div&gt;
-    &lt;div class="mb-3"&gt;
-        &lt;label&gt;Content&lt;/label&gt;
-        &lt;textarea class="form-control" id="content" rows="6" required&gt;&lt;/textarea&gt;
-    &lt;/div&gt;
-    &lt;div class="row"&gt;
-        &lt;div class="col-md-6"&gt;
-            &lt;label&gt;Scope&lt;/label&gt;
-            &lt;select class="form-select" id="scope" onchange="toggleCourseSelect()"&gt;
-                &lt;option value="global"&gt;Global (All Students)&lt;/option&gt;
-                &lt;option value="course"&gt;Course Specific&lt;/option&gt;
-            &lt;/select&gt;
-        &lt;/div&gt;
-        &lt;div class="col-md-6" id="courseSelectDiv" style="display:none"&gt;
-            &lt;label&gt;Select Course&lt;/label&gt;
-            &lt;select class="form-select" id="courseId"&gt;
-                &lt;!-- Populate with courses --&gt;
-            &lt;/select&gt;
-        &lt;/div&gt;
-    &lt;/div&gt;
-&lt;/form&gt;</pre>
-                </div>
-            </section>
-
-            <!-- CERTIFICATES SECTION -->
-            <section id="certificates" class="section">
-                <h2>🎓 Certificates Generation</h2>
-
-                <p>Generate certificates untuk students yang eligible.</p>
-
-                <div class="code-block">
-                    <div class="code-label">Generate Certificate</div>
-                    <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
-                    <pre>
-// Generate single certificate
-async function generateCertificate(studentId, courseId) {
-    try {
-        const cert = await InstructorAPI.generateCertificate(studentId, courseId);
-        alert(`Certificate generated! Code: ${cert.certificate_code}`);
-        loadCertificates();
-    } catch (error) {
-        alert('Error: ' + error.message);
-    }
-}
-
-// Bulk generate for all eligible students
-async function bulkGenerate(courseId) {
-    if (!confirm('Generate certificates for all eligible students?')) {
-        return;
-    }
-
-    try {
-        const result = await InstructorAPI.bulkGenerateCertificates(courseId);
-        alert(`Generated ${result.count} certificates!`);
-        loadCertificates();
-    } catch (error) {
-        alert('Error: ' + error.message);
-    }
-}</pre>
-                </div>
-
-                <h3>Check Eligibility</h3>
-                <div class="code-block">
-                    <div class="code-label">Check if Student is Eligible</div>
-                    <pre>
-function checkEligibility(student) {
-    // Example criteria:
-    // 1. Final grade >= 70
-    // 2. Attendance >= 75%
-    // 3. All assignments submitted
-
-    const finalGrade = student.final_grade || 0;
-    const attendance = student.attendance_percentage || 0;
-    const assignmentsCompleted = student.assignments_completed || 0;
-    const totalAssignments = student.total_assignments || 0;
-
-    return finalGrade >= 70 &&
-           attendance >= 75 &&
-           assignmentsCompleted === totalAssignments;
-}
-
-// Render eligible students
-function renderEligibleStudents(students) {
-    const eligible = students.filter(checkEligibility);
-
-    const html = eligible.map(s =&gt; `
-        &lt;tr&gt;
-            &lt;td&gt;${s.full_name}&lt;/td&gt;
-            &lt;td&gt;${s.final_grade}&lt;/td&gt;
-            &lt;td&gt;${s.attendance_percentage}%&lt;/td&gt;
-            &lt;td&gt;
-                ${s.has_certificate ? `
-                    &lt;span class="badge bg-success"&gt;Already Generated&lt;/span&gt;
-                ` : `
-                    &lt;button class="btn btn-sm btn-primary"
-                            onclick="generateCertificate(${s.id}, ${courseId})"&gt;
-                        Generate
-                    &lt;/button&gt;
-                `}
-            &lt;/td&gt;
-        &lt;/tr&gt;
-    `).join('');
-
-    document.getElementById('eligibleList').innerHTML = html;
-}</pre>
-                </div>
-            </section>
-        </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            <p>&copy; 2024 SmartDev LMS - Instructor Dashboard Complete Guide</p>
-            <p class="small">Dibuat dengan ❤️ menggunakan Laravel Blade + Bootstrap 5.3 + Ngrok</p>
+    <div id="loading-overlay">
+        <div class="text-center">
+            <div class="spinner-border text-primary mb-2" role="status"></div>
+            <div class="text-muted fw-bold">Processing...</div>
         </div>
     </div>
 
+    <nav id="sidebar">
+        <div class="brand">
+            <i class="bi bi-mortarboard-fill me-2 text-primary"></i> SmartDev
+        </div>
+        <div class="p-3 mb-3 border-bottom border-secondary border-opacity-25 text-center">
+            <div class="avatar bg-primary text-white rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width:50px; height:50px; font-size:1.2rem;">
+                <i class="bi bi-person"></i>
+            </div>
+            <strong id="sidebarUserName" class="d-block">Instructor</strong>
+            <small class="text-muted">Instructor Panel</small>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" onclick="navTo('dashboard', this)">
+                    <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="navTo('courses', this)">
+                    <i class="bi bi-book me-2"></i> My Courses
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="navTo('announcements', this)">
+                    <i class="bi bi-megaphone me-2"></i> Announcements
+                </a>
+            </li>
+            <li class="nav-item mt-5 pt-5 border-top border-secondary border-opacity-25">
+                <a class="nav-link text-danger" href="#" onclick="logout()">
+                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div id="content">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+            <h4 class="mb-0 fw-bold text-secondary" id="pageTitle">Overview</h4>
+            <div class="input-group input-group-sm w-auto">
+                <span class="input-group-text bg-white"><i class="bi bi-link-45deg"></i></span>
+                <input type="text" id="ngrokUrl" class="form-control" value="https://portohansgunawan.my.id" style="width: 250px;">
+                <button class="btn btn-primary" onclick="initApp()">Refresh Connection</button>
+            </div>
+        </div>
+
+        <section id="dashboard" class="page-section active">
+            <div class="row g-4 mb-5">
+                <div class="col-md-4">
+                    <div class="card p-4 h-100 bg-primary text-white position-relative overflow-hidden">
+                        <div class="position-relative z-1">
+                            <h3><i class="bi bi-book"></i> <span id="statCourses">0</span></h3>
+                            <p class="mb-0 opacity-75">Active Courses</p>
+                        </div>
+                        <i class="bi bi-book position-absolute top-50 end-0 translate-middle-y opacity-25 me-3" style="font-size: 5rem;"></i>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-4 h-100 border-start border-4 border-success">
+                        <h3 class="text-success"><i class="bi bi-people"></i> <span id="statStudents">0</span></h3>
+                        <p class="text-muted mb-0">Enrolled Students</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-4 h-100 border-start border-4 border-warning">
+                        <h3 class="text-warning"><i class="bi bi-journal-text"></i> <span id="statAssignments">0</span></h3>
+                        <p class="text-muted mb-0">Total Assignments</p>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="text-muted mb-3">Recent Courses</h5>
+            <div id="dashboardCoursesList" class="row g-4">
+                </div>
+        </section>
+
+        <section id="courses" class="page-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold">Manage Courses</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCourseModal">
+                    <i class="bi bi-plus-lg"></i> Create New Course
+                </button>
+            </div>
+            <div id="coursesList" class="row g-4">
+                </div>
+        </section>
+
+        <section id="courseDetail" class="page-section">
+            <button class="btn btn-sm btn-outline-secondary mb-4" onclick="navTo('courses')">
+                <i class="bi bi-arrow-left"></i> Back to Course List
+            </button>
+            
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span id="detailCode" class="badge bg-dark">CODE</span>
+                                <span class="badge bg-success bg-opacity-10 text-success">Active</span>
+                            </div>
+                            <h2 id="detailTitle" class="fw-bold text-primary mb-2">Course Title</h2>
+                            <p id="detailDesc" class="text-muted mb-0">Description...</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-danger btn-sm" id="btnDeleteCourse">
+                                <i class="bi bi-trash"></i> Delete Course
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-white">
+                    <ul class="nav nav-tabs card-header-tabs" id="courseTabs">
+                        <li class="nav-item">
+                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabAssignments">Assignments</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabAttendance" onclick="loadAttendanceTab()">Attendance</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabStudents">Students</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabCertificates" onclick="loadCertificatesTab()">Certificates</button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body p-4">
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="tabAssignments">
+                            <div class="d-flex justify-content-between mb-4 align-items-center">
+                                <h5 class="mb-0">Course Assignments</h5>
+                                <button class="btn btn-sm btn-primary" onclick="openAssignmentModal()">
+                                    <i class="bi bi-plus-circle"></i> Create Assignment
+                                </button>
+                            </div>
+                            <div id="assignmentListContainer">Loading...</div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tabAttendance">
+                            <div class="d-flex justify-content-between mb-4">
+                                <h5 class="mb-0">Attendance Sessions</h5>
+                                <button class="btn btn-sm btn-primary" onclick="openCreateSessionModal()">
+                                    <i class="bi bi-calendar-plus"></i> Create Session
+                                </button>
+                            </div>
+                            <div class="row g-4">
+                                <div class="col-md-4">
+                                    <div class="list-group shadow-sm" id="sessionListGroup" style="max-height: 400px; overflow-y: auto;">
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card border h-100">
+                                        <div class="card-header bg-light fw-bold" id="sessionDetailHeader">
+                                            Select a session to manage
+                                        </div>
+                                        <div class="card-body p-0 table-responsive">
+                                            <table class="table table-hover mb-0 align-middle" id="attendanceTable">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th class="ps-4">Student</th>
+                                                        <th class="text-center">Status</th>
+                                                        <th class="text-end pe-4">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="attendanceTableBody">
+                                                    <tr><td colspan="3" class="text-center p-5 text-muted">Select a session from the left list</td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tabStudents">
+                            <table class="table align-middle">
+                                <thead class="table-light"><tr><th>Name</th><th>Email</th><th>Status</th></tr></thead>
+                                <tbody id="studentListBody"></tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="tabCertificates">
+                            <div class="text-center p-5">
+                                <div class="spinner-border text-primary"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="submissionView" class="page-section">
+            <button class="btn btn-sm btn-outline-secondary mb-3" onclick="backToCourseDetail()">
+                <i class="bi bi-arrow-left"></i> Back to Course
+            </button>
+            <h3 id="submissionTitle">Submissions</h3>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <table class="table align-middle table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Student</th>
+                                <th>Submitted At</th>
+                                <th>File</th>
+                                <th>Current Grade</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="submissionTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="announcements" class="page-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1 fw-bold">Announcements</h2>
+                    <p class="text-muted small mb-0">Manage global and course-specific updates</p>
+                </div>
+                <button class="btn btn-primary" onclick="openAnnouncementModal()">
+                    <i class="bi bi-megaphone"></i> Post New
+                </button>
+            </div>
+            
+            <div class="d-flex gap-2 mb-4 border-bottom pb-3">
+                <button class="btn btn-sm btn-light active fw-bold" onclick="loadAnnouncements()">All</button>
+                <button class="btn btn-sm btn-light text-muted" onclick="loadAnnouncements({status: 'published'})">Published Only</button>
+            </div>
+
+            <div id="announcementList" class="row g-3">
+                </div>
+        </section>
+
+    </div>
+
+    <div class="modal fade" id="createCourseModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Course</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formCreateCourse">
+                        <div class="mb-3"><label>Code</label><input type="text" name="course_code" class="form-control" placeholder="e.g. MTK101" required></div>
+                        <div class="mb-3"><label>Name</label><input type="text" name="course_name" class="form-control" placeholder="e.g. Matematika Dasar" required></div>
+                        <div class="mb-3"><label>Description</label><textarea name="description" class="form-control" rows="3"></textarea></div>
+                        <div class="mb-3"><label>Credits</label><input type="number" name="credits" class="form-control" value="3"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitCreateCourse()">Save Course</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="createAssignmentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">New Assignment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formCreateAssignment">
+                        <div class="mb-3"><label>Title</label><input type="text" id="assignTitle" class="form-control" required></div>
+                        <div class="mb-3"><label>Description</label><textarea id="assignDesc" class="form-control" rows="3"></textarea></div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3"><label>Due Date</label><input type="datetime-local" id="assignDate" class="form-control"></div>
+                            <div class="col-md-6 mb-3"><label>Max Score</label><input type="number" id="assignScore" class="form-control" value="100"></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitAssignment()">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="createSessionModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">New Attendance Session</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formCreateSession">
+                        <div class="mb-3">
+                            <label>Session Name</label>
+                            <input type="text" id="sessionName" class="form-control" placeholder="e.g. Week 1 Attendance" required>
+                        </div>
+                        <div class="row g-3">
+                             <div class="col-12">
+                                <label>Date & Start Time</label>
+                                <input type="datetime-local" id="sessionStartTime" class="form-control" required>
+                            </div>
+                             <div class="col-12">
+                                <label>End Time</label>
+                                <input type="datetime-local" id="sessionEndTime" class="form-control" required>
+                            </div>
+                            <div class="col-12">
+                                <label>Deadline</label>
+                                <input type="datetime-local" id="sessionDeadline" class="form-control" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitSession()">Create Session</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="gradingModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Input Grade</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="gradeSubmissionId">
+                    <input type="hidden" id="gradeEnrollmentId">
+                    <div class="mb-3">
+                        <label>Score (0-100)</label>
+                        <input type="number" id="gradeValue" class="form-control" min="0" max="100">
+                    </div>
+                    <div class="mb-3">
+                        <label>Feedback</label>
+                        <textarea id="gradeFeedback" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitGrade()">Save Grade</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="announcementModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Post Announcement</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formAnnouncement">
+                        <div class="mb-3">
+                            <label>Title <span class="text-danger">*</span></label>
+                            <input type="text" id="annTitle" class="form-control" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label>Content <span class="text-danger">*</span></label>
+                            <textarea id="annContent" class="form-control" rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label>Target Course</label>
+                                <select id="annCourseId" class="form-select">
+                                    <option value="">Global (All)</option>
+                                    </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Priority <span class="text-danger">*</span></label>
+                                <select id="annPriority" class="form-select">
+                                    <option value="normal" selected>Normal</option>
+                                    <option value="high">High</option>
+                                    <option value="urgent">Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label>Status <span class="text-danger">*</span></label>
+                                <select id="annStatus" class="form-select">
+                                    <option value="published" selected>Published</option>
+                                    <option value="draft">Draft</option>
+                                    <option value="archived">Archived</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label>Publish At</label>
+                                <input type="datetime-local" id="annPublishedAt" class="form-control">
+                            </div>
+                            <div class="col-md-4">
+                                <label>Expires At</label>
+                                <input type="datetime-local" id="annExpiresAt" class="form-control">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitAnnouncement()">Post Announcement</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-        // Navigation functionality
-        function showSection(sectionId) {
-            // Hide all sections
-            document.querySelectorAll('.section').forEach(section => {
-                section.classList.remove('active');
-            });
+        /**
+         * SMARTDEV LMS INSTRUCTOR LOGIC
+         * FIXED: Infinite Loop on Token Error / Connection Error
+         */
 
-            // Remove active class from all nav items
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
+        let BASE_API = document.getElementById('ngrokUrl').value + '/api/v1';
+        let currentUser = null;
+        let currentCourseId = null;
+        let globalCourses = [];
+        let currentEnrollments = []; 
 
-            // Show selected section
-            const selectedSection = document.getElementById(sectionId);
-            if (selectedSection) {
-                selectedSection.classList.add('active');
-            }
-
-            // Add active class to clicked nav item
-            if (event && event.target) {
-                event.target.classList.add('active');
-            }
-
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        // --- HTTP CLIENT ---
+        
+        function getHeaders() {
+            const token = localStorage.getItem('auth_token');
+            return {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'ngrok-skip-browser-warning': 'true'
+            };
         }
 
-        // Copy code functionality
-        function copyCode(button) {
-            const codeBlock = button.parentElement;
-            const code = codeBlock.querySelector('pre').textContent.trim();
+        async function fetchApi(endpoint, options = {}) {
+            // Tampilkan loading
+            document.getElementById('loading-overlay').style.display = 'flex';
+            
+            console.log(`%c[API] ${options.method || 'GET'} ${endpoint}`, 'color: blue; font-weight: bold;', options.body ? JSON.parse(options.body) : '');
 
-            navigator.clipboard.writeText(code)
-                .then(() => {
-                    const originalText = button.textContent;
-                    button.textContent = '✅ Copied!';
-                    button.style.background = '#10b981';
+            try {
+                BASE_API = document.getElementById('ngrokUrl').value + '/api/v1';
+                const res = await fetch(BASE_API + endpoint, { ...options, headers: getHeaders() });
 
-                    setTimeout(() => {
-                        button.textContent = originalText;
-                        button.style.background = '';
-                    }, 2000);
-                })
-                .catch(err => {
-                    console.error('Failed to copy:', err);
-                    alert('Failed to copy code');
+                // Jika 401 (Unauthorized), lempar error biar ditangkap di try/catch
+                if(res.status === 401) {
+                    throw new Error("Unauthorized");
+                }
+                
+                if(res.status === 204) return true;
+
+                const jsonResponse = await res.json().catch(() => null);
+
+                if(!res.ok) {
+                    let errorMsg = `HTTP Error ${res.status}`;
+                    if (jsonResponse) {
+                          if (jsonResponse.message) errorMsg = jsonResponse.message;
+                          if (jsonResponse.errors) {
+                            const details = Object.values(jsonResponse.errors).flat().join('\n- ');
+                            errorMsg += `\nDetails:\n- ${details}`;
+                          }
+                    }
+                    throw new Error(errorMsg);
+                }
+
+                return jsonResponse;
+
+            } catch (e) {
+                console.error("Fetch Failed:", e);
+                // Handle 401 secara global disini jika perlu, 
+                // tapi lebih baik biarkan errornya muncul di UI.
+                if(e.message === "Unauthorized") {
+                    alert("Sesi Anda telah habis. Silakan refresh dan login ulang.");
+                    logout();
+                    return null;
+                }
+                alert(e.message);
+                return null;
+            } finally {
+                // PASTI MATIKAN LOADING, SUKSES ATAU GAGAL
+                document.getElementById('loading-overlay').style.display = 'none';
+            }
+        }
+
+        // --- AUTH & INIT ---
+
+        async function initApp() {
+            const token = localStorage.getItem('auth_token');
+            const loader = document.getElementById('loading-overlay');
+            
+            // 1. Jika Token Kosong -> Minta Input
+            if(!token) {
+                loader.style.display = 'none'; // Pastikan loading mati sebelum prompt
+                
+                const input = prompt("Token tidak ditemukan atau salah. Masukkan Bearer Token:");
+                
+                if(input) { 
+                    // Jika user mengisi token, simpan dan coba lagi
+                    localStorage.setItem('auth_token', input); 
+                    initApp(); 
+                } else {
+                    // Jika user tekan CANCEL, diam saja (jangan looping)
+                    console.log("User cancelled token input.");
+                }
+                return;
+            }
+
+            // 2. Jika Token Ada -> Validasi ke API User
+            try {
+                loader.style.display = 'flex'; // Nyalakan loading
+
+                const url = document.getElementById('ngrokUrl').value + '/api/user';
+                
+                // Fetch manual untuk cek auth awal
+                const res = await fetch(url, { 
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                        'ngrok-skip-browser-warning': 'true'
+                    } 
                 });
+                
+                if(res.ok) {
+                    // Sukses Login
+                    currentUser = await res.json();
+                    document.getElementById('sidebarUserName').innerText = currentUser.full_name || currentUser.name;
+                    loadDashboard();
+                } else {
+                    // Token ada tapi ditolak server (401/500)
+                    throw new Error("Token Invalid (Response not OK)"); 
+                }
+
+            } catch(e) {
+                // ERROR TERJADI (Koneksi putus atau Token Salah)
+                console.warn("Init Error:", e);
+                
+                // Hapus token yang rusak
+                localStorage.removeItem('auth_token'); 
+                
+                // Beri tahu user KENAPA error
+                alert("Gagal terhubung atau Token Salah. Silakan masukkan token baru.");
+                
+                // Panggil ulang fungsi untuk memunculkan prompt
+                // KARENA token sudah dihapus di baris atas, initApp() akan masuk ke kondisi 'if(!token)'
+                // yang memunculkan prompt.
+                initApp(); 
+            } finally {
+                // PASTIKAN LOADING MATI DI AKHIR
+                // Jika initApp dipanggil ulang di catch, loader mungkin nyala lagi di recursi,
+                // tapi baris ini memastikan flow saat ini bersih.
+                loader.style.display = 'none';
+            }
         }
 
-        // Log welcome message
-        console.log('%c👨‍🏫 Instructor Dashboard Complete Guide', 'font-size: 20px; font-weight: bold; color: #0ea5e9;');
-        console.log('%cNgrok Integration Ready', 'font-size: 14px; color: #8b5cf6;');
+        // --- DASHBOARD ---
+
+        async function loadDashboard() {
+            const res = await fetchApi('/courses');
+            if(!res) return;
+
+            let allCourses = Array.isArray(res) ? res : (res.data || []);
+
+            const myCourses = allCourses.filter(c => {
+                if(currentUser?.role === 'admin') return true;
+                if(!c.instructor) return false; 
+                return (currentUser.instructor && c.instructor.id === currentUser.instructor.id) || 
+                       (c.instructor.user_id === currentUser.id);
+            });
+
+            globalCourses = myCourses;
+            document.getElementById('statCourses').innerText = myCourses.length;
+            renderCourseList(myCourses);
+        }
+
+        function renderCourseList(courses) {
+            const container = document.getElementById('coursesList');
+            if(courses.length === 0) {
+                container.innerHTML = '<div class="col-12 text-center text-muted py-5">No courses found.</div>';
+                return;
+            }
+            container.innerHTML = courses.map(c => `
+                <div class="col-md-6 col-xl-4">
+                    <div class="card course-card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="badge bg-primary">${c.course_code}</span>
+                                <span class="badge bg-light text-dark border">${c.status}</span>
+                            </div>
+                            <h5 class="card-title fw-bold mb-1">${c.course_name}</h5>
+                            <p class="text-muted small mb-3 flex-grow-1">${c.description ? c.description.substring(0,80)+'...' : ''}</p>
+                            <button onclick="openCourseDetail(${c.id})" class="btn btn-outline-primary w-100 mt-auto">Manage Course</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            const dashList = document.getElementById('dashboardCoursesList');
+            if(dashList) dashList.innerHTML = container.innerHTML;
+        }
+
+        // --- ANNOUNCEMENTS ---
+
+        async function loadAnnouncements(filters = {}) {
+            const container = document.getElementById('announcementList');
+            container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+
+            try {
+                let endpoint = '/announcements';
+                const params = new URLSearchParams();
+                if (filters.status) params.append('status', filters.status);
+                if (filters.course_id) params.append('course_id', filters.course_id);
+                if (params.toString()) endpoint += `?${params.toString()}`;
+
+                const res = await fetchApi(endpoint);
+                
+                let list = [];
+                if (res === null || res === undefined) list = [];
+                else if (Array.isArray(res)) list = res;
+                else if (res.data && Array.isArray(res.data)) list = res.data;
+
+                if (list.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-12 text-center py-5">
+                            <div class="text-muted mb-3"><i class="bi bi-megaphone display-4"></i></div>
+                            <h5>No announcements found.</h5>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = list.map(a => {
+                    const title = a.title || 'Untitled';
+                    const content = a.content || '';
+                    const priority = a.priority || 'normal';
+                    const status = a.status || 'published';
+                    const dateStr = a.published_at || a.created_at || new Date();
+                    
+                    let borderClass = 'secondary';
+                    if(priority === 'high') borderClass = 'danger';
+                    if(priority === 'urgent') borderClass = 'warning';
+
+                    let contextBadge = '<span class="badge bg-dark">Global</span>';
+                    if (a.course) contextBadge = `<span class="badge bg-primary">${a.course.course_code}</span>`;
+                    else if (a.course_id) contextBadge = `<span class="badge bg-info text-dark">Course #${a.course_id}</span>`;
+
+                    return `
+                        <div class="col-md-6">
+                            <div class="card h-100 border-start border-4 border-${borderClass} shadow-sm">
+                                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                    <div>${contextBadge}</div>
+                                    <span class="badge badge-soft-${borderClass} text-uppercase">${priority}</span>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold">${title}</h5>
+                                    <p class="card-text text-secondary small">${content}</p>
+                                </div>
+                                <div class="card-footer bg-white border-0 pt-0 d-flex justify-content-between small text-muted">
+                                    <span><i class="bi bi-calendar3 me-1"></i> ${new Date(dateStr).toLocaleDateString()}</span>
+                                    <span class="text-capitalize badge bg-light text-dark border">${status}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error("Load Announcements Error:", err);
+                container.innerHTML = `<div class="alert alert-danger">Error displaying announcements: ${err.message}</div>`;
+            }
+        }
+
+        async function submitAnnouncement() {
+            const cid = document.getElementById('annCourseId').value;
+            const pubAt = document.getElementById('annPublishedAt').value;
+            const expAt = document.getElementById('annExpiresAt').value;
+
+            if(!document.getElementById('annTitle').value) { alert("Title required"); return; }
+
+            const payload = {
+                title: document.getElementById('annTitle').value,
+                content: document.getElementById('annContent').value,
+                course_id: cid && cid !== "" ? parseInt(cid) : null,
+                announcement_type: (cid && cid !== "") ? 'course' : 'global',
+                priority: document.getElementById('annPriority').value,
+                status: document.getElementById('annStatus').value,
+                published_at: pubAt ? new Date(pubAt).toISOString() : null,
+                expires_at: expAt ? new Date(expAt).toISOString() : null
+            };
+
+            const res = await fetchApi('/announcements', {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+
+            if(res) {
+                alert('Announcement Posted!');
+                bootstrap.Modal.getInstance(document.getElementById('announcementModal')).hide();
+                loadAnnouncements();
+            }
+        }
+
+        function openAnnouncementModal() {
+            const sel = document.getElementById('annCourseId');
+            sel.innerHTML = '<option value="">Global (All Students)</option>';
+            globalCourses.forEach(c => {
+                sel.innerHTML += `<option value="${c.id}">${c.course_code} - ${c.course_name}</option>`;
+            });
+            document.getElementById('formAnnouncement').reset();
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('annPublishedAt').value = now.toISOString().slice(0, 16);
+            new bootstrap.Modal(document.getElementById('announcementModal')).show();
+        }
+
+        // --- COURSE DETAIL & ATTENDANCE ---
+
+        async function openCourseDetail(id) {
+            currentCourseId = id;
+            const course = await fetchApi(`/courses/${id}`);
+            if(course) {
+                document.getElementById('detailTitle').innerText = course.course_name;
+                document.getElementById('detailCode').innerText = course.course_code;
+                document.getElementById('detailDesc').innerText = course.description || '';
+                document.getElementById('btnDeleteCourse').onclick = () => deleteCourse(id);
+                
+                renderAssignments(course.assignments || []);
+                currentEnrollments = course.enrollments || [];
+                renderStudents(currentEnrollments);
+                
+                document.getElementById('sessionListGroup').innerHTML = ''; 
+                document.getElementById('attendanceTableBody').innerHTML = '<tr><td colspan="3" class="text-center p-5 text-muted">Select a session</td></tr>';
+                
+                navTo('courseDetail');
+            }
+        }
+
+        async function submitSession() {
+            const start = document.getElementById('sessionStartTime').value;
+            const end = document.getElementById('sessionEndTime').value;
+            const deadline = document.getElementById('sessionDeadline').value;
+            const name = document.getElementById('sessionName').value;
+
+            if(!start || !end || !deadline || !name) { 
+                alert("All fields are required"); 
+                return; 
+            }
+
+            const data = {
+                course_id: parseInt(currentCourseId),
+                session_name: name,
+                status: 'open',
+                start_time: new Date(start).toISOString(),
+                end_time: new Date(end).toISOString(),
+                deadline: new Date(deadline).toISOString()
+            };
+            
+            const res = await fetchApi('/attendance-sessions', {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+
+            if(res) {
+                alert('Session Created!');
+                bootstrap.Modal.getInstance(document.getElementById('createSessionModal')).hide();
+                loadAttendanceTab();
+            }
+        }
+
+        async function loadAttendanceTab() {
+            const sessions = await fetchApi(`/attendance-sessions/course/${currentCourseId}/all`);
+            const el = document.getElementById('sessionListGroup');
+            let list = Array.isArray(sessions) ? sessions : (sessions?.data || []);
+            
+            if(!list.length) { el.innerHTML = '<div class="p-3 text-muted text-center">No sessions found.</div>'; return; }
+            
+            el.innerHTML = list.map(s => `
+                <a href="#" class="list-group-item list-group-item-action" onclick="loadSessionDetail(${s.id}, '${s.session_name || s.topic}')">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1 fw-bold">${s.session_name || s.topic}</h6>
+                        <small>${new Date(s.start_time || s.session_date).toLocaleDateString()}</small>
+                    </div>
+                    <small class="text-${s.status==='open'?'success':'secondary'} text-uppercase">${s.status}</small>
+                </a>
+            `).join('');
+        }
+
+        async function loadSessionDetail(sid, topic) {
+            document.getElementById('sessionDetailHeader').innerText = topic;
+            const tbody = document.getElementById('attendanceTableBody');
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center p-3">Loading...</td></tr>';
+
+            const res = await fetchApi(`/attendance-records/session/${sid}/records`);
+            let recs = Array.isArray(res) ? res : (res?.data || []);
+            
+            if(recs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center p-3">No students found in this session.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = recs.map(r => `
+                <tr>
+                    <td>
+                        <div class="fw-bold">${r.enrollment?.student?.full_name || 'Student'}</div>
+                        <small class="text-muted">${r.enrollment?.user?.email || ''}</small>
+                    </td>
+                    <td class="text-center"><span class="badge bg-secondary">${r.status}</span></td>
+                    <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                            <button onclick="markAttendance(${sid}, ${r.enrollment_id}, 'present')" class="btn btn-outline-success">P</button>
+                            <button onclick="markAttendance(${sid}, ${r.enrollment_id}, 'sick')" class="btn btn-outline-warning">S</button>
+                            <button onclick="markAttendance(${sid}, ${r.enrollment_id}, 'absent')" class="btn btn-outline-danger">A</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function markAttendance(sid, eid, status) {
+            await fetchApi(`/attendance-records/mark/${sid}/${eid}`, { 
+                method: 'POST', 
+                body: JSON.stringify({status})
+            });
+            loadSessionDetail(sid, document.getElementById('sessionDetailHeader').innerText);
+        }
+
+        function openCreateSessionModal() {
+            document.getElementById('formCreateSession').reset();
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            const nowStr = now.toISOString().slice(0, 16);
+            document.getElementById('sessionStartTime').value = nowStr;
+            document.getElementById('sessionEndTime').value = nowStr;
+            document.getElementById('sessionDeadline').value = nowStr;
+            new bootstrap.Modal(document.getElementById('createSessionModal')).show();
+        }
+
+        // --- CERTIFICATES (REFACTORED: PROGRESS CARDS & AUTO GENERATE) ---
+
+        async function loadCertificatesTab() {
+            // Kita ubah container dari tbody tabel menjadi div grid untuk kartu
+            const tabPane = document.getElementById('tabCertificates');
+            
+            // Reset isi tab pane agar sesuai layout grid baru (bukan tabel lagi)
+            tabPane.innerHTML = `
+                <div class="d-flex justify-content-between mb-4 align-items-center">
+                    <div>
+                        <h5 class="mb-1">Student Progress & Certificates</h5>
+                        <p class="text-muted small mb-0">
+                            Monitor student eligibility. System automatically generates certificates for eligible students.
+                        </p>
+                    </div>
+                    <button class="btn btn-sm btn-primary" onclick="bulkGenerateCertificates()">
+                        <i class="bi bi-arrow-repeat"></i> Check & Generate All Eligible
+                    </button>
+                </div>
+                
+                <div id="certificatesContainer" class="row g-3">
+                    <div class="col-12 text-center p-5"><div class="spinner-border text-primary"></div></div>
+                </div>
+            `;
+
+            const gridContainer = document.getElementById('certificatesContainer');
+
+            try {
+                // 1. Get existing certificates
+                const certRes = await fetchApi(`/certificates?course_id=${currentCourseId}`);
+                let issuedCerts = Array.isArray(certRes) ? certRes : (certRes?.data || []);
+
+                // 2. Get all students (currentEnrollments loaded in openCourseDetail)
+                if (!currentEnrollments || currentEnrollments.length === 0) {
+                    gridContainer.innerHTML = '<div class="col-12 text-center p-5 text-muted">No students enrolled.</div>';
+                    return;
+                }
+
+                gridContainer.innerHTML = ''; // Clear loading
+
+                // 3. Process each student
+                for (const enrollment of currentEnrollments) {
+                    const studentId = enrollment.student_id;
+                    const existingCert = issuedCerts.find(c => c.student_id == studentId);
+                    
+                    // Ambil nama siswa dengan aman
+                    let studentName = `Student #${studentId}`;
+                    if (enrollment.student && enrollment.student.user) {
+                        studentName = enrollment.student.user.full_name || enrollment.student.user.name;
+                    }
+                    
+                    if (existingCert) {
+                        // STATE A: Issued (Tampilkan Kartu Hijau)
+                        gridContainer.innerHTML += renderCertificateCard(studentName, existingCert);
+                    } else {
+                        // STATE B: Not Issued (Check Eligibility ke Backend)
+                        // Call backend eligibility check for each student without cert
+                        const eligibility = await fetchApi(`/certificates/eligibility/${enrollment.id}`);
+                        gridContainer.innerHTML += renderProgressCard(studentName, eligibility);
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+                gridContainer.innerHTML = `<div class="alert alert-danger">Error loading certificate data: ${e.message}</div>`;
+            }
+        }
+
+        function renderCertificateCard(studentName, cert) {
+            // Added 'progress-card' class for hover effect
+            return `
+                <div class="col-md-6 col-xl-4">
+                    <div class="card h-100 border-success border-2 shadow-sm progress-card">
+                        <div class="card-body text-center">
+                            <div class="mb-3 text-success">
+                                <i class="bi bi-patch-check-fill display-4"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">${studentName}</h5>
+                            <p class="badge bg-success bg-opacity-10 text-success fs-6 mb-2">Certified</p>
+                            <p class="text-muted small mb-3">
+                                Code: <span class="font-monospace text-dark">${cert.certificate_code}</span><br>
+                                Issued: ${new Date(cert.issued_at).toLocaleDateString()}
+                            </p>
+                            <div class="d-flex gap-2 justify-content-center">
+                                <button class="btn btn-sm btn-outline-success" onclick="downloadCertificate('${cert.id}')">
+                                    <i class="bi bi-download"></i> Download
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteCertificate('${cert.id}')">
+                                    <i class="bi bi-x-circle"></i> Revoke
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderProgressCard(studentName, eligibility) {
+            // Fallback if API fails or returns null
+            // Added 'progress-card' class for hover effect
+            if (!eligibility) {
+                return `
+                    <div class="col-md-6 col-xl-4">
+                        <div class="card h-100 border-light bg-light progress-card">
+                            <div class="card-body text-center text-muted">
+                                <h5>${studentName}</h5>
+                                <p>Unable to check eligibility.</p>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+
+            // Calculate progress visually 
+            const attendancePct = eligibility.attendance_percentage || 0;
+            const assignmentPct = eligibility.assignment_completion_rate || 0;
+            
+            return `
+                <div class="col-md-6 col-xl-4">
+                    <div class="card h-100 border-0 shadow-sm progress-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="card-title fw-bold mb-0">${studentName}</h6>
+                                <span class="badge bg-secondary">In Progress</span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <span>Attendance</span>
+                                    <span>${attendancePct}% / 75%</span>
+                                </div>
+                                <div class="progress mb-2" style="height: 6px;">
+                                    <div class="progress-bar bg-${attendancePct >= 75 ? 'success' : 'warning'}" style="width: ${attendancePct}%"></div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <span>Assignments</span>
+                                    <span>${assignmentPct}% / 80%</span>
+                                </div>
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar bg-${assignmentPct >= 80 ? 'success' : 'warning'}" style="width: ${assignmentPct}%"></div>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-light border small mb-0 text-muted py-2">
+                                <i class="bi bi-info-circle me-1"></i> Requirements:
+                                <ul class="mb-0 ps-3 mt-1" style="font-size: 0.85rem;">
+                                    ${eligibility.errors && eligibility.errors.length > 0 
+                                        ? eligibility.errors.map(e => `<li>${e}</li>`).join('') 
+                                        : '<li>All requirements met! Ready to generate.</li>'}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function bulkGenerateCertificates() {
+            if(!confirm("System will auto-check all students and issue certificates for eligible ones.\n\nContinue?")) return;
+            
+            // Call endpoint: POST /api/v1/certificates/bulk-generate/{courseId}
+            const res = await fetchApi(`/certificates/bulk-generate/${currentCourseId}`, { method: 'POST' });
+            
+            if(res) {
+                const count = res.generated_count || res.count || 0; 
+                alert(`Success! ${count} new certificates generated.`);
+                loadCertificatesTab(); // Reload to update cards
+            }
+        }
+
+        async function deleteCertificate(id) {
+            if(confirm("Revoke this certificate? The student will lose access to it.")) {
+                const res = await fetchApi(`/certificates/${id}`, { method: 'DELETE' });
+                if (res !== null) {
+                    alert("Certificate revoked successfully.");
+                    loadCertificatesTab();
+                }
+            }
+        }
+
+        async function downloadCertificate(id) {
+            window.open(`${BASE_API}/certificates/${id}/download?token=${localStorage.getItem('auth_token')}`, '_blank');
+        }
+
+        // --- HELPERS ---
+        
+        function renderAssignments(list) {
+            const el = document.getElementById('assignmentListContainer');
+            if(!list.length) { el.innerHTML = '<div class="alert alert-light text-center">No assignments yet.</div>'; return; }
+            el.innerHTML = list.map(a => `
+                <div class="card mb-3 border-start border-primary border-3 shadow-sm">
+                    <div class="card-body py-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1 fw-bold">${a.title}</h6>
+                            <div class="text-muted small">
+                                <span class="me-3"><i class="bi bi-calendar"></i> ${a.due_date ? new Date(a.due_date).toLocaleDateString() : 'No Due Date'}</span>
+                                <span class="badge bg-${a.status === 'published'?'success':'secondary'}">${a.status}</span>
+                            </div>
+                        </div>
+                        <button onclick="viewSubmissions(${a.id})" class="btn btn-sm btn-outline-primary">View Submissions</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function renderStudents(list) {
+            const tbody = document.getElementById('studentListBody');
+            if(!list.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center p-4">No students enrolled.</td></tr>'; return; }
+            tbody.innerHTML = list.map(e => `
+                <tr>
+                    <td>${e.student?.full_name || 'Unknown'}</td>
+                    <td>${e.student?.user?.email || '-'}</td>
+                    <td><span class="badge bg-success rounded-pill">Active</span></td>
+                </tr>
+            `).join('');
+        }
+
+        async function submitCreateCourse() {
+            const data = {
+                course_code: document.querySelector('[name="course_code"]').value,
+                course_name: document.querySelector('[name="course_name"]').value,
+                description: document.querySelector('[name="description"]').value,
+                credits: document.querySelector('[name="credits"]').value,
+                instructor_id: currentUser.instructor ? currentUser.instructor.id : currentUser.id 
+            };
+            const res = await fetchApi('/courses', { method: 'POST', body: JSON.stringify(data) });
+            if(res) {
+                bootstrap.Modal.getInstance(document.getElementById('createCourseModal')).hide();
+                loadDashboard();
+            }
+        }
+
+        function openAssignmentModal() {
+            document.getElementById('formCreateAssignment').reset();
+            new bootstrap.Modal(document.getElementById('createAssignmentModal')).show();
+        }
+
+        async function viewSubmissions(id) {
+            const a = await fetchApi(`/assignments/${id}`);
+            if(a) {
+                document.getElementById('submissionTitle').innerText = `Submissions: ${a.title}`;
+                const tbody = document.getElementById('submissionTableBody');
+                const list = a.submissions || [];
+                if(!list.length) tbody.innerHTML = '<tr><td colspan="5" class="text-center p-4">No submissions yet.</td></tr>';
+                else tbody.innerHTML = list.map(s => `
+                    <tr>
+                        <td>${s.enrollment?.student?.full_name || 'Student'}</td>
+                        <td>${new Date(s.created_at).toLocaleDateString()}</td>
+                        <td>${s.file_path ? `<a href="${s.file_path}" target="_blank">Link</a>`:'-'}</td>
+                        <td>${s.grade ? s.grade.score : '-'}</td>
+                        <td><button onclick="openGradingModal(${s.id}, ${s.enrollment_id})" class="btn btn-sm btn-primary">Grade</button></td>
+                    </tr>
+                `).join('');
+                navTo('submissionView');
+            }
+        }
+
+        function openGradingModal(sid, eid) {
+            document.getElementById('gradeEnrollmentId').value = eid;
+            new bootstrap.Modal(document.getElementById('gradingModal')).show();
+        }
+
+        async function submitGrade() {
+            const data = {
+                enrollment_id: document.getElementById('gradeEnrollmentId').value,
+                grade_component_id: 1, 
+                score: document.getElementById('gradeValue').value,
+                feedback: document.getElementById('gradeFeedback').value
+            };
+            const res = await fetchApi('/grades', { method: 'POST', body: JSON.stringify(data) });
+            if(res) {
+                alert('Saved');
+                bootstrap.Modal.getInstance(document.getElementById('gradingModal')).hide();
+            }
+        }
+
+        async function deleteCourse(id) {
+            if(confirm('Delete course?')) {
+                await fetchApi(`/courses/${id}`, { method: 'DELETE' });
+                loadDashboard();
+                navTo('courses');
+            }
+        }
+
+        function navTo(id, el) {
+            document.querySelectorAll('.page-section').forEach(d => d.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(el) {
+                document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+                el.classList.add('active');
+            }
+            if(id === 'announcements') loadAnnouncements();
+            if(id === 'courses') loadDashboard();
+        }
+
+        function backToCourseDetail() { navTo('courseDetail'); }
+        function logout() { localStorage.removeItem('auth_token'); window.location.reload(); }
+
+        document.addEventListener('DOMContentLoaded', initApp);
+
     </script>
 </body>
 </html>

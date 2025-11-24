@@ -10,12 +10,46 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
+use OpenApi\Annotations as OA;
+
 class ParentController extends Controller
 {
     use AuthorizesRequests;
 
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *     path="/api/v1/parents",
+     *     tags={"Parents"},
+     *     summary="Get all parents",
+     *     description="Retrieve a list of all parents with optional filtering",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="search",
+     *         in="query",
+     *         description="Search by name, email, or phone",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Items per page",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=15)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="data", type="array", @OA\Items(type="object")),
+     *             @OA\Property(property="links", type="object"),
+     *             @OA\Property(property="meta", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=401, description="Unauthenticated"),
+     *     @OA\Response(response=403, description="Forbidden")
+     * )
      */
     public function index(Request $request)
     {
@@ -37,7 +71,36 @@ class ParentController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @OA\Post(
+     *     path="/api/v1/parents",
+     *     tags={"Parents"},
+     *     summary="Create new parent",
+     *     description="Create a new parent record and associated user account",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"full_name", "email", "password", "relationship"},
+     *             @OA\Property(property="full_name", type="string", example="John Doe Sr."),
+     *             @OA\Property(property="email", type="string", format="email", example="john.sr@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="password123"),
+     *             @OA\Property(property="phone", type="string", example="08123456789"),
+     *             @OA\Property(property="relationship", type="string", enum={"father", "mother", "guardian"}),
+     *             @OA\Property(property="occupation", type="string", example="Engineer"),
+     *             @OA\Property(property="address", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Parent created successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Parent created successfully"),
+     *             @OA\Property(property="parent", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=422, description="Validation error"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function store(Request $request)
     {
@@ -89,7 +152,26 @@ class ParentController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * @OA\Get(
+     *     path="/api/v1/parents/{id}",
+     *     tags={"Parents"},
+     *     summary="Get parent details",
+     *     description="Get detailed information about a specific parent",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Parent ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=404, description="Parent not found")
+     * )
      */
     public function show(string $id)
     {
@@ -100,7 +182,41 @@ class ParentController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * @OA\Put(
+     *     path="/api/v1/parents/{id}",
+     *     tags={"Parents"},
+     *     summary="Update parent",
+     *     description="Update an existing parent record",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Parent ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="full_name", type="string"),
+     *             @OA\Property(property="email", type="string", format="email"),
+     *             @OA\Property(property="phone", type="string"),
+     *             @OA\Property(property="relationship", type="string", enum={"father", "mother", "guardian"}),
+     *             @OA\Property(property="occupation", type="string"),
+     *             @OA\Property(property="address", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Parent updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Parent updated successfully"),
+     *             @OA\Property(property="parent", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Parent not found"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
      */
     public function update(Request $request, string $id)
     {
@@ -129,7 +245,29 @@ class ParentController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @OA\Delete(
+     *     path="/api/v1/parents/{id}",
+     *     tags={"Parents"},
+     *     summary="Delete parent",
+     *     description="Delete a parent record and associated user account",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Parent ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Parent deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Parent deleted successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Parent not found"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function destroy(string $id)
     {
@@ -156,7 +294,26 @@ class ParentController extends Controller
     }
 
     /**
-     * Get parent's students (children)
+     * @OA\Get(
+     *     path="/api/v1/parents/{id}/students",
+     *     tags={"Parents"},
+     *     summary="Get parent's children",
+     *     description="Get all students associated with a parent",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Parent ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(type="object"))
+     *     ),
+     *     @OA\Response(response=404, description="Parent not found")
+     * )
      */
     public function students(string $id)
     {
@@ -167,7 +324,26 @@ class ParentController extends Controller
     }
 
     /**
-     * Get parent's active students
+     * @OA\Get(
+     *     path="/api/v1/parents/{id}/active-students",
+     *     tags={"Parents"},
+     *     summary="Get parent's active children",
+     *     description="Get all active students associated with a parent",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Parent ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(type="object"))
+     *     ),
+     *     @OA\Response(response=404, description="Parent not found")
+     * )
      */
     public function activeStudents(string $id)
     {

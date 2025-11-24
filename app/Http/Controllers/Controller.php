@@ -18,8 +18,8 @@ namespace App\Http\Controllers;
  * )
  *
  * @OA\Server(
- *     url=L5_SWAGGER_CONST_HOST,
- *     description="API Server"
+ *     url="https://portohansgunawan.my.id",
+ *     description="Production Server"
  * )
  *
  * @OA\SecurityScheme(

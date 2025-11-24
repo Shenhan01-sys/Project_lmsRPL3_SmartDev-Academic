@@ -286,6 +286,37 @@ class CourseController extends Controller
     /**
      * Remove the specified resource from storage.
      *
+     * @OA\Delete(
+     *     path="/api/v1/courses/{id}",
+     *     summary="Delete course",
+     *     description="Delete a course (Admin/Instructor only)",
+     *     tags={"Courses"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Course ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="Course deleted successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Course not found"
+     *     )
+     * )
+     *
      * @param  \App\Models\Course  $course
      * @return \Illuminate\Http\Response
      */

@@ -9,10 +9,51 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
+use OpenApi\Annotations as OA;
+
 class InstructorController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *     path="/api/v1/instructors",
+     *     tags={"Instructors"},
+     *     summary="Get all instructors",
+     *     description="Retrieve a list of all instructors with optional filtering",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="Filter by instructor status",
+     *         required=false,
+     *         @OA\Schema(type="string", enum={"active", "inactive", "resigned"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="search",
+     *         in="query",
+     *         description="Search by name, email, specialization, or instructor code",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Items per page",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=15)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="data", type="array", @OA\Items(type="object")),
+     *             @OA\Property(property="links", type="object"),
+     *             @OA\Property(property="meta", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=401, description="Unauthenticated"),
+     *     @OA\Response(response=403, description="Forbidden")
+     * )
      */
     public function index(Request $request)
     {
@@ -40,7 +81,38 @@ class InstructorController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @OA\Post(
+     *     path="/api/v1/instructors",
+     *     tags={"Instructors"},
+     *     summary="Create new instructor",
+     *     description="Create a new instructor record and associated user account",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"instructor_code", "full_name", "email", "password"},
+     *             @OA\Property(property="instructor_code", type="string", example="INS001"),
+     *             @OA\Property(property="full_name", type="string", example="Dr. Jane Smith"),
+     *             @OA\Property(property="email", type="string", format="email", example="jane@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="password123"),
+     *             @OA\Property(property="phone", type="string", example="08123456789"),
+     *             @OA\Property(property="specialization", type="string", example="Computer Science"),
+     *             @OA\Property(property="education_level", type="string", example="PhD"),
+     *             @OA\Property(property="experience_years", type="integer", example=5),
+     *             @OA\Property(property="bio", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Instructor created successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Instructor created successfully"),
+     *             @OA\Property(property="instructor", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=422, description="Validation error"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function store(Request $request)
     {
@@ -97,7 +169,26 @@ class InstructorController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * @OA\Get(
+     *     path="/api/v1/instructors/{id}",
+     *     tags={"Instructors"},
+     *     summary="Get instructor details",
+     *     description="Get detailed information about a specific instructor",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Instructor ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="object")
+     *     ),
+     *     @OA\Response(response=404, description="Instructor not found")
+     * )
      */
     public function show(string $id)
     {
@@ -108,7 +199,43 @@ class InstructorController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * @OA\Put(
+     *     path="/api/v1/instructors/{id}",
+     *     tags={"Instructors"},
+     *     summary="Update instructor",
+     *     description="Update an existing instructor record",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Instructor ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="full_name", type="string"),
+     *             @OA\Property(property="email", type="string", format="email"),
+     *             @OA\Property(property="phone", type="string"),
+     *             @OA\Property(property="specialization", type="string"),
+     *             @OA\Property(property="education_level", type="string"),
+     *             @OA\Property(property="experience_years", type="integer"),
+     *             @OA\Property(property="bio", type="string"),
+     *             @OA\Property(property="status", type="string", enum={"active", "inactive", "resigned"})
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Instructor updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Instructor updated successfully"),
+     *             @OA\Property(property="instructor", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Instructor not found"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
      */
     public function update(Request $request, string $id)
     {
@@ -139,7 +266,29 @@ class InstructorController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @OA\Delete(
+     *     path="/api/v1/instructors/{id}",
+     *     tags={"Instructors"},
+     *     summary="Delete instructor",
+     *     description="Delete an instructor record and associated user account",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Instructor ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Instructor deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Instructor deleted successfully")
+     *         )
+     *     ),
+     *     @OA\Response(response=404, description="Instructor not found"),
+     *     @OA\Response(response=500, description="Server error")
+     * )
      */
     public function destroy(string $id)
     {
@@ -166,7 +315,26 @@ class InstructorController extends Controller
     }
 
     /**
-     * Get instructor's courses
+     * @OA\Get(
+     *     path="/api/v1/instructors/{id}/courses",
+     *     tags={"Instructors"},
+     *     summary="Get instructor courses",
+     *     description="Get all courses taught by an instructor",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Instructor ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(type="object"))
+     *     ),
+     *     @OA\Response(response=404, description="Instructor not found")
+     * )
      */
     public function courses(string $id)
     {
@@ -177,7 +345,26 @@ class InstructorController extends Controller
     }
 
     /**
-     * Get instructor's active courses
+     * @OA\Get(
+     *     path="/api/v1/instructors/{id}/active-courses",
+     *     tags={"Instructors"},
+     *     summary="Get instructor active courses",
+     *     description="Get all active courses taught by an instructor",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Instructor ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(type="object"))
+     *     ),
+     *     @OA\Response(response=404, description="Instructor not found")
+     * )
      */
     public function activeCourses(string $id)
     {
