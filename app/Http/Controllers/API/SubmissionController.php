@@ -24,11 +24,11 @@ class SubmissionController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/submissions",
+     *     path="/api/v1/submissions",
      *     tags={"Submissions"},
      *     summary="Get all submissions",
      *     description="Retrieve a list of all assignment submissions",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
@@ -69,11 +69,11 @@ class SubmissionController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/submissions",
+     *     path="/api/v1/submissions",
      *     tags={"Submissions"},
      *     summary="Submit an assignment",
      *     description="Create a new assignment submission (student must be enrolled in course)",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -165,11 +165,11 @@ class SubmissionController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/submissions/{id}",
+     *     path="/api/v1/submissions/{id}",
      *     tags={"Submissions"},
      *     summary="Get submission by ID",
      *     description="Retrieve a specific submission with assignment and student details",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -205,11 +205,11 @@ class SubmissionController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/submissions/{id}",
+     *     path="/api/v1/submissions/{id}",
      *     tags={"Submissions"},
      *     summary="Update submission",
      *     description="Update an existing assignment submission",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -307,11 +307,11 @@ class SubmissionController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/submissions/{id}",
+     *     path="/api/v1/submissions/{id}",
      *     tags={"Submissions"},
      *     summary="Delete submission",
      *     description="Remove an assignment submission",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",

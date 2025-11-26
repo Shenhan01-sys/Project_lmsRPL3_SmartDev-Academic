@@ -11,7 +11,7 @@ class Grade extends Model
     use HasFactory;
 
     protected $fillable = [
-        'student_id',
+        'enrollment_id',
         'grade_component_id',
         'score',
         'max_score',
@@ -27,11 +27,19 @@ class Grade extends Model
     ];
 
     /**
-     * Relasi ke Student (User)
+     * Relasi ke Enrollment
+     */
+    public function enrollment()
+    {
+        return $this->belongsTo(Enrollment::class);
+    }
+
+    /**
+     * Relasi ke Student (via Enrollment)
      */
     public function student()
     {
-        return $this->belongsTo(User::class, 'student_id');
+        return $this->hasOneThrough(User::class, Enrollment::class, 'id', 'id', 'enrollment_id', 'student_id');
     }
 
     /**

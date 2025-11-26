@@ -44,25 +44,26 @@ class GradingService
     /**
      * Input nilai siswa
      *
-     * @param int $studentId
+     * @param int $enrollmentId
      * @param int $gradeComponentId
      * @param float $score
      * @param array $options
      * @return Grade
      * @throws \Exception
      */
-    public function inputGrade(int $studentId, int $gradeComponentId, float $score, array $options = [])
+    public function inputGrade(int $enrollmentId, int $gradeComponentId, float $score, array $options = [])
     {
         $gradeComponent = GradeComponent::findOrFail($gradeComponentId);
         
-        // Validasi siswa terdaftar di course
-        $isEnrolled = DB::table('enrollments')
-            ->where('student_id', $studentId)
-            ->where('course_id', $gradeComponent->course_id)
-            ->exists();
+        // Validasi enrollment exists
+        $enrollment = DB::table('enrollments')->where('id', $enrollmentId)->first();
+        if (!$enrollment) {
+            throw new \Exception("Enrollment not found.");
+        }
 
-        if (!$isEnrolled) {
-            throw new \Exception("Siswa tidak terdaftar di course ini.");
+        // Validasi enrollment matches course
+        if ($enrollment->course_id != $gradeComponent->course_id) {
+             throw new \Exception("Enrollment does not match the course of this grade component.");
         }
 
         // Validasi nilai tidak melebihi max_score
@@ -74,7 +75,7 @@ class GradingService
         // Update atau create grade
         return Grade::updateOrCreate(
             [
-                'student_id' => $studentId,
+                'enrollment_id' => $enrollmentId,
                 'grade_component_id' => $gradeComponentId,
             ],
             [
@@ -102,7 +103,7 @@ class GradingService
         try {
             foreach ($grades as $gradeData) {
                 $grade = $this->inputGrade(
-                    $gradeData['student_id'],
+                    $gradeData['enrollment_id'],
                     $gradeData['grade_component_id'],
                     $gradeData['score'],
                     $gradeData['options'] ?? []
@@ -121,17 +122,22 @@ class GradingService
     /**
      * Hitung nilai akhir siswa untuk sebuah course
      *
-     * @param int $studentId
-     * @param int $courseId
+     * @param int $enrollmentId
      * @return array
      */
-    public function calculateFinalGrade(int $studentId, int $courseId)
+    public function calculateFinalGrade(int $enrollmentId)
     {
+        $enrollment = DB::table('enrollments')->where('id', $enrollmentId)->first();
+        if (!$enrollment) {
+             throw new \Exception("Enrollment not found");
+        }
+        $courseId = $enrollment->course_id;
+
         // Ambil semua komponen nilai yang aktif
         $gradeComponents = GradeComponent::where('course_id', $courseId)
             ->where('is_active', true)
-            ->with(['grades' => function($query) use ($studentId) {
-                $query->where('student_id', $studentId);
+            ->with(['grades' => function($query) use ($enrollmentId) {
+                $query->where('enrollment_id', $enrollmentId);
             }])
             ->get();
 
@@ -178,7 +184,8 @@ class GradingService
         $finalGradeLetter = $this->determineGradeLetter($finalScore);
 
         return [
-            'student_id' => $studentId,
+            'enrollment_id' => $enrollmentId,
+            'student_id' => $enrollment->student_id,
             'course_id' => $courseId,
             'final_score' => round($finalScore, 2),
             'final_grade_letter' => $finalGradeLetter,
@@ -206,16 +213,12 @@ class GradingService
     /**
      * Get nilai siswa untuk sebuah course
      *
-     * @param int $studentId
-     * @param int $courseId
+     * @param int $enrollmentId
      * @return Collection
      */
-    public function getStudentGrades(int $studentId, int $courseId)
+    public function getStudentGrades(int $enrollmentId)
     {
-        return Grade::whereHas('gradeComponent', function($query) use ($courseId) {
-            $query->where('course_id', $courseId);
-        })
-        ->where('student_id', $studentId)
+        return Grade::where('enrollment_id', $enrollmentId)
         ->with(['gradeComponent', 'grader:id,name'])
         ->get();
     }
@@ -228,21 +231,21 @@ class GradingService
      */
     public function getCourseGradesSummary(int $courseId)
     {
-        // Ambil semua siswa yang terdaftar di course
-        $enrolledStudents = DB::table('enrollments')
+        // Ambil semua enrollment di course
+        $enrollments = DB::table('enrollments')
             ->join('students', 'enrollments.student_id', '=', 'students.id')
             ->join('users', 'students.user_id', '=', 'users.id')
             ->where('enrollments.course_id', $courseId)
-            ->select('students.id', 'students.full_name as name', 'students.email', 'students.student_number')
+            ->select('enrollments.id as enrollment_id', 'students.id as student_id', 'students.full_name as name', 'students.email', 'students.student_number')
             ->get();
 
         $summary = collect();
 
-        foreach ($enrolledStudents as $student) {
-            $finalGrade = $this->calculateFinalGrade($student->id, $courseId);
-            $finalGrade['student_name'] = $student->name;
-            $finalGrade['student_email'] = $student->email;
-            $finalGrade['student_number'] = $student->student_number;
+        foreach ($enrollments as $enrollment) {
+            $finalGrade = $this->calculateFinalGrade($enrollment->enrollment_id);
+            $finalGrade['student_name'] = $enrollment->name;
+            $finalGrade['student_email'] = $enrollment->email;
+            $finalGrade['student_number'] = $enrollment->student_number;
             
             $summary->push($finalGrade);
         }

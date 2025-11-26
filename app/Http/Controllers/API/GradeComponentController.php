@@ -22,11 +22,11 @@ class GradeComponentController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/grade-components",
+     *     path="/api/v1/grade-components",
      *     tags={"Grade Components"},
      *     summary="Get grade components for a course",
      *     description="Retrieve all grade components for a specific course with weight validation",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="course_id",
      *         in="query",
@@ -89,11 +89,11 @@ class GradeComponentController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/grade-components",
+     *     path="/api/v1/grade-components",
      *     tags={"Grade Components"},
      *     summary="Create a new grade component",
      *     description="Create a new grade component for a course with weight validation",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -159,11 +159,11 @@ class GradeComponentController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/grade-components/{id}",
+     *     path="/api/v1/grade-components/{id}",
      *     tags={"Grade Components"},
      *     summary="Get grade component by ID",
      *     description="Retrieve a specific grade component with its grades",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -212,11 +212,11 @@ class GradeComponentController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/grade-components/{id}",
+     *     path="/api/v1/grade-components/{id}",
      *     tags={"Grade Components"},
      *     summary="Update grade component",
      *     description="Update an existing grade component with weight validation",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -305,11 +305,11 @@ class GradeComponentController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/grade-components/{id}",
+     *     path="/api/v1/grade-components/{id}",
      *     tags={"Grade Components"},
      *     summary="Delete grade component",
      *     description="Remove a grade component (only if no grades exist)",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",

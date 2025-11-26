@@ -16,7 +16,7 @@ class AttendanceSeeder extends Seeder
      */
     public function run(): void
     {
-        $courses = Course::where('status', 'published')->get();
+        $courses = Course::all();
 
         if ($courses->isEmpty()) {
             $this->command->warn('No courses found. Please run CourseSeeder first.');
@@ -37,37 +37,47 @@ class AttendanceSeeder extends Seeder
         ];
 
         foreach ($courses as $course) {
-            // Each course has 6-10 attendance sessions
-            $numSessions = rand(6, 10);
+            // Simulate a full semester (14-16 weeks)
+            $numSessions = rand(14, 16);
+            
+            // Start date: 4 months ago to cover "past" sessions
+            $semesterStart = Carbon::now()->subMonths(4)->startOfWeek();
 
             for ($i = 0; $i < $numSessions; $i++) {
-                // Some sessions are in the past (closed), some are current/future (open)
-                $isPast = rand(1, 100) <= 70; // 70% are past sessions
-
-                if ($isPast) {
-                    // Past sessions: 1-8 weeks ago
-                    $startTime = Carbon::now()->subWeeks(rand(1, 8))->subDays(rand(0, 6));
+                // Weekly sessions
+                $sessionDate = $semesterStart->copy()->addWeeks($i)->addDays(rand(0, 4)); // Mon-Fri
+                
+                // Determine status based on date
+                if ($sessionDate->isPast()) {
                     $status = 'closed';
                 } else {
-                    // Future/current sessions: 1-4 weeks ahead
-                    $startTime = Carbon::now()->addWeeks(rand(0, 4))->addDays(rand(0, 6));
-                    $status = rand(1, 100) <= 50 ? 'open' : 'closed';
+                    $status = 'open';
+                    // If it's too far in future, maybe 'scheduled' but enum only has open/closed usually? 
+                    // Checking migration: enum('open','closed') in testingData.txt
+                    // So future sessions might be 'closed' (not yet open) or 'open' if we want to allow early check-in?
+                    // Usually future sessions are 'closed' until the day of.
+                    if ($sessionDate->diffInDays(Carbon::now()) > 1) {
+                         $status = 'closed'; 
+                    } else {
+                         $status = 'open';
+                    }
                 }
 
-                $endTime = $startTime->copy()->addHours(rand(1, 3));
-                $deadline = $endTime->copy()->addMinutes(15); // 15 min after end
+                $startTime = $sessionDate->setTime(rand(8, 15), 0); // 08:00 - 15:00
+                $endTime = $startTime->copy()->addHours(2);
+                $deadline = $endTime->copy()->addMinutes(30);
 
                 $session = AttendanceSession::create([
                     'course_id' => $course->id,
-                    'session_name' => $sessionNames[$i] ?? "Pertemuan " . ($i + 1),
+                    'session_name' => $sessionNames[$i] ?? "Pertemuan Ke-" . ($i + 1),
                     'status' => $status,
                     'deadline' => $deadline,
                     'start_time' => $startTime,
                     'end_time' => $endTime,
                 ]);
 
-                // Create attendance records for enrolled students
-                if ($isPast || $status === 'closed') {
+                // Create records only for past/closed sessions or active open sessions
+                if ($sessionDate->isPast() || $status === 'open') {
                     $this->createAttendanceRecords($session);
                 }
             }
@@ -107,9 +117,9 @@ class AttendanceSeeder extends Seeder
             } elseif ($rand <= $statusWeights['present'] + $statusWeights['absent']) {
                 $status = 'absent';
             } elseif ($rand <= $statusWeights['present'] + $statusWeights['absent'] + $statusWeights['sick']) {
-                $status = 'sick';
+                $status = 'excused'; // sick -> excused
             } else {
-                $status = 'permission';
+                $status = 'excused'; // permission -> excused
             }
 
             // Check-in time (for present students)
@@ -129,16 +139,12 @@ class AttendanceSeeder extends Seeder
                         'Alpha',
                         null,
                     ],
-                    'sick' => [
+                    'excused' => [
                         'Sakit',
                         'Sakit dengan surat dokter',
                         'Izin sakit',
-                        'Tidak enak badan',
-                    ],
-                    'permission' => [
                         'Izin keperluan keluarga',
                         'Izin acara sekolah',
-                        'Izin keperluan pribadi',
                         'Dispensasi',
                     ],
                 ];
@@ -151,7 +157,7 @@ class AttendanceSeeder extends Seeder
                 'enrollment_id' => $enrollment->id,
                 'attendance_session_id' => $session->id,
                 'status' => $status,
-                'checked_in_at' => $checkedInAt,
+                'attendance_time' => $checkedInAt ?? $session->start_time,
                 'notes' => $notes,
             ]);
         }

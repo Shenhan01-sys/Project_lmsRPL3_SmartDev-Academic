@@ -15,11 +15,11 @@ class CourseModuleController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/course-modules",
+     *     path="/api/v1/course-modules",
      *     tags={"Course Modules"},
      *     summary="Get all course modules",
      *     description="Retrieve course modules based on user role (students see only modules from enrolled courses)",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
      *         description="Course modules retrieved successfully",
@@ -51,9 +51,18 @@ class CourseModuleController extends Controller
                 $modules = CourseModule::with("course")->get();
             } elseif ($user->role === "instructor") {
                 // Instructor hanya bisa lihat modules dari course yang dia ajar
+                // Get instructor record from user
+                $instructor = $user->instructor;
+                
+                if (!$instructor) {
+                    return response()->json([
+                        "message" => "Instructor record not found for this user",
+                    ], 404);
+                }
+                
                 $modules = CourseModule::with("course")
-                    ->whereHas("course", function ($query) use ($user) {
-                        $query->where("instructor_id", $user->id);
+                    ->whereHas("course", function ($query) use ($instructor) {
+                        $query->where("instructor_id", $instructor->id);
                     })
                     ->get();
             } elseif ($user->role === "student") {
@@ -96,11 +105,11 @@ class CourseModuleController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/course-modules",
+     *     path="/api/v1/course-modules",
      *     tags={"Course Modules"},
      *     summary="Create new course module",
      *     description="Create a new module for a course",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -153,11 +162,11 @@ class CourseModuleController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/course-modules/{id}",
+     *     path="/api/v1/course-modules/{id}",
      *     tags={"Course Modules"},
      *     summary="Get course module by ID",
      *     description="Retrieve a specific course module with its materials",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -191,11 +200,11 @@ class CourseModuleController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/course-modules/{id}",
+     *     path="/api/v1/course-modules/{id}",
      *     tags={"Course Modules"},
      *     summary="Update course module",
      *     description="Update an existing course module",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -249,11 +258,11 @@ class CourseModuleController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/course-modules/{id}",
+     *     path="/api/v1/course-modules/{id}",
      *     tags={"Course Modules"},
      *     summary="Delete course module",
      *     description="Remove a course module",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",

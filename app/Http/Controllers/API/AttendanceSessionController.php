@@ -16,11 +16,11 @@ class AttendanceSessionController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/attendance-sessions",
+     *     path="/api/v1/attendance-sessions",
      *     tags={"Attendance Sessions"},
      *     summary="Get all attendance sessions",
      *     description="Retrieve attendance sessions with filtering (students see only sessions for enrolled courses)",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="course_id",
      *         in="query",
@@ -97,11 +97,11 @@ class AttendanceSessionController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/attendance-sessions",
+     *     path="/api/v1/attendance-sessions",
      *     tags={"Attendance Sessions"},
      *     summary="Create new attendance session",
      *     description="Create a new attendance session for a course",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -169,11 +169,11 @@ class AttendanceSessionController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/attendance-sessions/{id}",
+     *     path="/api/v1/attendance-sessions/{id}",
      *     tags={"Attendance Sessions"},
      *     summary="Get attendance session by ID",
      *     description="Retrieve a specific attendance session with attendance records and summary",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -223,11 +223,11 @@ class AttendanceSessionController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/attendance-sessions/{id}",
+     *     path="/api/v1/attendance-sessions/{id}",
      *     tags={"Attendance Sessions"},
      *     summary="Update attendance session",
      *     description="Update an existing attendance session",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -289,11 +289,11 @@ class AttendanceSessionController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/attendance-sessions/{id}",
+     *     path="/api/v1/attendance-sessions/{id}",
      *     tags={"Attendance Sessions"},
      *     summary="Delete attendance session",
      *     description="Remove an attendance session",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -339,11 +339,11 @@ class AttendanceSessionController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/attendance-sessions/{id}/open",
+     *     path="/api/v1/attendance-sessions/{id}/open",
      *     tags={"Attendance Sessions"},
      *     summary="Open attendance session",
      *     description="Change attendance session status to open",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -389,11 +389,11 @@ class AttendanceSessionController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/attendance-sessions/{id}/close",
+     *     path="/api/v1/attendance-sessions/{id}/close",
      *     tags={"Attendance Sessions"},
      *     summary="Close attendance session",
      *     description="Change attendance session status to closed",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -439,11 +439,11 @@ class AttendanceSessionController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/attendance-sessions/{id}/auto-mark-absent",
+     *     path="/api/v1/attendance-sessions/{id}/auto-mark-absent",
      *     tags={"Attendance Sessions"},
      *     summary="Auto-mark absent",
      *     description="Automatically mark students as absent if they haven't checked in after deadline",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -499,11 +499,11 @@ class AttendanceSessionController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/attendance-sessions/{id}/summary",
+     *     path="/api/v1/attendance-sessions/{id}/summary",
      *     tags={"Attendance Sessions"},
      *     summary="Get attendance session summary",
      *     description="Retrieve attendance summary statistics for a specific session",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -553,11 +553,11 @@ class AttendanceSessionController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/attendance-sessions/course/{courseId}",
+     *     path="/api/v1/attendance-sessions/course/{courseId}",
      *     tags={"Attendance Sessions"},
      *     summary="Get course attendance sessions",
      *     description="Retrieve all attendance sessions for a specific course",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="courseId",
      *         in="path",
@@ -637,11 +637,11 @@ class AttendanceSessionController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/attendance-sessions/course/{courseId}/active",
+     *     path="/api/v1/attendance-sessions/course/{courseId}/active",
      *     tags={"Attendance Sessions"},
      *     summary="Get active course attendance sessions",
      *     description="Retrieve all active (open) attendance sessions for a specific course",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="courseId",
      *         in="path",

@@ -931,14 +931,14 @@
                 ]
             }
         },
-        "/api/attendance-sessions/{sessionId}/check-in": {
+        "/api/v1/attendance-sessions/{sessionId}/check-in": {
             "post": {
                 "tags": [
                     "Attendance Records"
                 ],
                 "summary": "Student check-in for attendance",
                 "description": "Allow students to check in for an open attendance session",
-                "operationId": "f9c720abcc987c41b3a459ed4db4d33c",
+                "operationId": "197da51c9d32852b58bd63f7426faf2b",
                 "parameters": [
                     {
                         "name": "sessionId",
@@ -985,19 +985,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/attendance-sessions/{sessionId}/sick-leave": {
+        "/api/v1/attendance-sessions/{sessionId}/sick-leave": {
             "post": {
                 "tags": [
                     "Attendance Records"
                 ],
                 "summary": "Request sick leave",
                 "description": "Student requests sick leave for an attendance session",
-                "operationId": "98c65bd4bd4a49ac5a383b6a60b8db1b",
+                "operationId": "77eeaba837a93d556f3ef88007caef0b",
                 "parameters": [
                     {
                         "name": "sessionId",
@@ -1064,19 +1064,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/attendance-sessions/{sessionId}/permission": {
+        "/api/v1/attendance-sessions/{sessionId}/permission": {
             "post": {
                 "tags": [
                     "Attendance Records"
                 ],
                 "summary": "Request permission/izin",
                 "description": "Student requests permission to be absent for an attendance session",
-                "operationId": "3065ca7f92ec1b56475b1bf8a8a73d01",
+                "operationId": "9c5cfa8499df0e79dd08806dd617094c",
                 "parameters": [
                     {
                         "name": "sessionId",
@@ -1146,19 +1146,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/attendance-records/bulk-mark": {
+        "/api/v1/attendance-records/bulk-mark": {
             "post": {
                 "tags": [
                     "Attendance Records"
                 ],
                 "summary": "Bulk mark attendance",
                 "description": "Mark attendance for multiple students at once (Instructor/Admin only)",
-                "operationId": "8161f6027862d0512d8740c3d3ec6230",
+                "operationId": "10ebf845e3f814e1e69ab1b870a6143e",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -1242,19 +1242,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/attendance-sessions/{sessionId}/records": {
+        "/api/v1/attendance-sessions/{sessionId}/records": {
             "get": {
                 "tags": [
                     "Attendance Records"
                 ],
                 "summary": "Get session attendance records",
                 "description": "Retrieve all attendance records for a specific session",
-                "operationId": "4fd26f250cb75618909bbb631e321bd0",
+                "operationId": "200e1f663283c21c212748b2d0ef5708",
                 "parameters": [
                     {
                         "name": "sessionId",
@@ -1292,19 +1292,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/attendance-sessions": {
+        "/api/v1/attendance-sessions": {
             "get": {
                 "tags": [
                     "Attendance Sessions"
                 ],
                 "summary": "Get all attendance sessions",
                 "description": "Retrieve attendance sessions with filtering (students see only sessions for enrolled courses)",
-                "operationId": "92946f85e4366423ddf45461d597b22d",
+                "operationId": "32a06408637c48a47178913c3de058fb",
                 "parameters": [
                     {
                         "name": "course_id",
@@ -1350,7 +1350,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             },
@@ -1360,7 +1360,7 @@
                 ],
                 "summary": "Create new attendance session",
                 "description": "Create a new attendance session for a course",
-                "operationId": "315c69cd0f453b9924022f12ee42b082",
+                "operationId": "cb2b784f38b3af4e4b8da8099f9e020f",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -1429,19 +1429,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/attendance-sessions/{id}": {
+        "/api/v1/attendance-sessions/{id}": {
             "get": {
                 "tags": [
                     "Attendance Sessions"
                 ],
                 "summary": "Get attendance session by ID",
                 "description": "Retrieve a specific attendance session with attendance records and summary",
-                "operationId": "7a3332f0ba0dce2a6f8b7db0ffe865fe",
+                "operationId": "96023e976b0ed65437a330d9487dc956",
                 "parameters": [
                     {
                         "name": "id",
@@ -1476,7 +1476,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             },
@@ -1486,7 +1486,7 @@
                 ],
                 "summary": "Update attendance session",
                 "description": "Update an existing attendance session",
-                "operationId": "bb019ff4e5c0d79041f069115cd3927b",
+                "operationId": "b398128029fb2d3f962e4ce6e73ea0fc",
                 "parameters": [
                     {
                         "name": "id",
@@ -1563,7 +1563,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             },
@@ -1573,7 +1573,7 @@
                 ],
                 "summary": "Delete attendance session",
                 "description": "Remove an attendance session",
-                "operationId": "ea38ee5f7c6c749d9cafcedd5b49e758",
+                "operationId": "7a5076b14495c9ec2528b4fcda2ed2af",
                 "parameters": [
                     {
                         "name": "id",
@@ -1614,19 +1614,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/attendance-sessions/{id}/open": {
+        "/api/v1/attendance-sessions/{id}/open": {
             "post": {
                 "tags": [
                     "Attendance Sessions"
                 ],
                 "summary": "Open attendance session",
                 "description": "Change attendance session status to open",
-                "operationId": "ff0c532a6c027582d58f302411b350e7",
+                "operationId": "e59b38b0d7fdcb03d97d0d62406a8af1",
                 "parameters": [
                     {
                         "name": "id",
@@ -1670,19 +1670,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/attendance-sessions/{id}/close": {
+        "/api/v1/attendance-sessions/{id}/close": {
             "post": {
                 "tags": [
                     "Attendance Sessions"
                 ],
                 "summary": "Close attendance session",
                 "description": "Change attendance session status to closed",
-                "operationId": "c7c9091b40424b0571333534d82e9458",
+                "operationId": "9855ef123c0cee1c9171db7dd32c3ff0",
                 "parameters": [
                     {
                         "name": "id",
@@ -1726,19 +1726,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/attendance-sessions/{id}/auto-mark-absent": {
+        "/api/v1/attendance-sessions/{id}/auto-mark-absent": {
             "post": {
                 "tags": [
                     "Attendance Sessions"
                 ],
                 "summary": "Auto-mark absent",
                 "description": "Automatically mark students as absent if they haven't checked in after deadline",
-                "operationId": "bc2ccbedaed6837180b70d0796063207",
+                "operationId": "d645c5a717f9403b3e2234d2b068ce18",
                 "parameters": [
                     {
                         "name": "id",
@@ -1786,19 +1786,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/attendance-sessions/{id}/summary": {
+        "/api/v1/attendance-sessions/{id}/summary": {
             "get": {
                 "tags": [
                     "Attendance Sessions"
                 ],
                 "summary": "Get attendance session summary",
                 "description": "Retrieve attendance summary statistics for a specific session",
-                "operationId": "00c5dfa449119bcd83db3cfe84454c1f",
+                "operationId": "b246632383ffe3a91dc67be5a6e9e16f",
                 "parameters": [
                     {
                         "name": "id",
@@ -1851,19 +1851,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/attendance-sessions/course/{courseId}": {
+        "/api/v1/attendance-sessions/course/{courseId}": {
             "get": {
                 "tags": [
                     "Attendance Sessions"
                 ],
                 "summary": "Get course attendance sessions",
                 "description": "Retrieve all attendance sessions for a specific course",
-                "operationId": "1bde7c4385aae02413bf2a05f6df9b1e",
+                "operationId": "41910cd3bac4aae15db6571826036b79",
                 "parameters": [
                     {
                         "name": "courseId",
@@ -1901,19 +1901,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/attendance-sessions/course/{courseId}/active": {
+        "/api/v1/attendance-sessions/course/{courseId}/active": {
             "get": {
                 "tags": [
                     "Attendance Sessions"
                 ],
                 "summary": "Get active course attendance sessions",
                 "description": "Retrieve all active (open) attendance sessions for a specific course",
-                "operationId": "0fb897d1ca2184daf0ec9303a8ae4718",
+                "operationId": "6e9256219b106daacf58a0bd292f136f",
                 "parameters": [
                     {
                         "name": "courseId",
@@ -1951,7 +1951,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
@@ -3064,14 +3064,14 @@
                 ]
             }
         },
-        "/api/course-modules": {
+        "/api/v1/course-modules": {
             "get": {
                 "tags": [
                     "Course Modules"
                 ],
                 "summary": "Get all course modules",
                 "description": "Retrieve course modules based on user role (students see only modules from enrolled courses)",
-                "operationId": "3768a7a1bcb6c182bb0cda31e576e657",
+                "operationId": "bda540b8153e9eb5bf3202ee9dbaa260",
                 "responses": {
                     "200": {
                         "description": "Course modules retrieved successfully",
@@ -3117,7 +3117,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             },
@@ -3127,7 +3127,7 @@
                 ],
                 "summary": "Create new course module",
                 "description": "Create a new module for a course",
-                "operationId": "c585d8edd697d7f3436b2153a4e35953",
+                "operationId": "2fb9bad3d2836593c6be65f26c697be6",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -3202,19 +3202,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/course-modules/{id}": {
+        "/api/v1/course-modules/{id}": {
             "get": {
                 "tags": [
                     "Course Modules"
                 ],
                 "summary": "Get course module by ID",
                 "description": "Retrieve a specific course module with its materials",
-                "operationId": "b479e91dc16af74c3aeb98b05fec1d99",
+                "operationId": "c20a379ece2cb24ed8bd1d7fa299a78b",
                 "parameters": [
                     {
                         "name": "id",
@@ -3268,7 +3268,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             },
@@ -3278,7 +3278,7 @@
                 ],
                 "summary": "Update course module",
                 "description": "Update an existing course module",
-                "operationId": "af4cf6df993600f27fbf853711363f60",
+                "operationId": "e0eced706e9a4688f545b0dc92f0fdcb",
                 "parameters": [
                     {
                         "name": "id",
@@ -3340,7 +3340,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             },
@@ -3350,7 +3350,7 @@
                 ],
                 "summary": "Delete course module",
                 "description": "Remove a course module",
-                "operationId": "e7e7576d65eaf6e70c7ac1103c67375d",
+                "operationId": "08dc5e76dce63d60f268cc031ce35ec1",
                 "parameters": [
                     {
                         "name": "id",
@@ -3378,7 +3378,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
@@ -3651,14 +3651,14 @@
                 ]
             }
         },
-        "/api/grade-components": {
+        "/api/v1/grade-components": {
             "get": {
                 "tags": [
                     "Grade Components"
                 ],
                 "summary": "Get grade components for a course",
                 "description": "Retrieve all grade components for a specific course with weight validation",
-                "operationId": "7b59ee62f71edb4f3901881518076b64",
+                "operationId": "741be9525695c17a2b0d54ff20799aa9",
                 "parameters": [
                     {
                         "name": "course_id",
@@ -3708,7 +3708,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             },
@@ -3718,7 +3718,7 @@
                 ],
                 "summary": "Create a new grade component",
                 "description": "Create a new grade component for a course with weight validation",
-                "operationId": "6971c87183147267fce3a6219527768e",
+                "operationId": "aec61bc2783433c6efeab17e0080925f",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -3794,19 +3794,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/grade-components/{id}": {
+        "/api/v1/grade-components/{id}": {
             "get": {
                 "tags": [
                     "Grade Components"
                 ],
                 "summary": "Get grade component by ID",
                 "description": "Retrieve a specific grade component with its grades",
-                "operationId": "7752a3c5512ccd4e4906d76e9288daa2",
+                "operationId": "b05e5b7cb623ad51f5b47f60271a4543",
                 "parameters": [
                     {
                         "name": "id",
@@ -3850,7 +3850,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             },
@@ -3860,7 +3860,7 @@
                 ],
                 "summary": "Update grade component",
                 "description": "Update an existing grade component with weight validation",
-                "operationId": "13d0fe05e02c459cd0d3c65b099cb51c",
+                "operationId": "2b873909a01ee9d251b89a9b503a844b",
                 "parameters": [
                     {
                         "name": "id",
@@ -3941,7 +3941,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             },
@@ -3951,7 +3951,7 @@
                 ],
                 "summary": "Delete grade component",
                 "description": "Remove a grade component (only if no grades exist)",
-                "operationId": "d10a72ed6bb9d273ff13707479cdfa3e",
+                "operationId": "546b993d375a07a48b747bf3ae717b23",
                 "parameters": [
                     {
                         "name": "id",
@@ -3995,31 +3995,31 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/grades": {
+        "/api/v1/grades": {
             "post": {
                 "tags": [
                     "Grades"
                 ],
                 "summary": "Input nilai siswa",
-                "description": "Create a new grade entry for a student in a specific grade component",
-                "operationId": "09ba8a5b3973d399754f95ab9d83b9ab",
+                "description": "Create a new grade entry for a student (via enrollment) in a specific grade component",
+                "operationId": "64ed245e029c1f08d562c87f01f3a5b6",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "student_id",
+                                    "enrollment_id",
                                     "grade_component_id",
                                     "score"
                                 ],
                                 "properties": {
-                                    "student_id": {
+                                    "enrollment_id": {
                                         "type": "integer",
                                         "example": 1
                                     },
@@ -4030,12 +4030,12 @@
                                     "score": {
                                         "type": "number",
                                         "format": "float",
-                                        "example": 85.5
+                                        "example": "85.5"
                                     },
                                     "max_score": {
                                         "type": "number",
                                         "format": "float",
-                                        "example": 100
+                                        "example": "100"
                                     },
                                     "notes": {
                                         "type": "string",
@@ -4079,19 +4079,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/grades/bulk": {
+        "/api/v1/grades/bulk": {
             "post": {
                 "tags": [
                     "Grades"
                 ],
                 "summary": "Input nilai massal (bulk)",
-                "description": "Create multiple grade entries at once for multiple students",
-                "operationId": "15f532a0a1466ef18725742070e15274",
+                "description": "Create multiple grade entries at once for multiple enrollments",
+                "operationId": "9183caed98482accf6267d70d1298d29",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -4105,7 +4105,7 @@
                                         "type": "array",
                                         "items": {
                                             "properties": {
-                                                "student_id": {
+                                                "enrollment_id": {
                                                     "type": "integer",
                                                     "example": 1
                                                 },
@@ -4116,12 +4116,12 @@
                                                 "score": {
                                                     "type": "number",
                                                     "format": "float",
-                                                    "example": 85.5
+                                                    "example": "85.5"
                                                 },
                                                 "max_score": {
                                                     "type": "number",
                                                     "format": "float",
-                                                    "example": 100
+                                                    "example": "100"
                                                 },
                                                 "notes": {
                                                     "type": "string",
@@ -4165,7 +4165,7 @@
                         }
                     },
                     "400": {
-                        "description": "Validation error or enrollment issues"
+                        "description": "Validation error"
                     },
                     "403": {
                         "description": "Unauthorized"
@@ -4173,19 +4173,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/grades/student": {
+        "/api/v1/grades/student": {
             "get": {
                 "tags": [
                     "Grades"
                 ],
                 "summary": "Get nilai siswa untuk course",
                 "description": "Retrieve all grades for a student in a specific course including final grade",
-                "operationId": "072e2e5e6e23107afa7856309724c5e5",
+                "operationId": "afb33a7d2e37eed723da23a092e7b278",
                 "parameters": [
                     {
                         "name": "student_id",
@@ -4228,7 +4228,7 @@
                                                 "final_grade": {
                                                     "type": "number",
                                                     "format": "float",
-                                                    "example": 87.5
+                                                    "example": "87.5"
                                                 }
                                             },
                                             "type": "object"
@@ -4251,19 +4251,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/grades/course": {
+        "/api/v1/grades/course": {
             "get": {
                 "tags": [
                     "Grades"
                 ],
                 "summary": "Get rekap nilai untuk course",
                 "description": "Retrieve grades summary and statistics for a specific course",
-                "operationId": "86b01095c867340de8e144127590d231",
+                "operationId": "52875e203becce6fec355f058c28640f",
                 "parameters": [
                     {
                         "name": "course_id",
@@ -4315,19 +4315,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/grades/{id}": {
+        "/api/v1/grades/{id}": {
             "put": {
                 "tags": [
                     "Grades"
                 ],
                 "summary": "Update nilai siswa",
                 "description": "Update an existing grade entry",
-                "operationId": "945be0e2718fba53ecb91c12eca274c1",
+                "operationId": "23164b71a42b2ec4f51eddd587c33600",
                 "parameters": [
                     {
                         "name": "id",
@@ -4348,12 +4348,12 @@
                                     "score": {
                                         "type": "number",
                                         "format": "float",
-                                        "example": 90
+                                        "example": "90.0"
                                     },
                                     "max_score": {
                                         "type": "number",
                                         "format": "float",
-                                        "example": 100
+                                        "example": "100"
                                     },
                                     "notes": {
                                         "type": "string",
@@ -4400,7 +4400,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             },
@@ -4410,7 +4410,7 @@
                 ],
                 "summary": "Delete nilai siswa",
                 "description": "Remove a grade entry",
-                "operationId": "f3957d4c8e9fedc3599185c50b5fdc24",
+                "operationId": "81a1938d21e3395b06416981f6edc83a",
                 "parameters": [
                     {
                         "name": "id",
@@ -4451,7 +4451,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
@@ -4903,14 +4903,14 @@
                 ]
             }
         },
-        "/api/materials": {
+        "/api/v1/materials": {
             "get": {
                 "tags": [
                     "Materials"
                 ],
                 "summary": "Get all materials",
                 "description": "Retrieve materials based on user role (students see only materials from enrolled courses)",
-                "operationId": "ed04a96cf463463a497cf4d45b931cd1",
+                "operationId": "82d2dc147a0db748e6d8d1f788d7adbd",
                 "responses": {
                     "200": {
                         "description": "Materials retrieved successfully",
@@ -4960,19 +4960,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/notifications": {
+        "/api/v1/notifications": {
             "get": {
                 "tags": [
                     "Notifications"
                 ],
                 "summary": "Get user notifications",
                 "description": "Retrieve all notifications for authenticated user with filtering options",
-                "operationId": "0bb334cc4f9efd4fc1e6a0b32d8cd65d",
+                "operationId": "af04bb36e3e902874bbc55187deef606",
                 "parameters": [
                     {
                         "name": "notification_type",
@@ -5027,19 +5027,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/notifications/{id}": {
+        "/api/v1/notifications/{id}": {
             "get": {
                 "tags": [
                     "Notifications"
                 ],
                 "summary": "Get notification by ID",
                 "description": "Retrieve a specific notification and automatically mark as read",
-                "operationId": "5eb5300fde861ae64cc0c8045ba65583",
+                "operationId": "c3a22d7ca79f066ae97bdc8a6927e13a",
                 "parameters": [
                     {
                         "name": "id",
@@ -5074,7 +5074,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             },
@@ -5084,7 +5084,7 @@
                 ],
                 "summary": "Delete notification",
                 "description": "Remove a specific notification",
-                "operationId": "7c72326e2cb2bfa472ce2b7f386a5acf",
+                "operationId": "39c877a186d48172823768fec5d66f08",
                 "parameters": [
                     {
                         "name": "id",
@@ -5125,19 +5125,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/notifications/{id}/mark-read": {
+        "/api/v1/notifications/{id}/mark-read": {
             "post": {
                 "tags": [
                     "Notifications"
                 ],
                 "summary": "Mark notification as read",
                 "description": "Mark a specific notification as read",
-                "operationId": "6706deabdef9387dee5232f6e18175ed",
+                "operationId": "d4934a45c7167740a51a9b31b1a653bf",
                 "parameters": [
                     {
                         "name": "id",
@@ -5181,19 +5181,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/notifications/{id}/mark-unread": {
+        "/api/v1/notifications/{id}/mark-unread": {
             "post": {
                 "tags": [
                     "Notifications"
                 ],
                 "summary": "Mark notification as unread",
                 "description": "Mark a specific notification as unread",
-                "operationId": "8f70ecc93f57dc49172127374ae0b310",
+                "operationId": "f4c91f79e6fc733652d2828b35e767a1",
                 "parameters": [
                     {
                         "name": "id",
@@ -5237,19 +5237,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/notifications/mark-all-read": {
+        "/api/v1/notifications/mark-all-read": {
             "post": {
                 "tags": [
                     "Notifications"
                 ],
                 "summary": "Mark all notifications as read",
                 "description": "Mark all unread notifications for authenticated user as read",
-                "operationId": "cf4a9b705db3e83f1cfb02f67e9e4906",
+                "operationId": "ffedc569ec9adeb040ea505b8b97210f",
                 "responses": {
                     "200": {
                         "description": "All notifications marked as read",
@@ -5280,19 +5280,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/notifications/unread": {
+        "/api/v1/notifications/unread": {
             "get": {
                 "tags": [
                     "Notifications"
                 ],
                 "summary": "Get unread notifications",
                 "description": "Retrieve all unread notifications for authenticated user",
-                "operationId": "6f8e2d856d727ff18763c097672e1af8",
+                "operationId": "d14cb069a1af8535bf023573207d6def",
                 "responses": {
                     "200": {
                         "description": "Unread notifications retrieved successfully",
@@ -5316,19 +5316,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/notifications/unread-count": {
+        "/api/v1/notifications/unread-count": {
             "get": {
                 "tags": [
                     "Notifications"
                 ],
                 "summary": "Get unread notification count",
                 "description": "Get the count of unread notifications for authenticated user",
-                "operationId": "bc29be3cfc9dc87d08ec7183a037e6fb",
+                "operationId": "52ed525150287c22f166aa4623a62b3f",
                 "responses": {
                     "200": {
                         "description": "Unread count retrieved successfully",
@@ -5355,19 +5355,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/notifications/bulk-mark-read": {
+        "/api/v1/notifications/bulk-mark-read": {
             "post": {
                 "tags": [
                     "Notifications"
                 ],
                 "summary": "Bulk mark notifications as read",
                 "description": "Mark multiple notifications as read at once",
-                "operationId": "05eb06786ca35964adcb46b77546731b",
+                "operationId": "d17767a5c44b12809427e8e9595df88c",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -5427,19 +5427,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/notifications/bulk-delete": {
+        "/api/v1/notifications/bulk-delete": {
             "post": {
                 "tags": [
                     "Notifications"
                 ],
                 "summary": "Bulk delete notifications",
                 "description": "Delete multiple notifications at once",
-                "operationId": "797f282f5581d0092f3e40a05c2516e1",
+                "operationId": "e547f7f1f5bb703a65eec4c290f0e684",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -5499,7 +5499,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
@@ -7015,14 +7015,14 @@
                 ]
             }
         },
-        "/api/submissions": {
+        "/api/v1/submissions": {
             "get": {
                 "tags": [
                     "Submissions"
                 ],
                 "summary": "Get all submissions",
                 "description": "Retrieve a list of all assignment submissions",
-                "operationId": "56c54b0cd30585228039c77d5164aa1b",
+                "operationId": "ed9fb199968f10254bc3229a6d7db6cd",
                 "responses": {
                     "200": {
                         "description": "Successful operation",
@@ -7073,7 +7073,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             },
@@ -7083,7 +7083,7 @@
                 ],
                 "summary": "Submit an assignment",
                 "description": "Create a new assignment submission (student must be enrolled in course)",
-                "operationId": "0c5f0006acb849ce8cd7bba6a2efa591",
+                "operationId": "f7d0265d0c38bf188f79d208b7a95ccd",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -7160,19 +7160,19 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/submissions/{id}": {
+        "/api/v1/submissions/{id}": {
             "get": {
                 "tags": [
                     "Submissions"
                 ],
                 "summary": "Get submission by ID",
                 "description": "Retrieve a specific submission with assignment and student details",
-                "operationId": "8f8a089bf59179710eab6505b34de81a",
+                "operationId": "73522bd7c0e8c4bbfabb2fbf57106adc",
                 "parameters": [
                     {
                         "name": "id",
@@ -7234,7 +7234,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             },
@@ -7244,7 +7244,7 @@
                 ],
                 "summary": "Update submission",
                 "description": "Update an existing assignment submission",
-                "operationId": "71e994dc077ece9caec99f4f964aba36",
+                "operationId": "41ba87ae3381e0c7eeb18a528f530d88",
                 "parameters": [
                     {
                         "name": "id",
@@ -7336,7 +7336,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             },
@@ -7346,7 +7346,7 @@
                 ],
                 "summary": "Delete submission",
                 "description": "Remove an assignment submission",
-                "operationId": "271c32f0fdf267e53fe9ce57333d04b7",
+                "operationId": "ebe564a25138192548b0a56f966e3473",
                 "parameters": [
                     {
                         "name": "id",
@@ -7374,7 +7374,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }

@@ -14,11 +14,11 @@ class NotificationController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/notifications",
+     *     path="/api/v1/notifications",
      *     tags={"Notifications"},
      *     summary="Get user notifications",
      *     description="Retrieve all notifications for authenticated user with filtering options",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="notification_type",
      *         in="query",
@@ -97,11 +97,11 @@ class NotificationController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/notifications/{id}",
+     *     path="/api/v1/notifications/{id}",
      *     tags={"Notifications"},
      *     summary="Get notification by ID",
      *     description="Retrieve a specific notification and automatically mark as read",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -143,11 +143,11 @@ class NotificationController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/notifications/{id}",
+     *     path="/api/v1/notifications/{id}",
      *     tags={"Notifications"},
      *     summary="Delete notification",
      *     description="Remove a specific notification",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -193,11 +193,11 @@ class NotificationController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/notifications/{id}/mark-read",
+     *     path="/api/v1/notifications/{id}/mark-read",
      *     tags={"Notifications"},
      *     summary="Mark notification as read",
      *     description="Mark a specific notification as read",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -242,11 +242,11 @@ class NotificationController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/notifications/{id}/mark-unread",
+     *     path="/api/v1/notifications/{id}/mark-unread",
      *     tags={"Notifications"},
      *     summary="Mark notification as unread",
      *     description="Mark a specific notification as unread",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -291,11 +291,11 @@ class NotificationController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/notifications/mark-all-read",
+     *     path="/api/v1/notifications/mark-all-read",
      *     tags={"Notifications"},
      *     summary="Mark all notifications as read",
      *     description="Mark all unread notifications for authenticated user as read",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
      *         description="All notifications marked as read",
@@ -339,11 +339,11 @@ class NotificationController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/notifications/unread",
+     *     path="/api/v1/notifications/unread",
      *     tags={"Notifications"},
      *     summary="Get unread notifications",
      *     description="Retrieve all unread notifications for authenticated user",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
      *         description="Unread notifications retrieved successfully",
@@ -441,11 +441,11 @@ class NotificationController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/notifications/unread-count",
+     *     path="/api/v1/notifications/unread-count",
      *     tags={"Notifications"},
      *     summary="Get unread notification count",
      *     description="Get the count of unread notifications for authenticated user",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
      *         description="Unread count retrieved successfully",
@@ -485,11 +485,11 @@ class NotificationController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/notifications/bulk-mark-read",
+     *     path="/api/v1/notifications/bulk-mark-read",
      *     tags={"Notifications"},
      *     summary="Bulk mark notifications as read",
      *     description="Mark multiple notifications as read at once",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -552,11 +552,11 @@ class NotificationController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/notifications/bulk-delete",
+     *     path="/api/v1/notifications/bulk-delete",
      *     tags={"Notifications"},
      *     summary="Bulk delete notifications",
      *     description="Delete multiple notifications at once",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(

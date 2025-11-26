@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartDev Instructor - Ultimate Dashboard</title>
-    
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
@@ -44,9 +45,10 @@
             transition: all 0.2s;
         }
 
-        #sidebar .nav-link:hover, #sidebar .nav-link.active {
+        #sidebar .nav-link:hover,
+        #sidebar .nav-link.active {
             color: white;
-            background: rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.08);
             border-left-color: var(--primary);
         }
 
@@ -54,7 +56,7 @@
             padding: 1.5rem;
             font-size: 1.4rem;
             font-weight: bold;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
         }
 
@@ -69,14 +71,14 @@
         .card {
             border: none;
             border-radius: 12px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        
+
         /* HOVER EFFECTS */
         .course-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
             cursor: pointer;
         }
 
@@ -84,44 +86,72 @@
         .progress-card {
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        
+
         .progress-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important;
         }
 
         .page-section {
             display: none;
             animation: fadein 0.4s ease-out;
         }
+
         .page-section.active {
             display: block;
         }
 
         @keyframes fadein {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Loading Overlay */
         #loading-overlay {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.8);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
             z-index: 2000;
-            display: none; /* Default hidden agar aman */
+            display: none;
+            /* Default hidden agar aman */
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(3px);
         }
-        
+
         /* Helpers */
-        .badge-soft-primary { background-color: rgba(79, 70, 229, 0.1); color: #4f46e5; }
-        .badge-soft-success { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
-        .badge-soft-warning { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-        .badge-soft-danger { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .badge-soft-primary {
+            background-color: rgba(79, 70, 229, 0.1);
+            color: #4f46e5;
+        }
+
+        .badge-soft-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .badge-soft-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .badge-soft-danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
     </style>
 </head>
+
 <body>
 
     <div id="loading-overlay">
@@ -136,7 +166,8 @@
             <i class="bi bi-mortarboard-fill me-2 text-primary"></i> SmartDev
         </div>
         <div class="p-3 mb-3 border-bottom border-secondary border-opacity-25 text-center">
-            <div class="avatar bg-primary text-white rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width:50px; height:50px; font-size:1.2rem;">
+            <div class="avatar bg-primary text-white rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center"
+                style="width:50px; height:50px; font-size:1.2rem;">
                 <i class="bi bi-person"></i>
             </div>
             <strong id="sidebarUserName" class="d-block">Instructor</strong>
@@ -167,12 +198,13 @@
     </nav>
 
     <div id="content">
-        
+
         <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
             <h4 class="mb-0 fw-bold text-secondary" id="pageTitle">Overview</h4>
             <div class="input-group input-group-sm w-auto">
                 <span class="input-group-text bg-white"><i class="bi bi-link-45deg"></i></span>
-                <input type="text" id="ngrokUrl" class="form-control" value="https://portohansgunawan.my.id" style="width: 250px;">
+                <input type="text" id="ngrokUrl" class="form-control" value="https://portohansgunawan.my.id"
+                    style="width: 250px;">
                 <button class="btn btn-primary" onclick="initApp()">Refresh Connection</button>
             </div>
         </div>
@@ -185,7 +217,8 @@
                             <h3><i class="bi bi-book"></i> <span id="statCourses">0</span></h3>
                             <p class="mb-0 opacity-75">Active Courses</p>
                         </div>
-                        <i class="bi bi-book position-absolute top-50 end-0 translate-middle-y opacity-25 me-3" style="font-size: 5rem;"></i>
+                        <i class="bi bi-book position-absolute top-50 end-0 translate-middle-y opacity-25 me-3"
+                            style="font-size: 5rem;"></i>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -196,7 +229,8 @@
                 </div>
                 <div class="col-md-4">
                     <div class="card p-4 h-100 border-start border-4 border-warning">
-                        <h3 class="text-warning"><i class="bi bi-journal-text"></i> <span id="statAssignments">0</span></h3>
+                        <h3 class="text-warning"><i class="bi bi-journal-text"></i> <span id="statAssignments">0</span>
+                        </h3>
                         <p class="text-muted mb-0">Total Assignments</p>
                     </div>
                 </div>
@@ -204,7 +238,7 @@
 
             <h5 class="text-muted mb-3">Recent Courses</h5>
             <div id="dashboardCoursesList" class="row g-4">
-                </div>
+            </div>
         </section>
 
         <section id="courses" class="page-section">
@@ -215,14 +249,14 @@
                 </button>
             </div>
             <div id="coursesList" class="row g-4">
-                </div>
+            </div>
         </section>
 
         <section id="courseDetail" class="page-section">
             <button class="btn btn-sm btn-outline-secondary mb-4" onclick="navTo('courses')">
                 <i class="bi bi-arrow-left"></i> Back to Course List
             </button>
-            
+
             <div class="card mb-4 border-0 shadow-sm">
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-start">
@@ -247,21 +281,42 @@
                 <div class="card-header bg-white">
                     <ul class="nav nav-tabs card-header-tabs" id="courseTabs">
                         <li class="nav-item">
-                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabAssignments">Assignments</button>
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabModules"
+                                onclick="loadModulesTab()">Modules</button>
                         </li>
                         <li class="nav-item">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabAttendance" onclick="loadAttendanceTab()">Attendance</button>
+                            <button class="nav-link active" data-bs-toggle="tab"
+                                data-bs-target="#tabAssignments">Assignments</button>
                         </li>
                         <li class="nav-item">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabStudents">Students</button>
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabAttendance"
+                                onclick="loadAttendanceTab()">Attendance</button>
                         </li>
                         <li class="nav-item">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabCertificates" onclick="loadCertificatesTab()">Certificates</button>
+                            <button class="nav-link" data-bs-toggle="tab"
+                                data-bs-target="#tabStudents">Students</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabCertificates"
+                                onclick="loadCertificatesTab()">Certificates</button>
                         </li>
                     </ul>
                 </div>
                 <div class="card-body p-4">
                     <div class="tab-content">
+                        <div class="tab-pane fade" id="tabModules">
+                            <div class="d-flex justify-content-between mb-4 align-items-center">
+                                <h5 class="mb-0">Course Modules</h5>
+                                <button class="btn btn-sm btn-primary" onclick="openCreateModuleModal()">
+                                    <i class="bi bi-plus-circle"></i> Add Module
+                                </button>
+                            </div>
+                            <div class="accordion" id="modulesAccordion">
+                                <!-- Modules will be loaded here -->
+                                <div class="text-center p-4 text-muted">Loading modules...</div>
+                            </div>
+                        </div>
+
                         <div class="tab-pane fade show active" id="tabAssignments">
                             <div class="d-flex justify-content-between mb-4 align-items-center">
                                 <h5 class="mb-0">Course Assignments</h5>
@@ -281,7 +336,8 @@
                             </div>
                             <div class="row g-4">
                                 <div class="col-md-4">
-                                    <div class="list-group shadow-sm" id="sessionListGroup" style="max-height: 400px; overflow-y: auto;">
+                                    <div class="list-group shadow-sm" id="sessionListGroup"
+                                        style="max-height: 400px; overflow-y: auto;">
                                     </div>
                                 </div>
                                 <div class="col-md-8">
@@ -299,7 +355,10 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody id="attendanceTableBody">
-                                                    <tr><td colspan="3" class="text-center p-5 text-muted">Select a session from the left list</td></tr>
+                                                    <tr>
+                                                        <td colspan="3" class="text-center p-5 text-muted">Select a
+                                                            session from the left list</td>
+                                                    </tr>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -310,11 +369,17 @@
 
                         <div class="tab-pane fade" id="tabStudents">
                             <table class="table align-middle">
-                                <thead class="table-light"><tr><th>Name</th><th>Email</th><th>Status</th></tr></thead>
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
                                 <tbody id="studentListBody"></tbody>
                             </table>
                         </div>
-                        
+
                         <div class="tab-pane fade" id="tabCertificates">
                             <div class="text-center p-5">
                                 <div class="spinner-border text-primary"></div>
@@ -344,7 +409,7 @@
                             </tr>
                         </thead>
                         <tbody id="submissionTableBody">
-                            </tbody>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -360,14 +425,15 @@
                     <i class="bi bi-megaphone"></i> Post New
                 </button>
             </div>
-            
+
             <div class="d-flex gap-2 mb-4 border-bottom pb-3">
                 <button class="btn btn-sm btn-light active fw-bold" onclick="loadAnnouncements()">All</button>
-                <button class="btn btn-sm btn-light text-muted" onclick="loadAnnouncements({status: 'published'})">Published Only</button>
+                <button class="btn btn-sm btn-light text-muted"
+                    onclick="loadAnnouncements({status: 'published'})">Published Only</button>
             </div>
 
             <div id="announcementList" class="row g-3">
-                </div>
+            </div>
         </section>
 
     </div>
@@ -381,10 +447,21 @@
                 </div>
                 <div class="modal-body">
                     <form id="formCreateCourse">
-                        <div class="mb-3"><label>Code</label><input type="text" name="course_code" class="form-control" placeholder="e.g. MTK101" required></div>
-                        <div class="mb-3"><label>Name</label><input type="text" name="course_name" class="form-control" placeholder="e.g. Matematika Dasar" required></div>
-                        <div class="mb-3"><label>Description</label><textarea name="description" class="form-control" rows="3"></textarea></div>
-                        <div class="mb-3"><label>Credits</label><input type="number" name="credits" class="form-control" value="3"></div>
+                        <div class="mb-3">
+                            <label class="form-label">Course Code <span class="text-danger">*</span></label>
+                            <input type="text" name="course_code" class="form-control" placeholder="e.g. MTK101"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Course Name <span class="text-danger">*</span></label>
+                            <input type="text" name="course_name" class="form-control"
+                                placeholder="e.g. Matematika Dasar" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="3"
+                                placeholder="Optional course description..."></textarea>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -404,16 +481,104 @@
                 </div>
                 <div class="modal-body">
                     <form id="formCreateAssignment">
-                        <div class="mb-3"><label>Title</label><input type="text" id="assignTitle" class="form-control" required></div>
-                        <div class="mb-3"><label>Description</label><textarea id="assignDesc" class="form-control" rows="3"></textarea></div>
+                        <input type="hidden" id="assignId">
+                        <div class="mb-3"><label>Title <span class="text-danger">*</span></label><input type="text"
+                                id="assignTitle" class="form-control" required></div>
+                        <div class="mb-3"><label>Description</label><textarea id="assignDesc" class="form-control"
+                                rows="3"></textarea></div>
                         <div class="row">
-                            <div class="col-md-6 mb-3"><label>Due Date</label><input type="datetime-local" id="assignDate" class="form-control"></div>
-                            <div class="col-md-6 mb-3"><label>Max Score</label><input type="number" id="assignScore" class="form-control" value="100"></div>
+                            <div class="col-md-6 mb-3"><label>Due Date <span class="text-danger">*</span></label><input
+                                    type="datetime-local" id="assignDate" class="form-control" required></div>
+                            <div class="col-md-6 mb-3"><label>Max Score</label><input type="number" id="assignScore"
+                                    class="form-control" value="100"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label>Attachment (Optional)</label>
+                            <input type="file" id="assignFile" class="form-control"
+                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                            <small class="text-muted">Max 10MB. Instructions or resources.</small>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" onclick="submitAssignment()">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Module Modal -->
+    <div class="modal fade" id="createModuleModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="moduleModalTitle">Add Module</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formCreateModule">
+                        <input type="hidden" id="moduleId">
+                        <div class="mb-3">
+                            <label class="form-label">Module Title <span class="text-danger">*</span></label>
+                            <input type="text" id="moduleTitle" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Order</label>
+                            <input type="number" id="moduleOrder" class="form-control" value="1">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitModule()">Save Module</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Material Modal -->
+    <div class="modal fade" id="createMaterialModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="materialModalTitle">Add Material</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formCreateMaterial">
+                        <input type="hidden" id="materialId">
+                        <input type="hidden" id="materialModuleId">
+
+                        <div class="mb-3">
+                            <label class="form-label">Title <span class="text-danger">*</span></label>
+                            <input type="text" id="materialTitle" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Type <span class="text-danger">*</span></label>
+                            <select id="materialType" class="form-select" onchange="toggleMaterialInput()">
+                                <option value="file">File Upload</option>
+                                <option value="link">External Link</option>
+                                <option value="video">Video URL</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="materialFileInput">
+                            <label class="form-label">File <span class="text-danger">*</span></label>
+                            <input type="file" id="materialFile" class="form-control"
+                                accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.mp4,.mp3">
+                            <small class="text-muted">Max 50MB. Allowed: PDF, Docs, Images, Audio/Video</small>
+                        </div>
+
+                        <div class="mb-3 d-none" id="materialUrlInput">
+                            <label class="form-label">URL <span class="text-danger">*</span></label>
+                            <input type="url" id="materialUrl" class="form-control" placeholder="https://...">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitMaterial()">Save Material</button>
                 </div>
             </div>
         </div>
@@ -430,14 +595,15 @@
                     <form id="formCreateSession">
                         <div class="mb-3">
                             <label>Session Name</label>
-                            <input type="text" id="sessionName" class="form-control" placeholder="e.g. Week 1 Attendance" required>
+                            <input type="text" id="sessionName" class="form-control"
+                                placeholder="e.g. Week 1 Attendance" required>
                         </div>
                         <div class="row g-3">
-                             <div class="col-12">
+                            <div class="col-12">
                                 <label>Date & Start Time</label>
                                 <input type="datetime-local" id="sessionStartTime" class="form-control" required>
                             </div>
-                             <div class="col-12">
+                            <div class="col-12">
                                 <label>End Time</label>
                                 <input type="datetime-local" id="sessionEndTime" class="form-control" required>
                             </div>
@@ -494,18 +660,18 @@
                             <label>Title <span class="text-danger">*</span></label>
                             <input type="text" id="annTitle" class="form-control" required>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label>Content <span class="text-danger">*</span></label>
                             <textarea id="annContent" class="form-control" rows="3" required></textarea>
                         </div>
-                        
+
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label>Target Course</label>
                                 <select id="annCourseId" class="form-select">
                                     <option value="">Global (All)</option>
-                                    </select>
+                                </select>
                             </div>
                             <div class="col-md-6">
                                 <label>Priority <span class="text-danger">*</span></label>
@@ -539,12 +705,13 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="submitAnnouncement()">Post Announcement</button>
+                    <button type="button" class="btn btn-primary" onclick="submitAnnouncement()">Post
+                        Announcement</button>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
@@ -557,10 +724,10 @@
         let currentUser = null;
         let currentCourseId = null;
         let globalCourses = [];
-        let currentEnrollments = []; 
+        let currentEnrollments = [];
 
         // --- HTTP CLIENT ---
-        
+
         function getHeaders() {
             const token = localStorage.getItem('auth_token');
             return {
@@ -574,7 +741,7 @@
         async function fetchApi(endpoint, options = {}) {
             // Tampilkan loading
             document.getElementById('loading-overlay').style.display = 'flex';
-            
+
             console.log(`%c[API] ${options.method || 'GET'} ${endpoint}`, 'color: blue; font-weight: bold;', options.body ? JSON.parse(options.body) : '');
 
             try {
@@ -582,22 +749,22 @@
                 const res = await fetch(BASE_API + endpoint, { ...options, headers: getHeaders() });
 
                 // Jika 401 (Unauthorized), lempar error biar ditangkap di try/catch
-                if(res.status === 401) {
+                if (res.status === 401) {
                     throw new Error("Unauthorized");
                 }
-                
-                if(res.status === 204) return true;
+
+                if (res.status === 204) return true;
 
                 const jsonResponse = await res.json().catch(() => null);
 
-                if(!res.ok) {
+                if (!res.ok) {
                     let errorMsg = `HTTP Error ${res.status}`;
                     if (jsonResponse) {
-                          if (jsonResponse.message) errorMsg = jsonResponse.message;
-                          if (jsonResponse.errors) {
+                        if (jsonResponse.message) errorMsg = jsonResponse.message;
+                        if (jsonResponse.errors) {
                             const details = Object.values(jsonResponse.errors).flat().join('\n- ');
                             errorMsg += `\nDetails:\n- ${details}`;
-                          }
+                        }
                     }
                     throw new Error(errorMsg);
                 }
@@ -608,7 +775,7 @@
                 console.error("Fetch Failed:", e);
                 // Handle 401 secara global disini jika perlu, 
                 // tapi lebih baik biarkan errornya muncul di UI.
-                if(e.message === "Unauthorized") {
+                if (e.message === "Unauthorized") {
                     alert("Sesi Anda telah habis. Silakan refresh dan login ulang.");
                     logout();
                     return null;
@@ -626,17 +793,17 @@
         async function initApp() {
             const token = localStorage.getItem('auth_token');
             const loader = document.getElementById('loading-overlay');
-            
+
             // 1. Jika Token Kosong -> Minta Input
-            if(!token) {
+            if (!token) {
                 loader.style.display = 'none'; // Pastikan loading mati sebelum prompt
-                
+
                 const input = prompt("Token tidak ditemukan atau salah. Masukkan Bearer Token:");
-                
-                if(input) { 
+
+                if (input) {
                     // Jika user mengisi token, simpan dan coba lagi
-                    localStorage.setItem('auth_token', input); 
-                    initApp(); 
+                    localStorage.setItem('auth_token', input);
+                    initApp();
                 } else {
                     // Jika user tekan CANCEL, diam saja (jangan looping)
                     console.log("User cancelled token input.");
@@ -649,40 +816,40 @@
                 loader.style.display = 'flex'; // Nyalakan loading
 
                 const url = document.getElementById('ngrokUrl').value + '/api/user';
-                
+
                 // Fetch manual untuk cek auth awal
-                const res = await fetch(url, { 
+                const res = await fetch(url, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`,
                         'ngrok-skip-browser-warning': 'true'
-                    } 
+                    }
                 });
-                
-                if(res.ok) {
+
+                if (res.ok) {
                     // Sukses Login
                     currentUser = await res.json();
                     document.getElementById('sidebarUserName').innerText = currentUser.full_name || currentUser.name;
                     loadDashboard();
                 } else {
                     // Token ada tapi ditolak server (401/500)
-                    throw new Error("Token Invalid (Response not OK)"); 
+                    throw new Error("Token Invalid (Response not OK)");
                 }
 
-            } catch(e) {
+            } catch (e) {
                 // ERROR TERJADI (Koneksi putus atau Token Salah)
                 console.warn("Init Error:", e);
-                
+
                 // Hapus token yang rusak
-                localStorage.removeItem('auth_token'); 
-                
+                localStorage.removeItem('auth_token');
+
                 // Beri tahu user KENAPA error
                 alert("Gagal terhubung atau Token Salah. Silakan masukkan token baru.");
-                
+
                 // Panggil ulang fungsi untuk memunculkan prompt
                 // KARENA token sudah dihapus di baris atas, initApp() akan masuk ke kondisi 'if(!token)'
                 // yang memunculkan prompt.
-                initApp(); 
+                initApp();
             } finally {
                 // PASTIKAN LOADING MATI DI AKHIR
                 // Jika initApp dipanggil ulang di catch, loader mungkin nyala lagi di recursi,
@@ -695,15 +862,15 @@
 
         async function loadDashboard() {
             const res = await fetchApi('/courses');
-            if(!res) return;
+            if (!res) return;
 
             let allCourses = Array.isArray(res) ? res : (res.data || []);
 
             const myCourses = allCourses.filter(c => {
-                if(currentUser?.role === 'admin') return true;
-                if(!c.instructor) return false; 
-                return (currentUser.instructor && c.instructor.id === currentUser.instructor.id) || 
-                       (c.instructor.user_id === currentUser.id);
+                if (currentUser?.role === 'admin') return true;
+                if (!c.instructor) return false;
+                return (currentUser.instructor && c.instructor.id === currentUser.instructor.id) ||
+                    (c.instructor.user_id === currentUser.id);
             });
 
             globalCourses = myCourses;
@@ -713,7 +880,7 @@
 
         function renderCourseList(courses) {
             const container = document.getElementById('coursesList');
-            if(courses.length === 0) {
+            if (courses.length === 0) {
                 container.innerHTML = '<div class="col-12 text-center text-muted py-5">No courses found.</div>';
                 return;
             }
@@ -726,15 +893,15 @@
                                 <span class="badge bg-light text-dark border">${c.status}</span>
                             </div>
                             <h5 class="card-title fw-bold mb-1">${c.course_name}</h5>
-                            <p class="text-muted small mb-3 flex-grow-1">${c.description ? c.description.substring(0,80)+'...' : ''}</p>
+                            <p class="text-muted small mb-3 flex-grow-1">${c.description ? c.description.substring(0, 80) + '...' : ''}</p>
                             <button onclick="openCourseDetail(${c.id})" class="btn btn-outline-primary w-100 mt-auto">Manage Course</button>
                         </div>
                     </div>
                 </div>
             `).join('');
-            
+
             const dashList = document.getElementById('dashboardCoursesList');
-            if(dashList) dashList.innerHTML = container.innerHTML;
+            if (dashList) dashList.innerHTML = container.innerHTML;
         }
 
         // --- ANNOUNCEMENTS ---
@@ -751,60 +918,65 @@
                 if (params.toString()) endpoint += `?${params.toString()}`;
 
                 const res = await fetchApi(endpoint);
-                
+
                 let list = [];
                 if (res === null || res === undefined) list = [];
                 else if (Array.isArray(res)) list = res;
                 else if (res.data && Array.isArray(res.data)) list = res.data;
 
-                if (list.length === 0) {
-                    container.innerHTML = `
-                        <div class="col-12 text-center py-5">
-                            <div class="text-muted mb-3"><i class="bi bi-megaphone display-4"></i></div>
-                            <h5>No announcements found.</h5>
-                        </div>`;
-                    return;
-                }
+                renderAnnouncements(list);
 
-                container.innerHTML = list.map(a => {
-                    const title = a.title || 'Untitled';
-                    const content = a.content || '';
-                    const priority = a.priority || 'normal';
-                    const status = a.status || 'published';
-                    const dateStr = a.published_at || a.created_at || new Date();
-                    
-                    let borderClass = 'secondary';
-                    if(priority === 'high') borderClass = 'danger';
-                    if(priority === 'urgent') borderClass = 'warning';
+            } catch (error) {
+                console.error("Error loading announcements:", error);
+                container.innerHTML = `<div class="col-12 text-center py-5 text-danger">Error loading announcements: ${error.message}</div>`;
+            }
+        }
 
-                    let contextBadge = '<span class="badge bg-dark">Global</span>';
-                    if (a.course) contextBadge = `<span class="badge bg-primary">${a.course.course_code}</span>`;
-                    else if (a.course_id) contextBadge = `<span class="badge bg-info text-dark">Course #${a.course_id}</span>`;
+        function renderAnnouncements(announcements) {
+            const container = document.getElementById('announcementList');
+            if (!announcements || announcements.length === 0) {
+                container.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <div class="text-muted mb-3"><i class="bi bi-megaphone display-4"></i></div>
+                        <h5>No announcements found.</h5>
+                    </div>`;
+                return;
+            }
 
-                    return `
-                        <div class="col-md-6">
-                            <div class="card h-100 border-start border-4 border-${borderClass} shadow-sm">
-                                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                                    <div>${contextBadge}</div>
-                                    <span class="badge badge-soft-${borderClass} text-uppercase">${priority}</span>
-                                </div>
-                                <div class="card-body">
-                                    <h5 class="card-title fw-bold">${title}</h5>
-                                    <p class="card-text text-secondary small">${content}</p>
-                                </div>
-                                <div class="card-footer bg-white border-0 pt-0 d-flex justify-content-between small text-muted">
-                                    <span><i class="bi bi-calendar3 me-1"></i> ${new Date(dateStr).toLocaleDateString()}</span>
-                                    <span class="text-capitalize badge bg-light text-dark border">${status}</span>
-                                </div>
+            container.innerHTML = announcements.map(a => {
+                const title = a.title || 'Untitled';
+                const content = a.content || '';
+                const priority = a.priority || 'normal';
+                const status = a.status || 'published';
+                const dateStr = a.published_at || a.created_at || new Date();
+
+                let borderClass = 'secondary';
+                if (priority === 'high') borderClass = 'danger';
+                if (priority === 'urgent') borderClass = 'warning';
+
+                let contextBadge = '<span class="badge bg-dark">Global</span>';
+                if (a.course) contextBadge = `<span class="badge bg-primary">${a.course.course_code}</span>`;
+                else if (a.course_id) contextBadge = `<span class="badge bg-info text-dark">Course #${a.course_id}</span>`;
+
+                return `
+                    <div class="col-md-6">
+                        <div class="card h-100 border-start border-4 border-${borderClass} shadow-sm">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                <div>${contextBadge}</div>
+                                <span class="badge badge-soft-${borderClass} text-uppercase">${priority}</span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold">${title}</h5>
+                                <p class="card-text text-secondary small">${content}</p>
+                            </div>
+                            <div class="card-footer bg-white border-0 pt-0 d-flex justify-content-between small text-muted">
+                                <span><i class="bi bi-calendar3 me-1"></i> ${new Date(dateStr).toLocaleDateString()}</span>
+                                <span class="text-capitalize badge bg-light text-dark border">${status}</span>
                             </div>
                         </div>
-                    `;
-                }).join('');
-
-            } catch (err) {
-                console.error("Load Announcements Error:", err);
-                container.innerHTML = `<div class="alert alert-danger">Error displaying announcements: ${err.message}</div>`;
-            }
+                    </div>
+                `;
+            }).join('');
         }
 
         async function submitAnnouncement() {
@@ -812,7 +984,7 @@
             const pubAt = document.getElementById('annPublishedAt').value;
             const expAt = document.getElementById('annExpiresAt').value;
 
-            if(!document.getElementById('annTitle').value) { alert("Title required"); return; }
+            if (!document.getElementById('annTitle').value) { alert("Title required"); return; }
 
             const payload = {
                 title: document.getElementById('annTitle').value,
@@ -830,7 +1002,7 @@
                 body: JSON.stringify(payload)
             });
 
-            if(res) {
+            if (res) {
                 alert('Announcement Posted!');
                 bootstrap.Modal.getInstance(document.getElementById('announcementModal')).hide();
                 loadAnnouncements();
@@ -850,24 +1022,149 @@
             new bootstrap.Modal(document.getElementById('announcementModal')).show();
         }
 
+        // --- ASSIGNMENTS ---
+
+        function renderAssignments(assignments) {
+            const container = document.getElementById('assignmentList');
+            if (!assignments || assignments.length === 0) {
+                container.innerHTML = '<div class="text-center p-4 text-muted">No assignments yet.</div>';
+                return;
+            }
+            container.innerHTML = assignments.map(a => `
+                        <div class="card mb-3 border-0 shadow-sm" >
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="card-title fw-bold mb-1">${a.title}</h5>
+                                        <p class="text-muted small mb-2">Due: ${new Date(a.due_date).toLocaleString()}</p>
+                                        <p class="card-text">${a.description || ''}</p>
+                                        ${a.attachment_url ? `<div class="mb-2"><a href="${a.attachment_url}" target="_blank" class="btn btn-sm btn-outline-info"><i class="bi bi-paperclip"></i> Download Attachment</a></div>` : ''}
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-light btn-sm" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a class="dropdown-item" href="#" onclick="openEditAssignmentModal(${a.id}, '${a.title.replace(/'/g, "\\'")}', '${(a.description || '').replace(/'/g, "\\'")}', '${a.due_date}', ${a.max_score})">Edit</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="viewSubmissions(${a.id})">View Submissions</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteAssignment(${a.id})">Delete</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                    </div>
+                `).join('');
+        }
+
+        function openAssignmentModal() {
+            document.getElementById('formCreateAssignment').reset();
+            document.getElementById('assignId').value = '';
+            document.querySelector('#createAssignmentModal .modal-title').innerText = 'Create Assignment';
+            new bootstrap.Modal(document.getElementById('createAssignmentModal')).show();
+        }
+
+        function openEditAssignmentModal(id, title, desc, date, score) {
+            document.getElementById('formCreateAssignment').reset();
+            document.getElementById('assignId').value = id;
+            document.getElementById('assignTitle').value = title;
+            document.getElementById('assignDesc').value = desc;
+
+            // Format date for datetime-local input (YYYY-MM-DDTHH:mm)
+            const d = new Date(date);
+            d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+            document.getElementById('assignDate').value = d.toISOString().slice(0, 16);
+
+            document.getElementById('assignScore').value = score;
+
+            document.querySelector('#createAssignmentModal .modal-title').innerText = 'Edit Assignment';
+            new bootstrap.Modal(document.getElementById('createAssignmentModal')).show();
+        }
+
+        async function submitAssignment() {
+            const id = document.getElementById('assignId').value;
+            const title = document.getElementById('assignTitle').value;
+            const desc = document.getElementById('assignDesc').value;
+            const date = document.getElementById('assignDate').value;
+            const score = document.getElementById('assignScore').value;
+            const fileInput = document.getElementById('assignFile');
+
+            if (!title || !date) { alert("Title and Due Date are required"); return; }
+
+            const payload = {
+                course_id: parseInt(currentCourseId),
+                title: title,
+                description: desc,
+                due_date: new Date(date).toISOString(),
+                max_score: parseInt(score) || 100
+            };
+
+            let res;
+            if (id) {
+                res = await fetchApi(`/assignments/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+            } else {
+                res = await fetchApi('/assignments', { method: 'POST', body: JSON.stringify(payload) });
+            }
+
+            if (res) {
+                const targetId = id || res.id;
+
+                // Handle File Upload
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                        alert("Assignment saved, but file too large (Max 10MB). Upload skipped.");
+                    } else {
+                        const formData = new FormData();
+                        formData.append('file', file);
+
+                        const token = localStorage.getItem('auth_token');
+                        const baseUrl = document.getElementById('ngrokUrl').value + '/api/v1';
+
+                        try {
+                            const uploadRes = await fetch(`${baseUrl}/upload/assignment/${targetId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`,
+                                    'ngrok-skip-browser-warning': 'true'
+                                },
+                                body: formData
+                            });
+                            if (!uploadRes.ok) throw new Error('Upload failed');
+                        } catch (err) {
+                            console.error("Upload error:", err);
+                            alert("Assignment saved but file upload failed.");
+                        }
+                    }
+                }
+
+                bootstrap.Modal.getInstance(document.getElementById('createAssignmentModal')).hide();
+                openCourseDetail(currentCourseId); // Refresh list
+            }
+        }
+
         // --- COURSE DETAIL & ATTENDANCE ---
 
         async function openCourseDetail(id) {
             currentCourseId = id;
+            console.log('👤 Current User:', currentUser);
+            console.log('🆔 User ID:', currentUser?.id, '| Role:', currentUser?.role);
+            console.log('📚 Opening Course ID:', id);
+
             const course = await fetchApi(`/courses/${id}`);
-            if(course) {
+            if (course) {
+                console.log('📖 Course Data:', course);
+                console.log('👨‍🏫 Course Instructor ID:', course.instructor_id);
+
                 document.getElementById('detailTitle').innerText = course.course_name;
                 document.getElementById('detailCode').innerText = course.course_code;
                 document.getElementById('detailDesc').innerText = course.description || '';
                 document.getElementById('btnDeleteCourse').onclick = () => deleteCourse(id);
-                
+
                 renderAssignments(course.assignments || []);
                 currentEnrollments = course.enrollments || [];
                 renderStudents(currentEnrollments);
-                
-                document.getElementById('sessionListGroup').innerHTML = ''; 
+
+                document.getElementById('sessionListGroup').innerHTML = '';
                 document.getElementById('attendanceTableBody').innerHTML = '<tr><td colspan="3" class="text-center p-5 text-muted">Select a session</td></tr>';
-                
+
                 navTo('courseDetail');
             }
         }
@@ -878,9 +1175,9 @@
             const deadline = document.getElementById('sessionDeadline').value;
             const name = document.getElementById('sessionName').value;
 
-            if(!start || !end || !deadline || !name) { 
-                alert("All fields are required"); 
-                return; 
+            if (!start || !end || !deadline || !name) {
+                alert("All fields are required");
+                return;
             }
 
             const data = {
@@ -891,13 +1188,13 @@
                 end_time: new Date(end).toISOString(),
                 deadline: new Date(deadline).toISOString()
             };
-            
+
             const res = await fetchApi('/attendance-sessions', {
                 method: 'POST',
                 body: JSON.stringify(data)
             });
 
-            if(res) {
+            if (res) {
                 alert('Session Created!');
                 bootstrap.Modal.getInstance(document.getElementById('createSessionModal')).hide();
                 loadAttendanceTab();
@@ -908,16 +1205,16 @@
             const sessions = await fetchApi(`/attendance-sessions/course/${currentCourseId}/all`);
             const el = document.getElementById('sessionListGroup');
             let list = Array.isArray(sessions) ? sessions : (sessions?.data || []);
-            
-            if(!list.length) { el.innerHTML = '<div class="p-3 text-muted text-center">No sessions found.</div>'; return; }
-            
+
+            if (!list.length) { el.innerHTML = '<div class="p-3 text-muted text-center">No sessions found.</div>'; return; }
+
             el.innerHTML = list.map(s => `
                 <a href="#" class="list-group-item list-group-item-action" onclick="loadSessionDetail(${s.id}, '${s.session_name || s.topic}')">
                     <div class="d-flex w-100 justify-content-between">
                         <h6 class="mb-1 fw-bold">${s.session_name || s.topic}</h6>
                         <small>${new Date(s.start_time || s.session_date).toLocaleDateString()}</small>
                     </div>
-                    <small class="text-${s.status==='open'?'success':'secondary'} text-uppercase">${s.status}</small>
+                    <small class="text-${s.status === 'open' ? 'success' : 'secondary'} text-uppercase">${s.status}</small>
                 </a>
             `).join('');
         }
@@ -929,8 +1226,8 @@
 
             const res = await fetchApi(`/attendance-records/session/${sid}/records`);
             let recs = Array.isArray(res) ? res : (res?.data || []);
-            
-            if(recs.length === 0) {
+
+            if (recs.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="3" class="text-center p-3">No students found in this session.</td></tr>';
                 return;
             }
@@ -954,9 +1251,9 @@
         }
 
         async function markAttendance(sid, eid, status) {
-            await fetchApi(`/attendance-records/mark/${sid}/${eid}`, { 
-                method: 'POST', 
-                body: JSON.stringify({status})
+            await fetchApi(`/attendance-records/mark/${sid}/${eid}`, {
+                method: 'POST',
+                body: JSON.stringify({ status })
             });
             loadSessionDetail(sid, document.getElementById('sessionDetailHeader').innerText);
         }
@@ -977,7 +1274,7 @@
         async function loadCertificatesTab() {
             // Kita ubah container dari tbody tabel menjadi div grid untuk kartu
             const tabPane = document.getElementById('tabCertificates');
-            
+
             // Reset isi tab pane agar sesuai layout grid baru (bukan tabel lagi)
             tabPane.innerHTML = `
                 <div class="d-flex justify-content-between mb-4 align-items-center">
@@ -1016,13 +1313,13 @@
                 for (const enrollment of currentEnrollments) {
                     const studentId = enrollment.student_id;
                     const existingCert = issuedCerts.find(c => c.student_id == studentId);
-                    
+
                     // Ambil nama siswa dengan aman
                     let studentName = `Student #${studentId}`;
                     if (enrollment.student && enrollment.student.user) {
                         studentName = enrollment.student.user.full_name || enrollment.student.user.name;
                     }
-                    
+
                     if (existingCert) {
                         // STATE A: Issued (Tampilkan Kartu Hijau)
                         gridContainer.innerHTML += renderCertificateCard(studentName, existingCert);
@@ -1086,7 +1383,7 @@
             // Calculate progress visually 
             const attendancePct = eligibility.attendance_percentage || 0;
             const assignmentPct = eligibility.assignment_completion_rate || 0;
-            
+
             return `
                 <div class="col-md-6 col-xl-4">
                     <div class="card h-100 border-0 shadow-sm progress-card">
@@ -1117,9 +1414,9 @@
                             <div class="alert alert-light border small mb-0 text-muted py-2">
                                 <i class="bi bi-info-circle me-1"></i> Requirements:
                                 <ul class="mb-0 ps-3 mt-1" style="font-size: 0.85rem;">
-                                    ${eligibility.errors && eligibility.errors.length > 0 
-                                        ? eligibility.errors.map(e => `<li>${e}</li>`).join('') 
-                                        : '<li>All requirements met! Ready to generate.</li>'}
+                                    ${eligibility.errors && eligibility.errors.length > 0
+                    ? eligibility.errors.map(e => `<li>${e}</li>`).join('')
+                    : '<li>All requirements met! Ready to generate.</li>'}
                                 </ul>
                             </div>
                         </div>
@@ -1129,20 +1426,20 @@
         }
 
         async function bulkGenerateCertificates() {
-            if(!confirm("System will auto-check all students and issue certificates for eligible ones.\n\nContinue?")) return;
-            
+            if (!confirm("System will auto-check all students and issue certificates for eligible ones.\n\nContinue?")) return;
+
             // Call endpoint: POST /api/v1/certificates/bulk-generate/{courseId}
             const res = await fetchApi(`/certificates/bulk-generate/${currentCourseId}`, { method: 'POST' });
-            
-            if(res) {
-                const count = res.generated_count || res.count || 0; 
+
+            if (res) {
+                const count = res.generated_count || res.count || 0;
                 alert(`Success! ${count} new certificates generated.`);
                 loadCertificatesTab(); // Reload to update cards
             }
         }
 
         async function deleteCertificate(id) {
-            if(confirm("Revoke this certificate? The student will lose access to it.")) {
+            if (confirm("Revoke this certificate? The student will lose access to it.")) {
                 const res = await fetchApi(`/certificates/${id}`, { method: 'DELETE' });
                 if (res !== null) {
                     alert("Certificate revoked successfully.");
@@ -1156,10 +1453,10 @@
         }
 
         // --- HELPERS ---
-        
+
         function renderAssignments(list) {
             const el = document.getElementById('assignmentListContainer');
-            if(!list.length) { el.innerHTML = '<div class="alert alert-light text-center">No assignments yet.</div>'; return; }
+            if (!list.length) { el.innerHTML = '<div class="alert alert-light text-center">No assignments yet.</div>'; return; }
             el.innerHTML = list.map(a => `
                 <div class="card mb-3 border-start border-primary border-3 shadow-sm">
                     <div class="card-body py-3 d-flex justify-content-between align-items-center">
@@ -1167,7 +1464,7 @@
                             <h6 class="mb-1 fw-bold">${a.title}</h6>
                             <div class="text-muted small">
                                 <span class="me-3"><i class="bi bi-calendar"></i> ${a.due_date ? new Date(a.due_date).toLocaleDateString() : 'No Due Date'}</span>
-                                <span class="badge bg-${a.status === 'published'?'success':'secondary'}">${a.status}</span>
+                                <span class="badge bg-${a.status === 'published' ? 'success' : 'secondary'}">${a.status}</span>
                             </div>
                         </div>
                         <button onclick="viewSubmissions(${a.id})" class="btn btn-sm btn-outline-primary">View Submissions</button>
@@ -1175,10 +1472,10 @@
                 </div>
             `).join('');
         }
-        
+
         function renderStudents(list) {
             const tbody = document.getElementById('studentListBody');
-            if(!list.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center p-4">No students enrolled.</td></tr>'; return; }
+            if (!list.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center p-4">No students enrolled.</td></tr>'; return; }
             tbody.innerHTML = list.map(e => `
                 <tr>
                     <td>${e.student?.full_name || 'Unknown'}</td>
@@ -1189,18 +1486,359 @@
         }
 
         async function submitCreateCourse() {
+            // Debug: Log current user info
+            console.log('Current User:', currentUser);
+            console.log('User Role:', currentUser.role);
+
             const data = {
                 course_code: document.querySelector('[name="course_code"]').value,
                 course_name: document.querySelector('[name="course_name"]').value,
-                description: document.querySelector('[name="description"]').value,
-                credits: document.querySelector('[name="credits"]').value,
-                instructor_id: currentUser.instructor ? currentUser.instructor.id : currentUser.id 
+                description: document.querySelector('[name="description"]').value
             };
+
+            // Only admin can specify instructor_id manually
+            // Instructor's ID will be auto-filled by backend
+            if (currentUser.role === 'admin') {
+                // For admin, we could add an instructor selector in the form
+                // For now, if admin has instructor role, they can also rely on backend auto-fill
+                const instructorIdField = document.querySelector('[name="instructor_id"]');
+                if (instructorIdField && instructorIdField.value) {
+                    data.instructor_id = parseInt(instructorIdField.value);
+                }
+            }
+            // If user is instructor, don't send instructor_id - backend will auto-fill it
+
+            console.log('Data being sent to backend:', data);
+
             const res = await fetchApi('/courses', { method: 'POST', body: JSON.stringify(data) });
-            if(res) {
+            if (res) {
                 bootstrap.Modal.getInstance(document.getElementById('createCourseModal')).hide();
                 loadDashboard();
             }
+        }
+
+        // --- MODULES & MATERIALS ---
+
+        async function loadModulesTab() {
+            if (!currentCourseId) {
+                console.error('❌ currentCourseId is null/undefined!');
+                return;
+            }
+
+            console.log('🔍 Loading modules for courseId:', currentCourseId);
+            const container = document.getElementById('modulesAccordion');
+            container.innerHTML = '<div class="text-center p-4 text-muted">Loading modules...</div>';
+
+            try {
+                const [modulesRes, materialsRes] = await Promise.all([
+                    fetchApi('/course-modules'),
+                    fetchApi('/materials')
+                ]);
+
+                console.log('📦 Raw API Response - Modules:', modulesRes);
+                console.log('📦 Raw API Response - Materials:', materialsRes);
+
+                if (modulesRes) {
+                    // Handle response variations (Array vs {data: Array})
+                    let rawModules = Array.isArray(modulesRes) ? modulesRes : (modulesRes.data || []);
+                    console.log('📋 Total modules from API:', rawModules.length);
+                    console.log('📋 Sample module:', rawModules[0]);
+
+                    // Filter modules for current course
+                    let modules = rawModules.filter(m => {
+                        const match = m.course_id == currentCourseId;
+                        if (match) {
+                            console.log('✅ Module matched:', m.id, m.title || m.module_name, 'course_id:', m.course_id);
+                        }
+                        return match;
+                    });
+
+                    console.log(`🎯 Filtered modules for course ${currentCourseId}:`, modules.length, 'modules');
+                    console.log('📝 Filtered modules:', modules);
+
+                    modules.sort((a, b) => (a.module_order || 0) - (b.module_order || 0));
+
+                    if (materialsRes) {
+                        let rawMaterials = Array.isArray(materialsRes) ? materialsRes : (materialsRes.data || []);
+                        console.log('📚 Total materials from API:', rawMaterials.length);
+
+                        modules.forEach(m => {
+                            // Match materials to module (API might return course_module_id)
+                            m.materials = rawMaterials.filter(mat =>
+                                (mat.course_module_id == m.id) || (mat.module_id == m.id)
+                            );
+                            console.log(`📎 Module ${m.id} has ${m.materials.length} materials`);
+                        });
+                    }
+                    renderModules(modules);
+                } else {
+                    console.error('❌ modulesRes is null/undefined');
+                    container.innerHTML = '<div class="text-center p-4 text-muted">Failed to load modules data.</div>';
+                }
+            } catch (err) {
+                console.error("❌ Error loading modules:", err);
+                container.innerHTML = `<div class="text-center text-danger p-4">Error loading modules: ${err.message}</div>`;
+            }
+        }
+
+        function renderModules(modules) {
+            const container = document.getElementById('modulesAccordion');
+            if (modules.length === 0) {
+                container.innerHTML = '<div class="text-center p-4 text-muted">No modules found. Create one to get started.</div>';
+                return;
+            }
+
+            container.innerHTML = modules.map((m, index) => `
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading${m.id}">
+                        <button class="accordion-button ${index === 0 ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${m.id}">
+                            <div class="d-flex justify-content-between w-100 me-3 align-items-center">
+                                <span class="fw-bold">${m.module_name || m.title || 'Untitled Module'}</span>
+                                <div class="btn-group btn-group-sm" onclick="event.stopPropagation()">
+                                    <button class="btn btn-outline-secondary" onclick="openEditModuleModal(${m.id}, '${m.module_name || m.title || ''}', ${m.module_order || 0})"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-outline-danger" onclick="deleteModule(${m.id})"><i class="bi bi-trash"></i></button>
+                                </div>
+                            </div>
+                        </button>
+                    </h2>
+                    <div id="collapse${m.id}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}" data-bs-parent="#modulesAccordion">
+                        <div class="accordion-body bg-light">
+                            <div class="d-flex justify-content-between mb-3">
+                                <h6 class="text-muted">Learning Materials</h6>
+                                <button class="btn btn-sm btn-outline-primary" onclick="openCreateMaterialModal(${m.id})">
+                                    <i class="bi bi-plus-lg"></i> Add Material
+                                </button>
+                            </div>
+                            <div class="list-group">
+                                ${renderMaterials(m.materials || [])}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderMaterials(materials) {
+            if (!materials || materials.length === 0) {
+                return '<div class="text-center py-3 text-muted small">No materials yet.</div>';
+            }
+            return materials.map(mat => `
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="${getMaterialIcon(mat.material_type)} fs-4 me-3 text-primary"></i>
+                        <div>
+                            <div class="fw-bold">${mat.title}</div>
+                            <small class="text-muted text-capitalize">${mat.material_type}</small>
+                            ${mat.content_path && mat.material_type !== 'file' ? `<a href="${mat.content_path}" target="_blank" class="ms-2 small text-decoration-none"><i class="bi bi-box-arrow-up-right"></i> Open</a>` : ''}
+                            ${mat.material_type === 'file' && mat.content_path && mat.content_path !== 'pending_upload' ? `<a href="${mat.content_path}" target="_blank" class="ms-2 small text-decoration-none"><i class="bi bi-download"></i> Download</a>` : ''}
+                        </div>
+                    </div>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-secondary" onclick="openEditMaterialModal(${mat.id}, '${mat.title.replace(/'/g, "\\'")}', '${mat.material_type}', '${(mat.content_path || '').replace(/'/g, "\\'")}')"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-outline-danger" onclick="deleteMaterial(${mat.id})"><i class="bi bi-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getMaterialIcon(type) {
+            switch (type) {
+                case 'video': return 'bi bi-play-circle';
+                case 'link': return 'bi bi-link-45deg';
+                case 'file': return 'bi bi-file-earmark-text';
+                default: return 'bi bi-file-earmark';
+            }
+        }
+
+        // Module CRUD
+        function openCreateModuleModal() {
+            document.getElementById('formCreateModule').reset();
+            document.getElementById('moduleId').value = '';
+            document.getElementById('moduleModalTitle').innerText = 'Add Module';
+            new bootstrap.Modal(document.getElementById('createModuleModal')).show();
+        }
+
+        function openEditModuleModal(id, title, order) {
+            document.getElementById('moduleId').value = id;
+            document.getElementById('moduleTitle').value = title;
+            document.getElementById('moduleOrder').value = order;
+            document.getElementById('moduleModalTitle').innerText = 'Edit Module';
+            new bootstrap.Modal(document.getElementById('createModuleModal')).show();
+        }
+
+        async function submitModule() {
+            const id = document.getElementById('moduleId').value;
+            const title = document.getElementById('moduleTitle').value;
+            const order = document.getElementById('moduleOrder').value;
+
+            if (!title) { alert("Title is required"); return; }
+
+            const payload = {
+                course_id: parseInt(currentCourseId),
+                title: title,
+                module_order: parseInt(order)
+            };
+
+            let res;
+            if (id) {
+                res = await fetchApi(`/course-modules/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+            } else {
+                res = await fetchApi('/course-modules', { method: 'POST', body: JSON.stringify(payload) });
+            }
+
+            if (res) {
+                bootstrap.Modal.getInstance(document.getElementById('createModuleModal')).hide();
+
+                // Switch to Modules tab to show the new/updated module
+                const modulesTab = document.querySelector('[data-bs-target="#tabModules"]');
+                if (modulesTab) {
+                    const tabInstance = new bootstrap.Tab(modulesTab);
+                    tabInstance.show();
+                }
+
+                loadModulesTab();
+            }
+        }
+
+        async function deleteModule(id) {
+            if (!confirm("Are you sure? All materials in this module will be deleted.")) return;
+            const res = await fetchApi(`/course-modules/${id}`, { method: 'DELETE' });
+            if (res) loadModulesTab();
+        }
+
+        // Material CRUD
+        function openCreateMaterialModal(moduleId) {
+            document.getElementById('formCreateMaterial').reset();
+            document.getElementById('materialId').value = '';
+            document.getElementById('materialModuleId').value = moduleId;
+            document.getElementById('materialModalTitle').innerText = 'Add Material';
+            document.getElementById('materialType').disabled = false;
+            toggleMaterialInput();
+            new bootstrap.Modal(document.getElementById('createMaterialModal')).show();
+        }
+
+        function openEditMaterialModal(id, title, type, content) {
+            document.getElementById('formCreateMaterial').reset();
+            document.getElementById('materialId').value = id;
+            document.getElementById('materialTitle').value = title;
+            document.getElementById('materialType').value = type;
+            document.getElementById('materialType').disabled = true; // Cannot change type on edit
+
+            if (type !== 'file') {
+                document.getElementById('materialUrl').value = content;
+            }
+
+            document.getElementById('materialModalTitle').innerText = 'Edit Material';
+            toggleMaterialInput();
+            new bootstrap.Modal(document.getElementById('createMaterialModal')).show();
+        }
+
+        function toggleMaterialInput() {
+            const type = document.getElementById('materialType').value;
+            const fileInput = document.getElementById('materialFileInput');
+            const urlInput = document.getElementById('materialUrlInput');
+
+            if (type === 'file') {
+                fileInput.classList.remove('d-none');
+                urlInput.classList.add('d-none');
+            } else {
+                fileInput.classList.add('d-none');
+                urlInput.classList.remove('d-none');
+            }
+        }
+
+        async function submitMaterial() {
+            const id = document.getElementById('materialId').value;
+            const moduleId = document.getElementById('materialModuleId').value;
+            const title = document.getElementById('materialTitle').value;
+            const type = document.getElementById('materialType').value;
+            const url = document.getElementById('materialUrl').value;
+            const fileInput = document.getElementById('materialFile');
+
+            if (!title) { alert("Title is required"); return; }
+
+            // Validation
+            if (!id) {
+                if (type !== 'file' && !url) { alert("URL is required"); return; }
+                if (type === 'file' && fileInput.files.length === 0) { alert("File is required"); return; }
+            }
+
+            // File Validation
+            if (type === 'file' && fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const allowed = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'jpg', 'jpeg', 'png', 'mp4', 'mp3'];
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (!allowed.includes(ext)) {
+                    alert(`Invalid file type. Allowed: ${allowed.join(', ')}`);
+                    return;
+                }
+                if (file.size > 50 * 1024 * 1024) { // 50MB
+                    alert("File size exceeds 50MB limit.");
+                    return;
+                }
+            }
+
+            const payload = {
+                title: title,
+                material_type: type,
+                content_path: type === 'file' ? (id ? undefined : 'pending_upload') : url
+            };
+
+            if (!id) {
+                payload.module_id = parseInt(moduleId);
+            }
+
+            let res;
+            if (id) {
+                res = await fetchApi(`/materials/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+            } else {
+                res = await fetchApi('/materials', { method: 'POST', body: JSON.stringify(payload) });
+            }
+
+            if (res) {
+                const targetId = id || res.id;
+
+                // Upload file if selected
+                if (type === 'file' && fileInput.files.length > 0) {
+                    const formData = new FormData();
+                    formData.append('file', fileInput.files[0]);
+
+                    const token = localStorage.getItem('auth_token');
+                    const baseUrl = document.getElementById('ngrokUrl').value + '/api/v1';
+
+                    try {
+                        const uploadRes = await fetch(`${baseUrl}/upload/material/${targetId}`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'ngrok-skip-browser-warning': 'true'
+                            },
+                            body: formData
+                        });
+
+                        if (!uploadRes.ok) {
+                            const errJson = await uploadRes.json();
+                            throw new Error(errJson.message || 'Upload failed');
+                        }
+
+                        bootstrap.Modal.getInstance(document.getElementById('createMaterialModal')).hide();
+                        loadModulesTab();
+                    } catch (err) {
+                        console.error("Upload error:", err);
+                        alert(`Material saved but upload failed: ${err.message}`);
+                        loadModulesTab();
+                    }
+                } else {
+                    bootstrap.Modal.getInstance(document.getElementById('createMaterialModal')).hide();
+                    loadModulesTab();
+                }
+            }
+        }
+
+        async function deleteMaterial(id) {
+            if (!confirm("Delete this material?")) return;
+            const res = await fetchApi(`/materials/${id}`, { method: 'DELETE' });
+            if (res) loadModulesTab();
         }
 
         function openAssignmentModal() {
@@ -1210,16 +1848,16 @@
 
         async function viewSubmissions(id) {
             const a = await fetchApi(`/assignments/${id}`);
-            if(a) {
+            if (a) {
                 document.getElementById('submissionTitle').innerText = `Submissions: ${a.title}`;
                 const tbody = document.getElementById('submissionTableBody');
                 const list = a.submissions || [];
-                if(!list.length) tbody.innerHTML = '<tr><td colspan="5" class="text-center p-4">No submissions yet.</td></tr>';
+                if (!list.length) tbody.innerHTML = '<tr><td colspan="5" class="text-center p-4">No submissions yet.</td></tr>';
                 else tbody.innerHTML = list.map(s => `
                     <tr>
                         <td>${s.enrollment?.student?.full_name || 'Student'}</td>
                         <td>${new Date(s.created_at).toLocaleDateString()}</td>
-                        <td>${s.file_path ? `<a href="${s.file_path}" target="_blank">Link</a>`:'-'}</td>
+                        <td>${s.file_path ? `<a href="${s.file_path}" target="_blank">Link</a>` : '-'}</td>
                         <td>${s.grade ? s.grade.score : '-'}</td>
                         <td><button onclick="openGradingModal(${s.id}, ${s.enrollment_id})" class="btn btn-sm btn-primary">Grade</button></td>
                     </tr>
@@ -1236,19 +1874,19 @@
         async function submitGrade() {
             const data = {
                 enrollment_id: document.getElementById('gradeEnrollmentId').value,
-                grade_component_id: 1, 
+                grade_component_id: 1,
                 score: document.getElementById('gradeValue').value,
                 feedback: document.getElementById('gradeFeedback').value
             };
             const res = await fetchApi('/grades', { method: 'POST', body: JSON.stringify(data) });
-            if(res) {
+            if (res) {
                 alert('Saved');
                 bootstrap.Modal.getInstance(document.getElementById('gradingModal')).hide();
             }
         }
 
         async function deleteCourse(id) {
-            if(confirm('Delete course?')) {
+            if (confirm('Delete course?')) {
                 await fetchApi(`/courses/${id}`, { method: 'DELETE' });
                 loadDashboard();
                 navTo('courses');
@@ -1258,12 +1896,12 @@
         function navTo(id, el) {
             document.querySelectorAll('.page-section').forEach(d => d.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            if(el) {
+            if (el) {
                 document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
                 el.classList.add('active');
             }
-            if(id === 'announcements') loadAnnouncements();
-            if(id === 'courses') loadDashboard();
+            if (id === 'announcements') loadAnnouncements();
+            if (id === 'courses') loadDashboard();
         }
 
         function backToCourseDetail() { navTo('courseDetail'); }
@@ -1273,4 +1911,5 @@
 
     </script>
 </body>
+
 </html>

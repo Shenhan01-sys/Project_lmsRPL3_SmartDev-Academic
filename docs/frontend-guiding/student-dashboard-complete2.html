@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal - SmartDev LMS</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                        secondary: '#64748b',
+                        sidebar: '#1e293b',
+                        'sidebar-text': '#cbd5e1',
+                    },
+                    fontFamily: { sans: ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        /* Sidebar Styles */
+        .nav-link-custom {
+            color: #cbd5e1;
+            padding: 0.8rem 1.5rem;
+            font-size: 0.95rem;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-link-custom:hover, 
+        .nav-link-custom.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.08);
+            border-left-color: #4f46e5;
+        }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Card Styles */
+        .dashboard-card { 
+            @apply bg-white p-6 rounded-xl shadow-sm border border-slate-200 transition-all duration-300; 
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+
+        /* Status Badges */
+        .badge { @apply px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wide; }
+        .badge-pending { @apply bg-amber-100 text-amber-700; }
+        .badge-submitted { @apply bg-blue-100 text-blue-700; }
+        .badge-graded { @apply bg-emerald-100 text-emerald-700; }
+        .badge-late { @apply bg-red-100 text-red-700; }
+    </style>
+</head>
+
+<body class="bg-[#f8fafc] font-sans text-slate-800 h-screen flex overflow-hidden leading-relaxed">
+
+    <div id="loading-overlay">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mb-2 mx-auto"></div>
+            <div class="text-slate-600 font-bold">Memuat Data...</div>
+        </div>
+    </div>
+
+    <aside
+        class="w-[260px] bg-sidebar text-white hidden md:flex flex-col shadow-xl z-50 shrink-0 fixed h-full transition-all duration-300">
+        <div class="p-6 text-center border-b border-white/10">
+            <div class="text-xl font-bold tracking-wide flex items-center justify-center gap-2">
+                <i class="bi bi-mortarboard-fill text-primary"></i> SmartDev
+            </div>
+        </div>
+
+        <div class="p-4 mb-2 border-b border-white/10 text-center">
+            <div
+                class="w-12 h-12 mx-auto bg-primary text-white rounded-full flex items-center justify-center text-xl mb-2 shadow-lg">
+                <i class="bi bi-person-fill"></i>
+            </div>
+            <strong class="block text-sm truncate px-2" id="sidebar-username">Student</strong>
+            <small class="text-sidebar-text text-xs">Student Panel</small>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-2 no-scrollbar">
+            <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-link-custom active">
+                <i class="bi bi-speedometer2 me-3 text-lg"></i> <span>Dashboard</span>
+            </button>
+
+            <div class="mt-6 mb-2 px-6 text-xs font-bold text-sidebar-text uppercase tracking-wider opacity-70">Akademik
+            </div>
+
+            <button onclick="switchView('courses')" id="nav-courses" class="nav-link-custom">
+                <i class="bi bi-book me-3 text-lg"></i> <span>Kursus Saya</span>
+            </button>
+            <button onclick="switchView('assignments')" id="nav-assignments" class="nav-link-custom">
+                <i class="bi bi-journal-text me-3 text-lg"></i> <span>Tugas</span>
+            </button>
+            <button onclick="switchView('grades')" id="nav-grades" class="nav-link-custom">
+                <i class="bi bi-bar-chart-steps me-3 text-lg"></i> <span>Nilai</span>
+            </button>
+            <button onclick="switchView('attendance')" id="nav-attendance" class="nav-link-custom">
+                <i class="bi bi-calendar-check me-3 text-lg"></i> <span>Kehadiran</span>
+            </button>
+            <button onclick="switchView('certificates')" id="nav-certificates" class="nav-link-custom">
+                <i class="bi bi-award me-3 text-lg"></i> <span>Sertifikat</span>
+            </button>
+
+            <div class="mt-6 mb-2 px-6 text-xs font-bold text-sidebar-text uppercase tracking-wider opacity-70">Akun
+            </div>
+            <div class="md:hidden bg-sidebar text-white p-4 flex justify-between items-center shadow-md z-30 shrink-0">
+                <span class="font-bold flex items-center gap-2"><i class="bi bi-mortarboard-fill text-primary"></i>
+                    SmartDev
+                    LMS</span>
+                <button onclick="alert('Menu mobile belum aktif')" class="text-2xl"><i class="bi bi-list"></i></button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 lg:p-8 scroll-smooth" id="main-scroll">
+
+                <section id="view-dashboard" class="view-section fade-in max-w-7xl mx-auto">
+                    <div
+                        class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-200">
+                        <div>
+                            <h2 class="text-2xl font-bold text-secondary">Dashboard Siswa</h2>
+                            <p class="text-sm text-slate-500">Selamat datang kembali, mari belajar!</p>
+                        </div>
+                        <div
+                            class="flex items-center gap-3 bg-white px-3 py-1.5 rounded-md shadow-sm border border-slate-200">
+                            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                            <span class="text-sm text-slate-500" id="current-date">Loading...</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                        <div
+                            class="dashboard-card rounded p-4 !bg-primary !text-white relative overflow-hidden border-none">
+                            <div class="relative z-10">
+                                <h3 class="text-3xl font-bold mb-1" id="stat-courses">0</h3>
+                                <p class="text-indigo-100 text-sm">Kursus Diikuti</p>
+                            </div>
+                            <i
+                                class="bi bi-book-half absolute top-1/2 right-4 -translate-y-1/2 text-6xl opacity-20"></i>
+                        </div>
+                        <div class="dashboard-card rounded p-4 border-l-4 !border-l-amber-500">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-3xl font-bold text-amber-500 mb-1" id="stat-pending">0</h3>
+                                    <p class="text-slate-500 text-sm">Tugas Pending</p>
+                                </div>
+                                <div class="bg-amber-50 p-3 rounded-full text-amber-500"><i
+                                        class="bi bi-clock-history text-2xl"></i></div>
+                            </div>
+                        </div>
+                        <div class="dashboard-card rounded p-4 border-l-4 !border-l-emerald-500">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-3xl font-bold text-emerald-500 mb-1" id="stat-attendance">0%</h3>
+                                    <p class="text-slate-500 text-sm">Rata-rata Kehadiran</p>
+                                </div>
+                                <div class="bg-emerald-50 p-3 rounded-full text-emerald-500"><i
+                                        class="bi bi-calendar-check text-2xl"></i></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="dashboard-card col-span-2">
+                            <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                                <h3 class="font-bold text-lg text-slate-800">Tugas Terbaru</h3>
+                                <button onclick="switchView('assignments')"
+                                    class="text-sm text-primary font-semibold hover:underline">Lihat Semua</button>
+                            </div>
+                            <div id="dashboard-assignments-list" class="space-y-3">
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card bg-gradient-to-b from-indigo-50 to-white">
+                            <h3 class="font-bold text-lg text-slate-800 mb-4">Jadwal Hari Ini</h3>
+                            <div id="dashboard-schedule" class="space-y-4">
+                                <p class="text-slate-500 text-center py-4">Tidak ada jadwal kelas hari ini.</p>
+                                <div class="flex gap-2">
+                                    <button onclick="filterAssignments('all')"
+                                        class="px-3 py-1 rounded-full text-xs font-bold bg-slate-200 text-slate-600 hover:bg-slate-300 transition">Semua</button>
+                                    <button onclick="filterAssignments('pending')"
+                                        class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-600 hover:bg-amber-200 transition">Pending</button>
+                                    <button onclick="filterAssignments('submitted')"
+                                        class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-600 hover:bg-blue-200 transition">Terkirim</button>
+                                </div>
+                            </div>
+                            <div id="assignments-container" class="space-y-4">
+                            </div>
+                </section>
+
+                <section id="view-courses" class="view-section hidden fade-in max-w-7xl mx-auto">
+                    <div class="flex justify-between items-center mb-6 pb-3 border-b">
+                        <h2 class="text-2xl font-bold text-secondary">Kursus Saya</h2>
+                    </div>
+                    <div id="courses-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    </div>
+                </section>
+
+                <section id="view-course-detail" class="view-section hidden fade-in max-w-7xl mx-auto">
+                    <button onclick="switchView('courses')"
+                        class="mb-4 text-sm text-slate-500 hover:text-primary flex items-center gap-1 transition-colors">
+                        <i class="bi bi-arrow-left"></i> Kembali ke Kursus
+                    </button>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
+                        <div
+                            class="h-40 bg-gradient-to-r from-indigo-600 to-purple-600 p-6 md:p-8 flex items-end relative overflow-hidden">
+                            <div class="absolute top-0 right-0 p-8 opacity-10">
+                                <i class="bi bi-journal-bookmark-fill text-9xl text-white"></i>
+                            </div>
+                            <div class="relative z-10">
+                                <span
+                                    class="px-2 py-1 bg-white/20 text-white text-xs font-bold rounded backdrop-blur-sm mb-2 inline-block"
+                                    id="detail-course-code">CODE</span>
+                                <h1 class="text-2xl md:text-3xl font-bold text-white mb-1" id="detail-course-name">
+                                    Course
+                                    Name</h1>
+                                <p class="text-indigo-100 text-sm flex items-center gap-2">
+                                    <i class="bi bi-person-circle"></i> <span id="detail-course-instructor">Instructor
+                                        Name</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-bold text-slate-800 mb-2">Tentang Kursus</h3>
+                            <p class="text-slate-600 leading-relaxed text-sm" id="detail-course-desc">Description...</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-6 border-b border-slate-200 mb-6 overflow-x-auto">
+                        <button onclick="switchCourseTab('modules')" id="tab-course-modules"
+                            class="course-tab-btn px-2 py-2 text-sm font-bold text-primary border-b-2 border-primary transition-colors whitespace-nowrap">Materi
+                            Pembelajaran</button>
+                        <button onclick="switchCourseTab('assignments')" id="tab-course-assignments"
+                            class="course-tab-btn px-2 py-2 text-sm font-bold text-slate-500 hover:text-slate-700 border-b-2 border-transparent transition-colors whitespace-nowrap">Tugas
+                            & Kuis</button>
+                        <button onclick="switchCourseTab('people')" id="tab-course-people"
+                            class="course-tab-btn px-2 py-2 text-sm font-bold text-slate-500 hover:text-slate-700 border-b-2 border-transparent transition-colors whitespace-nowrap">Peserta</button>
+                    </div>
+
+                    <div id="course-content-modules" class="course-tab-content space-y-4">
+                        <!-- Modules List -->
+                    </div>
+                    <div id="course-content-assignments" class="course-tab-content hidden space-y-4">
+                        <!-- Assignments List -->
+                    </div>
+                    <div id="course-content-people" class="course-tab-content hidden">
+                        <div class="dashboard-card text-center py-12">
+                            <div
+                                class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400 text-2xl">
+                                <i class="bi bi-people"></i>
+                            </div>
+                            <p class="text-slate-500">Daftar peserta kelas tidak ditampilkan.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="view-assignments" class="view-section hidden fade-in max-w-7xl mx-auto">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-6 pb-3 border-b gap-4">
+                        <h2 class="text-2xl font-bold text-secondary">Daftar Tugas</h2>
+                        <div class="flex gap-2">
+                            <button onclick="filterAssignments('all')"
+                                class="px-3 py-1 rounded-full text-xs font-bold bg-slate-200 text-slate-600 hover:bg-slate-300 transition">Semua</button>
+                            <button onclick="filterAssignments('pending')"
+                                class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-600 hover:bg-amber-200 transition">Pending</button>
+                            <button onclick="filterAssignments('submitted')"
+                                class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-600 hover:bg-blue-200 transition">Terkirim</button>
+                        </div>
+                    </div>
+                    <div id="assignments-container" class="space-y-4">
+                    </div>
+                </section>
+
+                <section id="view-grades" class="view-section hidden fade-in max-w-7xl mx-auto">
+                    <div class="flex justify-between items-center mb-6 pb-3 border-b">
+                        <h2 class="text-2xl font-bold text-secondary">Transkrip Nilai</h2>
+                    </div>
+                    <div class="dashboard-card overflow-hidden p-0">
+                        <table class="w-full text-sm text-left text-slate-600">
+                            <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b">
+                                <tr>
+                                    <th class="px-6 py-3">Mata Pelajaran</th>
+                                    <th class="px-6 py-3">Tugas / Ujian</th>
+                                    <th class="px-6 py-3 text-center">Nilai</th>
+                                    <th class="px-6 py-3 text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="grades-table-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="view-attendance" class="view-section hidden fade-in max-w-7xl mx-auto">
+                    <div class="flex justify-between items-center mb-6 pb-3 border-b">
+                        <h2 class="text-2xl font-bold text-secondary">Riwayat Kehadiran</h2>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2">
+                            <div id="attendance-list" class="space-y-3">
+                            </div>
+                        </div>
+                        <div>
+                            <div class="dashboard-card bg-emerald-50 border-emerald-100 text-center">
+                                <h4 class="font-bold text-emerald-800">Ringkasan</h4>
+                                <div class="mt-4 flex justify-center gap-4">
+                                    <div>
+                                        <span class="block text-2xl font-bold text-emerald-600"
+                                            id="att-present">0</span>
+                                        <span class="text-xs text-emerald-600 uppercase">Hadir</span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-2xl font-bold text-amber-600"
+                                            id="att-permission">0</span>
+                                        <span class="text-xs text-amber-600 uppercase">Izin/Sakit</span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-2xl font-bold text-red-600" id="att-absent">0</span>
+                                        <span class="text-xs text-red-600 uppercase">Alpha</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="view-certificates" class="view-section hidden fade-in max-w-7xl mx-auto">
+                    <div class="flex justify-between items-center mb-6 pb-3 border-b">
+                        <h2 class="text-2xl font-bold text-secondary">Sertifikat Saya</h2>
+                    </div>
+                    <div id="certificates-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    </div>
+                </section>
+
+                <section id="view-profile" class="view-section hidden fade-in max-w-4xl mx-auto">
+                    <div class="flex justify-between items-center mb-6 pb-3 border-b">
+                        <h2 class="text-2xl font-bold text-secondary">Edit Profil</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="md:col-span-1">
+                            <div class="dashboard-card text-center">
+                                <div
+                                    class="w-24 h-24 mx-auto bg-gradient-to-br from-primary to-purple-600 rounded-full flex items-center justify-center text-white text-4xl font-bold mb-4 shadow-md">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                                <h3 id="profile-name-display" class="font-bold text-lg text-slate-800">User</h3>
+                                <p id="profile-email-display" class="text-sm text-slate-500 mb-4">email@example.com</p>
+                                <span
+                                    class="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-full">Student</span>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <div class="dashboard-card">
+                                <form id="profile-form" onsubmit="event.preventDefault(); saveProfile();">
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-slate-700 mb-1">Nama
+                                                Lengkap</label>
+                                            <input type="text" id="input-name"
+                                                class="w-full rounded-lg border-slate-300 border p-2.5 text-sm focus:ring-primary focus:border-primary"
+                                                required>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-slate-700 mb-1">Email (Read
+                                                Only)</label>
+                                            <input type="email" id="input-email"
+                                                class="w-full rounded-lg border-slate-300 bg-slate-50 border p-2.5 text-sm text-slate-500"
+                                                disabled>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-slate-700 mb-1">Nomor
+                                                Telepon</label>
+                                            <input type="text" id="input-phone"
+                                                class="w-full rounded-lg border-slate-300 border p-2.5 text-sm focus:ring-primary focus:border-primary">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-slate-700 mb-1">Bio
+                                                Singkat</label>
+                                            <textarea id="input-bio" rows="3"
+                                                class="w-full rounded-lg border-slate-300 border p-2.5 text-sm focus:ring-primary focus:border-primary"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="mt-6 flex justify-end">
+                                        <button type="submit"
+                                            class="bg-primary hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-lg transition-colors shadow-sm shadow-indigo-200">
+                                            Simpan Perubahan
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+            </main>
+
+            <script>
+                // --- CONFIG ---
+                const API_BASE = 'https://portohansgunawan.my.id/api/v1';
+
+                // --- STATE ---
+                let currentUser = null;
+                let myCourses = [];
+                let myAssignments = [];
+                let myGrades = [];
+                let myAttendance = [];
+                let myCertificates = [];
+
+                // --- UTILS ---
+                document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+                // --- INIT ---
+                document.addEventListener('DOMContentLoaded', initApp);
+
+                async function initApp() {
+                    const token = localStorage.getItem('auth_token');
+                    if (!token) {
+                        // Prompt for demo or login
+                        const input = prompt("Token tidak ditemukan. Masukkan Bearer Token (atau klik Cancel untuk mode Demo):");
+                        if (input) {
+                            localStorage.setItem('auth_token', input);
+                            location.reload();
+                        } else {
+                            // Mode Demo / Offline
+                            loadDummyData();
+                            return;
+                        }
+                    }
+
+                    document.getElementById('loading-overlay').style.display = 'flex';
+                    try {
+                        // Get User
+                        const userRes = await fetchApi('/user', {}, true); // true = base endpoint (not /v1)
+                        currentUser = userRes;
+                        updateProfileUI();
+
+                        // Load Data
+                        await Promise.all([
+                            loadCourses(),
+                            loadAssignments(),
+                            loadGrades(),
+                            loadAttendance(),
+                            loadCertificates()
+                        ]);
+
+                        renderDashboard();
+
+                    } catch (e) {
+                        console.error("Init Error:", e);
+                        if (confirm("Gagal memuat data API. Gunakan mode demo?")) {
+                            loadDummyData();
+                        }
+                    } finally {
+                        document.getElementById('loading-overlay').style.display = 'none';
+                    }
+                }
+
+                function updateProfileUI() {
+                    const name = currentUser.name || 'Student';
+                    document.getElementById('sidebar-username').innerText = name;
+                    document.getElementById('profile-name-display').innerText = name;
+                    document.getElementById('profile-email-display').innerText = currentUser.email;
+
+                    document.getElementById('input-name').value = name;
+                    document.getElementById('input-email').value = currentUser.email;
+                    document.getElementById('input-phone').value = currentUser.no_hp || '';
+                    document.getElementById('input-bio').value = currentUser.bio || '';
+                }
+
+                async function saveProfile() {
+                    const data = {
+                        name: document.getElementById('input-name').value,
+                        no_hp: document.getElementById('input-phone').value,
+                        bio: document.getElementById('input-bio').value
+                    };
+                    // Call update API (mock)
+                    alert("Profil berhasil diperbarui (Simulasi).");
+                }
+
+                // --- API CLIENT ---
+                async function fetchApi(endpoint, options = {}, useRoot = false) {
+                    const token = localStorage.getItem('auth_token');
+                    const baseUrl = useRoot ? 'https://portohansgunawan.my.id/api' : API_BASE;
+
+                    const res = await fetch(baseUrl + endpoint, {
+                        ...options,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`,
+                            'ngrok-skip-browser-warning': 'true',
+                            ...options.headers
+                        }
+                    });
+
+                    if (!res.ok) throw new Error(`API Error ${res.status}`);
+                    return await res.json();
+                }
+
+                // --- LOADERS ---
+                async function loadCourses() {
+                    const res = await fetchApi('/enrollments');
+                    const list = Array.isArray(res) ? res : (res.data || []);
+                    myCourses = list.map(e => e.course || e);
+                    renderCourses();
+                }
+
+                async function loadAssignments() {
+                    const res = await fetchApi('/assignments');
+                    myAssignments = Array.isArray(res) ? res : (res.data || []);
+                    renderAssignments(myAssignments);
+                }
+
+                async function loadGrades() {
+                    const res = await fetchApi('/grades/student');
+                    myGrades = Array.isArray(res) ? res : (res.data?.grades || []);
+                    renderGrades();
+                }
+
+                async function loadAttendance() {
+                    if (myCourses.length > 0) {
+                        const courseId = myCourses[0].id;
+                        const studentId = currentUser.student?.id || currentUser.id;
+                        try {
+                            const res = await fetchApi(`/attendance-records/student/${studentId}/course/${courseId}/history`);
+                            myAttendance = Array.isArray(res) ? res : (res.data || []);
+                        } catch (e) { console.warn("Att fetch fail", e); }
+                    }
+                    renderAttendance();
+                }
+
+                async function loadCertificates() {
+                    const studentId = currentUser.student?.id || currentUser.id;
+                    try {
+                        const res = await fetchApi(`/certificates/student/${studentId}`);
+                        myCertificates = Array.isArray(res) ? res : (res.data || []);
+                    } catch (e) { console.warn("Cert fetch fail", e); }
+                    renderCertificates();
+                }
+
+                // --- RENDERERS ---
+                function renderDashboard() {
+                    document.getElementById('stat-courses').innerText = myCourses.length;
+                    const pending = myAssignments.filter(a => a.status !== 'submitted' && a.status !== 'graded').length;
+                    document.getElementById('stat-pending').innerText = pending;
+
+                    const present = myAttendance.filter(a => a.status === 'present').length;
+                    const total = myAttendance.length;
+                    const rate = total ? Math.round((present / total) * 100) : 0;
+                    document.getElementById('stat-attendance').innerText = rate + '%';
+
+                    const recent = myAssignments.slice(0, 3);
+                    document.getElementById('dashboard-assignments-list').innerHTML = recent.length ? recent.map(a => `
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-indigo-100 p-2 rounded text-primary"><i class="bi bi-journal-text"></i></div>
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-800 line-clamp-1">${a.title}</h4>
+                            <p class="text-xs text-slate-500">${a.course?.course_name || 'Course'}</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold ${a.status === 'submitted' ? 'text-emerald-600' : 'text-amber-600'}">
+                        ${a.status}
+                    </span>
+                </div>
+            `).join('') : '<p class="text-center text-slate-400 text-sm py-2">Belum ada tugas.</p>';
+                }
+
+                function renderCourses() {
+                    const container = document.getElementById('courses-container');
+                    if (myCourses.length === 0) {
+                        container.innerHTML = '<p class="text-center text-slate-500 col-span-full py-12">Belum ada kursus yang diikuti.</p>';
+                        return;
+                    }
+                    container.innerHTML = myCourses.map(c => `
+                <div class="dashboard-card group hover:shadow-lg transition-all duration-300 cursor-pointer" onclick="showCourseDetail(${c.id})">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-50 text-primary flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                            <i class="bi bi-book"></i>
+                        </div>
+                        <span class="px-2 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded">${c.course_code}</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 mb-2 group-hover:text-primary transition-colors">${c.course_name}</h3>
+                    <p class="text-sm text-slate-500 mb-4 line-clamp-2">${c.description || 'Tidak ada deskripsi.'}</p>
+                    <div class="flex items-center gap-2 text-xs text-slate-400 border-t pt-3">
+                        <i class="bi bi-person-circle"></i>
+                        <span>${c.instructor?.user?.name || 'Instructor'}</span>
+                    </div>
+                </div>
+            `).join('');
+                }
+
+                async function showCourseDetail(courseId) {
+                    document.getElementById('loading-overlay').style.display = 'flex';
+                    try {
+                        let course;
+                        if (localStorage.getItem('auth_token')) {
+                            course = await fetchApi(`/courses/${courseId}`);
+                        } else {
+                            course = myCourses.find(c => c.id == courseId);
+                            if (!course.courseModules) course.courseModules = [
+                                { id: 1, module_name: "Pengenalan", description: "Intro to course", materials: [{ title: "Slide Intro", type: "file", url: "#" }] },
+                                { id: 2, module_name: "Bab 1", description: "Chapter 1", materials: [{ title: "Video Materi", type: "video", url: "#" }] }
+                            ];
+                            if (!course.assignments) course.assignments = myAssignments.filter(a => a.course?.id == courseId || a.course_id == courseId);
+                        }
+
+                        renderCourseDetail(course);
+                        switchView('course-detail');
+                    } catch (e) {
+                        console.error("Failed to load course detail", e);
+                        alert("Gagal memuat detail kursus.");
+                    } finally {
+                        document.getElementById('loading-overlay').style.display = 'none';
+                    }
+                }
+
+                function renderCourseDetail(course) {
+                    document.getElementById('detail-course-code').innerText = course.course_code;
+                    document.getElementById('detail-course-name').innerText = course.course_name;
+                    document.getElementById('detail-course-instructor').innerText = course.instructor?.user?.name || 'Instructor';
+                    document.getElementById('detail-course-desc').innerText = course.description || 'Tidak ada deskripsi.';
+
+                    // Render Modules
+                    const modulesContainer = document.getElementById('course-content-modules');
+                    if (course.courseModules && course.courseModules.length > 0) {
+                        modulesContainer.innerHTML = course.courseModules.map(m => `
+                    <div class="border border-slate-200 rounded-xl overflow-hidden bg-white">
+                        <div class="p-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center cursor-pointer hover:bg-slate-100 transition-colors" onclick="this.parentElement.classList.toggle('open');">
+                            <h4 class="font-bold text-slate-800">${m.module_name}</h4>
+                            <i class="bi bi-chevron-down text-slate-400 transition-transform duration-300 transform"></i>
+                        </div>
+                        <div class="p-4 space-y-3">
+                            <p class="text-sm text-slate-600 mb-3">${m.description || ''}</p>
+                            ${m.materials && m.materials.length ? m.materials.map(mat => `
+                                <div class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg transition-colors group">
+                                    <div class="w-8 h-8 rounded bg-indigo-50 text-primary flex items-center justify-center shrink-0">
+                                        <i class="bi ${getMaterialIcon(mat.type)}"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-slate-700 truncate group-hover:text-primary transition-colors">${mat.title}</p>
+                                        <p class="text-xs text-slate-400 capitalize">${mat.type}</p>
+                                    </div>
+                                    <a href="${mat.file_path || mat.url || '#'}" target="_blank" class="px-3 py-1 text-xs font-bold text-primary bg-indigo-50 rounded hover:bg-indigo-100 transition-colors">Buka</a>
+                                </div>
+                            `).join('') : '<p class="text-xs text-slate-400 italic">Belum ada materi.</p>'}
+                        </div>
+                    </div>
+                `).join('');
+                    } else {
+                        modulesContainer.innerHTML = '<p class="text-center text-slate-500 py-8">Belum ada modul materi.</p>';
+                    }
+
+                    // Render Assignments
+                    const assignmentsContainer = document.getElementById('course-content-assignments');
+                    if (course.assignments && course.assignments.length > 0) {
+                        assignmentsContainer.innerHTML = course.assignments.map(a => `
+                    <div class="dashboard-card flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h4 class="font-bold text-lg text-slate-800">${a.title}</h4>
+                            <p class="text-sm text-slate-600 mb-2 line-clamp-2">${a.description || ''}</p>
+                            <div class="flex gap-3 text-xs text-slate-500">
+                                <span><i class="bi bi-calendar-event"></i> Due: ${a.due_date ? new Date(a.due_date).toLocaleDateString() : '-'}</span>
+                                <span><i class="bi bi-star"></i> Max Score: ${a.max_score}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 shrink-0">
+                            <span class="badge ${getStatusClass(a.status)}">${a.status || 'Pending'}</span>
+                            <button onclick="alert('Fitur upload tugas akan segera hadir!')" class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:bg-indigo-700 shadow-sm shadow-indigo-200">Kumpulkan</button>
+                        </div>
+                    </div>
+                `).join('');
+                    } else {
+                        assignmentsContainer.innerHTML = '<p class="text-center text-slate-500 py-8">Belum ada tugas di kursus ini.</p>';
+                    }
+
+                    switchCourseTab('modules');
+                }
+
+                function switchCourseTab(tabName) {
+                    document.querySelectorAll('.course-tab-btn').forEach(btn => {
+                        btn.classList.remove('text-primary', 'border-primary');
+                        btn.classList.add('text-slate-500', 'border-transparent');
+                    });
+                    const activeBtn = document.getElementById('tab-course-' + tabName);
+                    if (activeBtn) {
+                        activeBtn.classList.remove('text-slate-500', 'border-transparent');
+                        activeBtn.classList.add('text-primary', 'border-primary');
+                    }
+
+                    document.querySelectorAll('.course-tab-content').forEach(content => content.classList.add('hidden'));
+                    document.getElementById('course-content-' + tabName).classList.remove('hidden');
+                }
+
+                function getMaterialIcon(type) {
+                    if (type === 'video') return 'bi-play-circle-fill';
+                    if (type === 'file') return 'bi-file-earmark-text-fill';
+                    return 'bi-link-45deg';
+                }
+
+                function renderAssignments(list) {
+                    const container = document.getElementById('assignments-container');
+                    if (list.length === 0) {
+                        container.innerHTML = '<p class="text-center text-slate-500 py-8">Tidak ada tugas.</p>';
+                        return;
+                    }
+                    container.innerHTML = list.map(a => `
+                <div class="dashboard-card flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-indigo-100 p-3 rounded-xl text-primary text-xl hidden md:block">
+                            <i class="bi bi-journal-text"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg text-slate-800">${a.title}</h4>
+                            <p class="text-sm text-slate-500 mb-1">${a.course?.course_name || 'Course'}</p>
+                            <div class="flex gap-3 text-xs text-slate-400">
+                                <span><i class="bi bi-calendar"></i> Due: ${a.due_date ? new Date(a.due_date).toLocaleDateString() : '-'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 self-end md:self-center">
+                        <span class="badge ${getStatusClass(a.status)}">${a.status}</span>
+                        <button class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+                }
+
+                function renderGrades() {
+                    const tbody = document.getElementById('grades-table-body');
+                    if (myGrades.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4">Belum ada nilai.</td></tr>';
+                        return;
+                    }
+                    tbody.innerHTML = myGrades.map(g => `
+                <tr class="bg-white border-b hover:bg-slate-50">
+                    <td class="px-6 py-4 font-medium text-slate-900">${g.course_name || 'Course'}</td>
+                    <td class="px-6 py-4">${g.grade_component?.name || 'Tugas'}</td>
+                    <td class="px-6 py-4 text-center font-bold text-primary">${g.score}</td>
+                    <td class="px-6 py-4 text-center"><span class="badge badge-graded">Lulus</span></td>
+                </tr>
+            `).join('');
+                }
+
+                function renderAttendance() {
+                    const list = document.getElementById('attendance-list');
+                    if (myAttendance.length === 0) {
+                        list.innerHTML = '<p class="text-center text-slate-500 py-4">Belum ada data kehadiran.</p>';
+                        return;
+                    }
+                    list.innerHTML = myAttendance.map(a => `
+                <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-slate-100">
+                    <div>
+                        <p class="text-sm font-bold text-slate-800">${a.course_name || 'Course'}</p>
+                        <p class="text-xs text-slate-500">${new Date(a.attendance_time).toLocaleDateString()}</p>
+                    </div>
+                    <span class="px-2 py-1 rounded text-xs font-bold ${getAttClass(a.status)} uppercase">${a.status}</span>
+                </div>
+            `).join('');
+
+                    // Update stats
+                    const present = myAttendance.filter(a => a.status === 'present').length;
+                    const absent = myAttendance.filter(a => a.status === 'absent').length;
+                    const permission = myAttendance.filter(a => a.status === 'permission' || a.status === 'sick').length;
+
+                    document.getElementById('att-present').innerText = present;
+                    document.getElementById('att-absent').innerText = absent;
+                    document.getElementById('att-permission').innerText = permission;
+                }
+
+                function renderCertificates() {
+                    const container = document.getElementById('certificates-container');
+                    if (myCertificates.length === 0) {
+                        container.innerHTML = '<p class="text-center text-slate-500 col-span-full py-8">Belum ada sertifikat.</p>';
+                        return;
+                    }
+                    container.innerHTML = myCertificates.map(c => `
+                <div class="dashboard-card relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <i class="bi bi-award-fill text-8xl text-primary"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-primary text-2xl mb-4">
+                            <i class="bi bi-award"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">${c.title}</h3>
+                        <p class="text-xs text-slate-500 mb-4">${c.certificate_code}</p>
+                        <p class="text-xs text-slate-400">Issued: ${new Date(c.issued_at).toLocaleDateString()}</p>
+                        <button class="mt-4 w-full py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-bold hover:bg-primary hover:text-white transition-colors">Download PDF</button>
+                    </div>
+                </div>
+            `).join('');
+                }
+
+                // --- HELPERS ---
+                function switchView(viewId) {
+                    document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+                    document.getElementById('view-' + viewId).classList.remove('hidden');
+
+                    document.querySelectorAll('.nav-link-custom').forEach(el => el.classList.remove('active'));
+                    const navBtn = document.getElementById('nav-' + viewId);
+                    if (navBtn) navBtn.classList.add('active');
+
+                    document.getElementById('main-scroll').scrollTop = 0;
+                }
+
+                function filterAssignments(status) {
+                    if (status === 'all') renderAssignments(myAssignments);
+                    else renderAssignments(myAssignments.filter(a => a.status === status));
+                }
+
+                function getStatusClass(status) {
+                    switch (status) {
+                        case 'submitted': return 'badge-submitted';
+                        case 'graded': return 'badge-graded';
+                        default: return 'badge-pending';
+                    }
+                }
+
+                function getAttClass(status) {
+                    if (status === 'present') return 'bg-emerald-100 text-emerald-700';
+                    if (status === 'absent') return 'bg-red-100 text-red-700';
+                    return 'bg-amber-100 text-amber-700';
+                }
+
+                function logout() {
+                    if (confirm("Keluar dari aplikasi?")) {
+                        localStorage.removeItem('auth_token');
+                        location.reload();
+                    }
+                }
+
+                // --- DUMMY DATA MODE ---
+                function loadDummyData() {
+                    console.log("Loading Dummy Data Mode...");
+                    currentUser = { name: "Cahya Student", email: "cahya@student.com", no_hp: "08123456789", bio: "Rajin belajar" };
+                    updateProfileUI();
+
+                    myCourses = [
+                        { id: 1, course_name: "Pemrograman Web Lanjut", course_code: "PWL-302", description: "Belajar Laravel dan React", instructor: { user: { name: "Pak Budi" } } },
+                        { id: 2, course_name: "Basis Data", course_code: "BD-101", description: "SQL dan Normalisasi", instructor: { user: { name: "Bu Siti" } } }
+                    ];
+                    myAssignments = [
+                        { id: 1, course_id: 1, title: "Tugas CRUD Laravel", status: "pending", due_date: new Date().toISOString(), max_score: 100, course: { course_name: "Pemrograman Web Lanjut" } },
+                        { id: 2, course_id: 2, title: "ERD Design", status: "submitted", due_date: "2025-11-20", max_score: 100, course: { course_name: "Basis Data" } }
+                    ];
+                    myGrades = [
+                        { score: 85, course_name: "Basis Data", grade_component: { name: "UTS" } },
+                        { score: 90, course_name: "Pemrograman Web", grade_component: { name: "Tugas 1" } }
+                    ];
+                    myAttendance = [
+                        { status: 'present', attendance_time: new Date(), course_name: "Pemrograman Web Lanjut" },
+                        { status: 'sick', attendance_time: "2025-11-24", course_name: "Basis Data" }
+                    ];
+                    myCertificates = [
+                        { title: "Web Development Basic", certificate_code: "CERT-001", issued_at: "2025-10-10" }
+                    ];
+
+                    renderDashboard();
+                    renderCourses();
+                    renderAssignments(myAssignments);
+                    renderGrades();
+                    renderAttendance();
+                    renderCertificates();
+                }
+
+            </script>
+</body>
+
+</html>

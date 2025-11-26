@@ -18,11 +18,11 @@ class AttendanceRecordController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/attendance-sessions/{sessionId}/check-in",
+     *     path="/api/v1/attendance-sessions/{sessionId}/check-in",
      *     tags={"Attendance Records"},
      *     summary="Student check-in for attendance",
      *     description="Allow students to check in for an open attendance session",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="sessionId",
      *         in="path",
@@ -145,11 +145,11 @@ class AttendanceRecordController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/attendance-sessions/{sessionId}/sick-leave",
+     *     path="/api/v1/attendance-sessions/{sessionId}/sick-leave",
      *     tags={"Attendance Records"},
      *     summary="Request sick leave",
      *     description="Student requests sick leave for an attendance session",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="sessionId",
      *         in="path",
@@ -256,11 +256,11 @@ class AttendanceRecordController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/attendance-sessions/{sessionId}/permission",
+     *     path="/api/v1/attendance-sessions/{sessionId}/permission",
      *     tags={"Attendance Records"},
      *     summary="Request permission/izin",
      *     description="Student requests permission to be absent for an attendance session",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="sessionId",
      *         in="path",
@@ -557,11 +557,11 @@ class AttendanceRecordController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/attendance-records/bulk-mark",
+     *     path="/api/v1/attendance-records/bulk-mark",
      *     tags={"Attendance Records"},
      *     summary="Bulk mark attendance",
      *     description="Mark attendance for multiple students at once (Instructor/Admin only)",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -740,11 +740,11 @@ class AttendanceRecordController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/attendance-sessions/{sessionId}/records",
+     *     path="/api/v1/attendance-sessions/{sessionId}/records",
      *     tags={"Attendance Records"},
      *     summary="Get session attendance records",
      *     description="Retrieve all attendance records for a specific session",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="sessionId",
      *         in="path",

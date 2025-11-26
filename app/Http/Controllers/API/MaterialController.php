@@ -15,11 +15,11 @@ class MaterialController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/materials",
+     *     path="/api/v1/materials",
      *     tags={"Materials"},
      *     summary="Get all materials",
      *     description="Retrieve materials based on user role (students see only materials from enrolled courses)",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
      *         description="Materials retrieved successfully",
@@ -52,11 +52,18 @@ class MaterialController extends Controller
                 $materials = Material::with("courseModule.course")->get();
             } elseif ($user->role === "instructor") {
                 // Instructor hanya bisa lihat materials dari course yang dia ajar
+                // Get instructor record from user
+                $instructor = $user->instructor;
+                
+                if (!$instructor) {
+                    return response()->json([
+                        "message" => "Instructor record not found for this user",
+                    ], 404);
+                }
+                
                 $materials = Material::with("courseModule.course")
-                    ->whereHas("courseModule.course", function ($query) use (
-                        $user,
-                    ) {
-                        $query->where("instructor_id", $user->id);
+                    ->whereHas("courseModule.course", function ($query) use ($instructor) {
+                        $query->where("instructor_id", $instructor->id);
                     })
                     ->get();
             } elseif ($user->role === "student") {

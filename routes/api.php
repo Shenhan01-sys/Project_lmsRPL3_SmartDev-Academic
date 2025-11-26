@@ -185,16 +185,6 @@ Route::middleware("auth:sanctum")->group(function () {
             "rejectRegistration",
         ])->name("registrations.reject");
 
-        // Routes untuk Grading System
-        Route::apiResource(
-            "grade-components",
-            App\Http\Controllers\API\GradeComponentController::class,
-        );
-        Route::apiResource(
-            "grades",
-            App\Http\Controllers\API\GradeController::class,
-        );
-
         // Routes khusus untuk grading
         Route::post("/grades/bulk", [
             App\Http\Controllers\API\GradeController::class,
@@ -208,6 +198,16 @@ Route::middleware("auth:sanctum")->group(function () {
             App\Http\Controllers\API\GradeController::class,
             "getCourseGrades",
         ])->name("grades.course");
+
+        // Routes untuk Grading System
+        Route::apiResource(
+            "grade-components",
+            App\Http\Controllers\API\GradeComponentController::class,
+        );
+        Route::apiResource(
+            "grades",
+            App\Http\Controllers\API\GradeController::class,
+        );
 
         // Announcement routes (custom routes BEFORE apiResource to prevent conflicts)
 

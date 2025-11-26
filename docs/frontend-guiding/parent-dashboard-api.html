@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Portal - SmartDev LMS</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                        secondary: '#64748b',
+                        sidebar: '#1e293b',
+                        'sidebar-text': '#cbd5e1',
+                    },
+                    fontFamily: { sans: ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        .nav-link-custom {
+            color: #cbd5e1;
+            padding: 0.8rem 1.5rem;
+            font-size: 0.95rem;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-link-custom:hover,
+        .nav-link-custom.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.08);
+            border-left-color: #4f46e5;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dashboard-card {
+            @apply bg-white p-6 rounded-xl shadow-sm border border-slate-200 transition-all duration-300;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .grade-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+    </style>
+</head>
+
+<body class="bg-[#f8fafc] font-sans text-slate-800 h-screen flex overflow-hidden leading-relaxed">
+
+    <div id="loading-overlay">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mb-2"></div>
+            <div class="text-slate-600 font-bold">Loading...</div>
+        </div>
+    </div>
+
+    <aside
+        class="w-[260px] bg-sidebar text-white hidden md:flex flex-col shadow-xl z-50 shrink-0 fixed h-full transition-all duration-300">
+        <div class="p-6 text-center border-b border-white/10">
+            <div class="text-xl font-bold tracking-wide flex items-center justify-center gap-2">
+                <i class="bi bi-mortarboard-fill text-primary"></i> SmartDev
+            </div>
+        </div>
+
+        <div class="p-4 mb-2 border-b border-white/10 text-center">
+            <div
+                class="w-12 h-12 mx-auto bg-primary text-white rounded-full flex items-center justify-center text-xl mb-2 shadow-lg">
+                <i class="bi bi-person"></i>
+            </div>
+            <strong class="block text-sm" id="sidebarUserName">Orang Tua</strong>
+            <small class="text-sidebar-text text-xs">Parent Panel</small>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-2 no-scrollbar">
+            <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-link-custom active">
+                <i class="bi bi-speedometer2 me-3 text-lg"></i> <span>Dashboard</span>
+            </button>
+            <button onclick="switchView('students')" id="nav-students" class="nav-link-custom">
+                <i class="bi bi-people me-3 text-lg"></i> <span>Anak Saya</span>
+            </button>
+            <button onclick="switchView('announcements')" id="nav-announcements" class="nav-link-custom">
+                <i class="bi bi-megaphone me-3 text-lg"></i> <span>Pengumuman</span>
+            </button>
+
+            <div class="mt-6 mb-2 px-6 text-xs font-bold text-sidebar-text uppercase tracking-wider opacity-70">Akademik
+            </div>
+
+            <button onclick="switchView('grades')" id="nav-grades" class="nav-link-custom">
+                <i class="bi bi-bar-chart-steps me-3 text-lg"></i> <span>Nilai & Evaluasi</span>
+            </button>
+            <button onclick="switchView('attendance')" id="nav-attendance" class="nav-link-custom">
+                <i class="bi bi-calendar-check me-3 text-lg"></i> <span>Kehadiran</span>
+            </button>
+            <button onclick="switchView('certificates')" id="nav-certificates" class="nav-link-custom">
+                <i class="bi bi-award me-3 text-lg"></i> <span>Sertifikat</span>
+            </button>
+        </nav>
+
+        <div class="p-4 border-t border-white/10 mt-auto">
+            <button onclick="logout()"
+                class="nav-link-custom text-red-400 hover:text-red-300 hover:bg-red-500/10 !border-l-transparent">
+                <i class="bi bi-box-arrow-right me-3 text-lg"></i> <span>Keluar</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative bg-[#f8fafc] w-full md:ml-[260px]">
+
+        <div class="md:hidden bg-sidebar text-white p-4 flex justify-between items-center shadow-md z-30 shrink-0">
+            <span class="font-bold flex items-center gap-2"><i class="bi bi-mortarboard-fill text-primary"></i> SmartDev
+                LMS</span>
+            <button onclick="alert('Menu mobile belum aktif di demo ini')" class="text-2xl"><i
+                    class="bi bi-list"></i></button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 lg:p-8 scroll-smooth" id="main-scroll">
+
+            <!-- DASHBOARD SECTION -->
+            <section id="view-dashboard" class="view-section fade-in max-w-7xl mx-auto">
+                <div
+                    class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-200">
+                    <h2 class="text-2xl font-bold text-secondary">Dashboard Overview</h2>
+                    <div
+                        class="flex items-center gap-3 bg-white px-3 py-1.5 rounded-md shadow-sm border border-slate-200">
+                        <i class="bi bi-link-45deg text-secondary"></i>
+                        <input type="text" id="apiUrl" class="text-sm text-slate-500 border-none outline-none w-64"
+                            value="https://portohansgunawan.my.id">
+                        <button onclick="initApp()"
+                            class="px-3 py-1 bg-primary text-white text-xs rounded hover:bg-primary/90">Refresh</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="dashboard-card rounded p-4 bg-primary !text-white relative overflow-hidden border-none">
+                        <div class="relative z-10">
+                            <h3 class="text-3xl font-bold mb-1" id="stat-students">0</h3>
+                            <p class="text-indigo-100 text-sm">Total Anak</p>
+                        </div>
+                        <i class="bi bi-people-fill absolute top-1/2 right-4 -translate-y-1/2 text-6xl opacity-20"></i>
+                    </div>
+                    <div class="dashboard-card rounded p-4 border-l-4 !border-l-emerald-500">
+                        <h3 class="text-3xl font-bold text-emerald-600 mb-1" id="stat-enrollments">0</h3>
+                        <p class="text-slate-500 text-sm">Total Enrollments</p>
+                    </div>
+                    <div class="dashboard-card rounded p-4 border-l-4 !border-l-amber-500">
+                        <h3 class="text-3xl font-bold text-amber-500 mb-1" id="stat-avg-grade">-</h3>
+                        <p class="text-slate-500 text-sm">Rata-rata Nilai</p>
+                    </div>
+                    <div class="dashboard-card rounded p-4 border-l-4 !border-l-sky-500">
+                        <h2 class="text-2xl font-bold text-secondary">Daftar Anak</h2>
+                    </div>
+                    <div id="students-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="text-center py-8 text-slate-400">Loading...</div>
+                    </div>
+            </section>
+
+            <!-- STUDENT DETAIL SECTION -->
+            <section id="view-student-detail" class="view-section hidden fade-in max-w-7xl mx-auto">
+                <button onclick="switchView('students')"
+                    class="mb-6 flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">
+                    <i class="bi bi-arrow-left"></i> Kembali ke Daftar Anak
+                </button>
+
+                <div
+                    class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8 mb-8 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-8 opacity-5 text-9xl text-indigo-600 pointer-events-none">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div class="relative z-10 flex flex-col md:flex-row gap-6 items-start md:items-center">
+                        <div id="detail-student-avatar"
+                            class="w-24 h-24 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-4xl shadow-md">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-3 mb-2">
+                                <h1 id="detail-student-name" class="text-3xl font-bold text-slate-800">Nama Siswa</h1>
+                                <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full"
+                                    id="detail-student-status">Aktif</span>
+                            </div>
+                            <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500">
+                                <span><i class="bi bi-mortarboard me-2"></i><span
+                                        id="detail-student-grade">Kelas</span></span>
+                                <span><i class="bi bi-card-text me-2"></i>NIS: <span
+                                        id="detail-student-nis">-</span></span>
+                                <span><i class="bi bi-gender-ambiguous me-2"></i><span
+                                        id="detail-student-gender">-</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <i class="bi bi-book-fill text-indigo-500"></i> Course Enrollments
+                        </h3>
+                        <div id="detail-student-courses" class="space-y-4"></div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <i class="bi bi-bar-chart-fill text-emerald-500"></i> Recent Grades
+                        </h3>
+                        <div id="detail-student-grades" class="space-y-4"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- GRADES SECTION -->
+            <section id="view-grades" class="view-section hidden fade-in max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-6 pb-3 border-b">
+                    <h2 class="text-2xl font-bold text-secondary">Laporan Nilai</h2>
+                    <select id="grades-student-filter"
+                        class="px-4 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-indigo-500"
+                        onchange="loadGrades()">
+                        <option value="">Semua Anak</option>
+                    </select>
+                </div>
+                <div id="grades-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div class="text-center py-8 text-slate-400 col-span-full">Loading...</div>
+                </div>
+            </section>
+
+            <!-- ATTENDANCE SECTION -->
+            <section id="view-attendance" class="view-section hidden fade-in max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-6 pb-3 border-b">
+                    <h2 class="text-2xl font-bold text-secondary">Riwayat Kehadiran</h2>
+                    <select id="attendance-student-filter"
+                        class="px-4 py-2 border border-slate-200 rounded-lg text-sm bg-white"
+                        onchange="loadAttendance()">
+                        <option value="">Semua Anak</option>
+                    </select>
+                </div>
+                <div class="dashboard-card space-y-4" id="attendance-list">
+                    <div class="text-center py-8 text-slate-400">Loading...</div>
+                </div>
+            </section>
+
+            <!-- ANNOUNCEMENTS SECTION -->
+            <section id="view-announcements" class="view-section hidden fade-in max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-6 pb-3 border-b">
+                    <h2 class="text-2xl font-bold text-secondary">Pengumuman Sekolah</h2>
+                </div>
+                <div class="grid gap-4" id="announcements-full-list">
+                    <div class="text-center py-8 text-slate-400">Loading...</div>
+                </div>
+            </section>
+
+            <!-- CERTIFICATES SECTION -->
+            <section id="view-certificates" class="view-section hidden fade-in max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-6 pb-3 border-b">
+                    <h2 class="text-2xl font-bold text-secondary">Sertifikat & Penghargaan</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="certificates-list">
+                    <div class="text-center py-8 text-slate-400 col-span-full">Loading...</div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        // --- GLOBAL VARIABLES ---
+        let BASE_API = document.getElementById('apiUrl').value + '/api/v1';
+        let currentUser = null;
+        let currentParent = null;
+        let allStudents = [];
+        let allGrades = [];
+        let allCertificates = [];
+
+        // --- HTTP CLIENT ---
+        function getHeaders() {
+            const token = localStorage.getItem('auth_token');
+            return {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'ngrok-skip-browser-warning': 'true'
+            };
+        }
+
+        async function fetchApi(endpoint, options = {}) {
+            document.getElementById('loading-overlay').style.display = 'flex';
+            console.log(`%c[API] ${options.method || 'GET'} ${endpoint}`, 'color: blue; font-weight: bold;');
+
+            try {
+                BASE_API = document.getElementById('apiUrl').value + '/api/v1';
+                const res = await fetch(BASE_API + endpoint, { ...options, headers: getHeaders() });
+
+                if (res.status === 401) {
+                    throw new Error("Unauthorized");
+                }
+
+                if (res.status === 204) return true;
+
+                const jsonResponse = await res.json().catch(() => null);
+
+                if (!res.ok) {
+                    let errorMsg = `HTTP Error ${res.status}`;
+                    if (jsonResponse?.message) errorMsg = jsonResponse.message;
+                    throw new Error(errorMsg);
+                }
+
+                return jsonResponse;
+
+            } catch (e) {
+                console.error("Fetch Failed:", e);
+                if (e.message === "Unauthorized") {
+                    alert("Sesi Anda telah habis. Silakan refresh dan login ulang.");
+                    logout();
+                    return null;
+                }
+                alert(e.message);
+                return null;
+            } finally {
+                document.getElementById('loading-overlay').style.display = 'none';
+            }
+        }
+
+        // --- AUTH & INIT ---
+        async function initApp() {
+            const token = localStorage.getItem('auth_token');
+            const loader = document.getElementById('loading-overlay');
+
+            if (!token) {
+                loader.style.display = 'none';
+                const input = prompt("Token tidak ditemukan. Masukkan Bearer Token:");
+                if (input) {
+                    localStorage.setItem('auth_token', input);
+                    initApp();
+                } else {
+                    console.log("User cancelled token input.");
+                }
+                return;
+            }
+
+            try {
+                loader.style.display = 'flex';
+                const url = document.getElementById('apiUrl').value + '/api/user';
+
+                const res = await fetch(url, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                        'ngrok-skip-browser-warning': 'true'
+                    }
+                });
+
+                if (res.ok) {
+                    currentUser = await res.json();
+
+                    // Check if user is parent
+                    if (currentUser.role !== 'parent') {
+                        alert("Akses ditolak! Dashboard ini khusus untuk Parent.");
+                        logout();
+                        return;
+                    }
+
+                    document.getElementById('sidebarUserName').innerText = currentUser.full_name || currentUser.name;
+
+                    // Load parent profile
+                    await loadParentProfile();
+                    await loadDashboard();
+                } else {
+                    throw new Error("Token Invalid");
+                }
+
+            } catch (e) {
+                console.warn("Init Error:", e);
+                localStorage.removeItem('auth_token');
+                alert("Gagal terhubung atau Token Salah. Silakan masukkan token baru.");
+                initApp();
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        async function loadParentProfile() {
+            // Get parent profile from user
+            if (currentUser.parentProfile) {
+                currentParent = currentUser.parentProfile;
+            } else {
+                // Fallback: get from parents endpoint
+                const res = await fetchApi(`/parents?search=${currentUser.email}`);
+                if (res?.data && res.data.length > 0) {
+                    currentParent = res.data[0];
+                }
+            }
+        }
+
+        function logout() {
+            if (confirm('Keluar dari sistem?')) {
+                localStorage.removeItem('auth_token');
+                location.reload();
+            }
+        }
+
+        // --- NAVIGATION ---
+        function switchView(viewName) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById('view-' + viewName);
+            if (target) {
+                target.classList.remove('hidden');
+                document.getElementById('main-scroll').scrollTop = 0;
+            }
+
+            // Update Sidebar
+            document.querySelectorAll('.nav-link-custom').forEach(el => el.classList.remove('active'));
+
+            let navId = 'nav-' + viewName;
+            if (viewName.includes('detail')) {
+                if (viewName.includes('student')) navId = 'nav-students';
+            }
+
+            const navEl = document.getElementById(navId);
+            if (navEl) navEl.classList.add('active');
+
+            // Load data when switching
+            if (viewName === 'students' && allStudents.length === 0) loadStudents();
+            if (viewName === 'grades') loadGrades();
+            if (viewName === 'attendance') loadAttendance();
+            if (viewName === 'announcements') loadAnnouncements();
+            if (viewName === 'certificates') loadCertificates();
+        }
+
+        // --- DASHBOARD ---
+        async function loadDashboard() {
+            if (!currentParent) return;
+
+            // Load students
+            const studentsRes = await fetchApi(`/parents/${currentParent.id}/students`);
+            allStudents = studentsRes || [];
+
+            document.getElementById('stat-students').innerText = allStudents.length;
+
+            // Calculate enrollments
+            let totalEnrollments = 0;
+            allStudents.forEach(s => {
+                totalEnrollments += s.enrollments?.length || 0;
+            });
+            document.getElementById('stat-enrollments').innerText = totalEnrollments;
+
+            // Load recent announcements
+            loadDashboardAnnouncements();
+        }
+
+        async function loadDashboardAnnouncements() {
+            const res = await fetchApi('/announcements?per_page=2&status=published');
+            const announcements = res?.data || [];
+
+            const container = document.getElementById('dashboard-announcements');
+            if (announcements.length === 0) {
+                container.innerHTML = '<div class="col-span-2 text-center text-slate-400 py-4">Belum ada pengumuman</div>';
+                return;
+            }
+
+            container.innerHTML = announcements.map(a => `
+                <div class="flex flex-col p-4 rounded-xl bg-slate-50 border border-slate-100 hover:shadow-md transition-all">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="px-2 py-1 text-[10px] uppercase font-bold tracking-wide bg-indigo-100 text-indigo-700 rounded-md">${a.priority || 'Normal'}</span>
+                        <span class="text-xs text-slate-400">${new Date(a.created_at).toLocaleDateString('id-ID')}</span>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-sm mb-1">${a.title}</h4>
+                    <p class="text-xs text-slate-500 line-clamp-2 mb-2">${a.content}</p>
+                </div>
+            `).join('');
+        }
+
+        // --- STUDENTS ---
+        async function loadStudents() {
+            if (!currentParent) return;
+
+            const container = document.getElementById('students-container');
+
+            if (allStudents.length === 0) {
+                container.innerHTML = '<div class="col-span-3 text-center text-slate-400 py-8">Belum ada data anak</div>';
+                return;
+            }
+
+            const colors = [
+                { class: 'text-indigo-600 bg-indigo-50', hex: '#4f46e5' },
+                { class: 'text-pink-600 bg-pink-50', hex: '#ec4899' },
+                { class: 'text-emerald-600 bg-emerald-50', hex: '#10b981' },
+                { class: 'text-amber-600 bg-amber-50', hex: '#f59e0b' }
+            ];
+
+            container.innerHTML = allStudents.map((s, idx) => {
+                const color = colors[idx % colors.length];
+                return `
+                <div class="dashboard-card group hover:border-indigo-300">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-16 h-16 rounded-2xl ${color.class} flex items-center justify-center text-3xl shadow-sm group-hover:scale-105 transition-transform">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-lg">${s.status || 'active'}</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-1">${s.full_name}</h3>
+                    <p class="text-sm text-slate-500 mb-4">${s.current_grade || '-'} | NIS: ${s.student_number || '-'}</p>
+                    <div class="flex gap-2">
+                        <button onclick="showStudentDetail(${s.id})" class="flex-1 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm shadow-indigo-200">
+                            Lihat Detail
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            // Populate student filters
+            populateStudentFilters();
+        }
+
+        function populateStudentFilters() {
+            const gradeFilter = document.getElementById('grades-student-filter');
+            const attendanceFilter = document.getElementById('attendance-student-filter');
+
+            const options = allStudents.map(s =>
+                `<option value="${s.id}">${s.full_name}</option>`
+            ).join('');
+
+            gradeFilter.innerHTML = '<option value="">Semua Anak</option>' + options;
+            attendanceFilter.innerHTML = '<option value="">Semua Anak</option>' + options;
+        }
+
+        async function showStudentDetail(studentId) {
+            const student = allStudents.find(s => s.id === studentId);
+            if (!student) return;
+
+            document.getElementById('detail-student-name').innerText = student.full_name;
+            document.getElementById('detail-student-grade').innerText = student.current_grade || '-';
+            document.getElementById('detail-student-nis').innerText = student.student_number || '-';
+            document.getElementById('detail-student-gender').innerText = student.gender || '-';
+            document.getElementById('detail-student-status').innerText = student.status || 'active';
+
+            // Load enrollment details
+            const enrollments = student.enrollments || [];
+            const coursesHtml = enrollments.length > 0 ? enrollments.map(e => `
+                <div class="bg-white border border-slate-100 rounded-xl p-4 shadow-sm">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                            <i class="bi bi-book"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-sm text-slate-800">${e.course?.course_name || 'Course'}</p>
+                            <p class="text-xs text-slate-500">${e.course?.course_code || ''}</p>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-400">
+                        Status: <span class="font-semibold">${e.status || 'active'}</span>
+                    </div>
+                </div>
+            `).join('') : '<p class="text-slate-500 italic">Belum ada enrollment</p>';
+
+            document.getElementById('detail-student-courses').innerHTML = coursesHtml;
+            document.getElementById('detail-student-grades').innerHTML = '<p class="text-slate-500 italic">Loading grades...</p>';
+
+            switchView('student-detail');
+        }
+
+        // --- GRADES ---
+        async function loadGrades() {
+            const studentFilter = document.getElementById('grades-student-filter').value;
+            const container = document.getElementById('grades-container');
+
+            container.innerHTML = '<div class="col-span-full text-center py-8 text-slate-400">Fitur nilai sedang dalam pengembangan</div>';
+        }
+
+        // --- ATTENDANCE ---
+        async function loadAttendance() {
+            const studentFilter = document.getElementById('attendance-student-filter').value;
+            const container = document.getElementById('attendance-list');
+
+            container.innerHTML = '<div class="text-center py-8 text-slate-400">Fitur kehadiran sedang dalam pengembangan</div>';
+        }
+
+        // --- ANNOUNCEMENTS ---
+        async function loadAnnouncements() {
+            const res = await fetchApi('/announcements?status=published');
+            const announcements = res?.data || [];
+
+            const container = document.getElementById('announcements-full-list');
+            if (announcements.length === 0) {
+                container.innerHTML = '<div class="text-center text-slate-400 py-8">Belum ada pengumuman</div>';
+                return;
+            }
+
+            container.innerHTML = announcements.map(a => `
+                <div class="dashboard-card rounded p-4 flex flex-col md:flex-row gap-4 items-start">
+                    <div class="shrink-0 pt-1 hidden md:block">
+                        <div class="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-xl">
+                            <i class="bi bi-megaphone-fill"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex flex-wrap items-center gap-2 mb-2">
+                            <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold uppercase rounded">${a.priority || 'normal'}</span>
+                            <span class="text-xs text-slate-400">• ${new Date(a.created_at).toLocaleDateString('id-ID')}</span>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-lg mb-2">${a.title}</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">${a.content}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- CERTIFICATES ---
+        async function loadCertificates() {
+            const container = document.getElementById('certificates-list');
+            container.innerHTML = '<div class="col-span-full text-center py-8 text-slate-400">Fitur sertifikat sedang dalam pengembangan</div>';
+        }
+
+        // --- INIT ON LOAD ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+        });
+    </script>
+</body>
+
+</html>

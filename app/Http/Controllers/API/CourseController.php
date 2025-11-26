@@ -75,17 +75,17 @@ class CourseController extends Controller
      * @OA\Post(
      *     path="/api/v1/courses",
      *     summary="Create new course",
-     *     description="Create a new course (Admin/Instructor only)",
+     *     description="Create a new course. Instructors will automatically be assigned as the course instructor. Admins can specify instructor_id to assign a specific instructor.",
      *     tags={"Courses"},
      *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"course_code", "course_name", "instructor_id"},
+     *             required={"course_code", "course_name"},
      *             @OA\Property(property="course_code", type="string", example="MTK101"),
      *             @OA\Property(property="course_name", type="string", example="Matematika Dasar"),
      *             @OA\Property(property="description", type="string", example="Mempelajari konsep dasar matematika"),
-     *             @OA\Property(property="instructor_id", type="integer", example=1)
+     *             @OA\Property(property="instructor_id", type="integer", example=1, description="Required only for Admin users. Instructors don't need to provide this (auto-filled from their profile).")
      *         )
      *     ),
      *     @OA\Response(
@@ -94,7 +94,8 @@ class CourseController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="id", type="integer", example=1),
      *             @OA\Property(property="course_code", type="string", example="MTK101"),
-     *             @OA\Property(property="course_name", type="string", example="Matematika Dasar")
+     *             @OA\Property(property="course_name", type="string", example="Matematika Dasar"),
+     *             @OA\Property(property="instructor_id", type="integer", example=1)
      *         )
      *     ),
      *     @OA\Response(
@@ -119,14 +120,37 @@ class CourseController extends Controller
         // Authorization: Check if user can create courses
         $this->authorize("create", Course::class);
 
-        $validated = $request->validate([
+        $user = Auth::user();
+        
+        // Base validation rules (common for all users)
+        $rules = [
             "course_code" => "required|string|unique:courses,course_code",
             "course_name" => "required|string|max:255",
             "description" => "nullable|string",
-            "instructor_id" => "required|exists:instructors,id",
-        ]);
+        ];
+
+        // Only admin needs to provide instructor_id
+        if ($user->role === 'admin') {
+            $rules['instructor_id'] = "required|exists:instructors,id";
+        }
+        // For non-admin (instructor), we don't validate instructor_id at all
+        // It will be auto-filled after validation
+
+        $validated = $request->validate($rules);
 
         try {
+            // If user is NOT an admin, automatically set their instructor_id
+            if ($user->role !== 'admin') {
+                // Auto-fill instructor_id from authenticated user
+                if ($user->instructor) {
+                    $validated['instructor_id'] = $user->instructor->id;
+                } else {
+                    return response()->json([
+                        "message" => "User is not associated with an instructor profile.",
+                    ], 403);
+                }
+            }
+
             $course = Course::create($validated);
             return response()->json($course, 201);
         } catch (\Exception $e) {

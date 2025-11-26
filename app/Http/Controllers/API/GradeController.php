@@ -5,12 +5,14 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Grade;
 use App\Models\GradeComponent;
+use App\Models\Enrollment;
 use App\Services\GradingService;
 use App\Services\EnrollmentService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
+use OpenApi\Annotations as OA;
 
 class GradeController extends Controller
 {
@@ -21,7 +23,7 @@ class GradeController extends Controller
 
     public function __construct(
         GradingService $gradingService,
-        EnrollmentService $enrollmentService,
+        EnrollmentService $enrollmentService
     ) {
         $this->gradingService = $gradingService;
         $this->enrollmentService = $enrollmentService;
@@ -29,19 +31,19 @@ class GradeController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/grades",
+     *     path="/api/v1/grades",
      *     tags={"Grades"},
      *     summary="Input nilai siswa",
-     *     description="Create a new grade entry for a student in a specific grade component",
-     *     security={{"sanctum":{}}},
+     *     description="Create a new grade entry for a student (via enrollment) in a specific grade component",
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"student_id", "grade_component_id", "score"},
-     *             @OA\Property(property="student_id", type="integer", example=1),
+     *             required={"enrollment_id", "grade_component_id", "score"},
+     *             @OA\Property(property="enrollment_id", type="integer", example=1),
      *             @OA\Property(property="grade_component_id", type="integer", example=1),
-     *             @OA\Property(property="score", type="number", format="float", example=85.5),
-     *             @OA\Property(property="max_score", type="number", format="float", example=100),
+     *             @OA\Property(property="score", type="number", format="float", example="85.5"),
+     *             @OA\Property(property="max_score", type="number", format="float", example="100"),
      *             @OA\Property(property="notes", type="string", example="Good performance")
      *         )
      *     ),
@@ -61,7 +63,7 @@ class GradeController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            "student_id" => "required|exists:students,id",
+            "enrollment_id" => "required|exists:enrollments,id",
             "grade_component_id" => "required|exists:grade_components,id",
             "score" => "required|numeric|min:0",
             "max_score" => "nullable|numeric|min:0",
@@ -72,22 +74,6 @@ class GradeController extends Controller
             // Authorization: Check if user can create grades
             $this->authorize("create", Grade::class);
 
-            // VALIDASI: Pastikan student enrolled di course dari grade component ini
-            if (
-                !$this->enrollmentService->isStudentEnrolledInGradeComponentCourse(
-                    $validated["student_id"],
-                    $validated["grade_component_id"],
-                )
-            ) {
-                return response()->json(
-                    [
-                        "message" => "Student is not enrolled in this course.",
-                        "error" => "ENROLLMENT_REQUIRED",
-                    ],
-                    400,
-                );
-            }
-
             $options = [
                 "max_score" => $validated["max_score"] ?? null,
                 "notes" => $validated["notes"] ?? null,
@@ -95,14 +81,14 @@ class GradeController extends Controller
             ];
 
             $grade = $this->gradingService->inputGrade(
-                $validated["student_id"],
+                $validated["enrollment_id"],
                 $validated["grade_component_id"],
                 $validated["score"],
-                $options,
+                $options
             );
 
             $grade->load([
-                "student:id,full_name,student_number",
+                "student:id,name,email",
                 "gradeComponent:id,name,weight",
                 "grader:id,name",
             ]);
@@ -112,7 +98,7 @@ class GradeController extends Controller
                     "message" => "Nilai berhasil di-input.",
                     "data" => $grade,
                 ],
-                201,
+                201
             );
         } catch (\Exception $e) {
             return response()->json(
@@ -120,18 +106,18 @@ class GradeController extends Controller
                     "message" => "Gagal input nilai.",
                     "error" => $e->getMessage(),
                 ],
-                400,
+                400
             );
         }
     }
 
     /**
      * @OA\Post(
-     *     path="/api/grades/bulk",
+     *     path="/api/v1/grades/bulk",
      *     tags={"Grades"},
      *     summary="Input nilai massal (bulk)",
-     *     description="Create multiple grade entries at once for multiple students",
-     *     security={{"sanctum":{}}},
+     *     description="Create multiple grade entries at once for multiple enrollments",
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -140,10 +126,10 @@ class GradeController extends Controller
      *                 property="grades",
      *                 type="array",
      *                 @OA\Items(
-     *                     @OA\Property(property="student_id", type="integer", example=1),
+     *                     @OA\Property(property="enrollment_id", type="integer", example=1),
      *                     @OA\Property(property="grade_component_id", type="integer", example=1),
-     *                     @OA\Property(property="score", type="number", format="float", example=85.5),
-     *                     @OA\Property(property="max_score", type="number", format="float", example=100),
+     *                     @OA\Property(property="score", type="number", format="float", example="85.5"),
+     *                     @OA\Property(property="max_score", type="number", format="float", example="100"),
      *                     @OA\Property(property="notes", type="string", example="Good work")
      *                 )
      *             )
@@ -158,7 +144,7 @@ class GradeController extends Controller
      *             @OA\Property(property="count", type="integer", example=10)
      *         )
      *     ),
-     *     @OA\Response(response=400, description="Validation error or enrollment issues"),
+     *     @OA\Response(response=400, description="Validation error"),
      *     @OA\Response(response=403, description="Unauthorized")
      * )
      */
@@ -166,9 +152,8 @@ class GradeController extends Controller
     {
         $validated = $request->validate([
             "grades" => "required|array",
-            "grades.*.student_id" => "required|exists:students,id",
-            "grades.*.grade_component_id" =>
-                "required|exists:grade_components,id",
+            "grades.*.enrollment_id" => "required|exists:enrollments,id",
+            "grades.*.grade_component_id" => "required|exists:grade_components,id",
             "grades.*.score" => "required|numeric|min:0",
             "grades.*.max_score" => "nullable|numeric|min:0",
             "grades.*.notes" => "nullable|string",
@@ -178,42 +163,11 @@ class GradeController extends Controller
             // Authorization: Check if user can bulk input grades
             $this->authorize("bulkInput", Grade::class);
 
-            // VALIDASI: Pastikan semua student enrolled di course masing-masing
-            $invalidEntries = [];
-            foreach ($validated["grades"] as $index => $gradeData) {
-                if (
-                    !$this->enrollmentService->isStudentEnrolledInGradeComponentCourse(
-                        $gradeData["student_id"],
-                        $gradeData["grade_component_id"],
-                    )
-                ) {
-                    $invalidEntries[] = [
-                        "index" => $index,
-                        "student_id" => $gradeData["student_id"],
-                        "grade_component_id" =>
-                            $gradeData["grade_component_id"],
-                        "reason" => "Student not enrolled in this course",
-                    ];
-                }
-            }
-
-            if (!empty($invalidEntries)) {
-                return response()->json(
-                    [
-                        "message" =>
-                            "Some students are not enrolled in the required courses.",
-                        "error" => "ENROLLMENT_REQUIRED",
-                        "invalid_entries" => $invalidEntries,
-                    ],
-                    400,
-                );
-            }
-
             // Prepare data dengan options
             $gradesData = collect($validated["grades"])
                 ->map(function ($grade) {
                     return [
-                        "student_id" => $grade["student_id"],
+                        "enrollment_id" => $grade["enrollment_id"],
                         "grade_component_id" => $grade["grade_component_id"],
                         "score" => $grade["score"],
                         "options" => [
@@ -233,7 +187,7 @@ class GradeController extends Controller
                     "data" => $grades,
                     "count" => $grades->count(),
                 ],
-                201,
+                201
             );
         } catch (\Exception $e) {
             return response()->json(
@@ -241,18 +195,18 @@ class GradeController extends Controller
                     "message" => "Gagal input nilai massal.",
                     "error" => $e->getMessage(),
                 ],
-                400,
+                400
             );
         }
     }
 
     /**
      * @OA\Get(
-     *     path="/api/grades/student",
+     *     path="/api/v1/grades/student",
      *     tags={"Grades"},
      *     summary="Get nilai siswa untuk course",
      *     description="Retrieve all grades for a student in a specific course including final grade",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="student_id",
      *         in="query",
@@ -276,7 +230,7 @@ class GradeController extends Controller
      *                 property="data",
      *                 type="object",
      *                 @OA\Property(property="grades", type="array", @OA\Items(type="object")),
-     *                 @OA\Property(property="final_grade", type="number", format="float", example=87.5)
+     *                 @OA\Property(property="final_grade", type="number", format="float", example="87.5")
      *             )
      *         )
      *     ),
@@ -292,45 +246,54 @@ class GradeController extends Controller
             "course_id" => "required|exists:courses,id",
         ]);
 
-        try {
-            // Authorization: Check if user can view grades
+        $user = Auth::user();
+        $studentId = $validated['student_id'];
+
+        // Authorization Check
+        if ($user->role === 'parent') {
+            // Parent can only view their own children's grades
+            if (!$user->parentProfile || $user->parentProfile->students()->where('id', $studentId)->doesntExist()) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+        } elseif ($user->role === 'student') {
+            // Student can only view their own grades
+            if (!$user->student || $user->student->id != $studentId) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+        } else {
+            // Admin and Instructor check
             $this->authorize("viewAny", Grade::class);
-
-            $grades = $this->gradingService->getStudentGrades(
-                $validated["student_id"],
-                $validated["course_id"],
-            );
-
-            $finalGrade = $this->gradingService->calculateFinalGrade(
-                $validated["student_id"],
-                $validated["course_id"],
-            );
-
-            return response()->json([
-                "message" => "Nilai siswa berhasil diambil.",
-                "data" => [
-                    "grades" => $grades,
-                    "final_grade" => $finalGrade,
-                ],
-            ]);
-        } catch (\Exception $e) {
-            return response()->json(
-                [
-                    "message" => "Error mengambil nilai siswa.",
-                    "error" => $e->getMessage(),
-                ],
-                500,
-            );
         }
+
+        // Find enrollment
+        $enrollment = Enrollment::where('student_id', $validated['student_id'])
+            ->where('course_id', $validated['course_id'])
+            ->first();
+
+        if (!$enrollment) {
+            return response()->json(['message' => 'Enrollment not found'], 404);
+        }
+
+        $grades = $this->gradingService->getStudentGrades($enrollment->id);
+
+        $finalGrade = $this->gradingService->calculateFinalGrade($enrollment->id);
+
+        return response()->json([
+            "message" => "Nilai siswa berhasil diambil.",
+            "data" => [
+                "grades" => $grades,
+                "final_grade" => $finalGrade,
+            ],
+        ]);
     }
 
     /**
      * @OA\Get(
-     *     path="/api/grades/course",
+     *     path="/api/v1/grades/course",
      *     tags={"Grades"},
      *     summary="Get rekap nilai untuk course",
      *     description="Retrieve grades summary and statistics for a specific course",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="course_id",
      *         in="query",
@@ -367,10 +330,10 @@ class GradeController extends Controller
             $this->authorize("viewStatistics", Grade::class);
 
             $summary = $this->gradingService->getCourseGradesSummary(
-                $validated["course_id"],
+                $validated["course_id"]
             );
             $statistics = $this->gradingService->getCourseStatistics(
-                $validated["course_id"],
+                $validated["course_id"]
             );
 
             return response()->json([
@@ -386,18 +349,18 @@ class GradeController extends Controller
                     "message" => "Error mengambil rekap nilai.",
                     "error" => $e->getMessage(),
                 ],
-                500,
+                500
             );
         }
     }
 
     /**
      * @OA\Put(
-     *     path="/api/grades/{id}",
+     *     path="/api/v1/grades/{id}",
      *     tags={"Grades"},
      *     summary="Update nilai siswa",
      *     description="Update an existing grade entry",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -408,8 +371,8 @@ class GradeController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             @OA\Property(property="score", type="number", format="float", example=90.0),
-     *             @OA\Property(property="max_score", type="number", format="float", example=100),
+     *             @OA\Property(property="score", type="number", format="float", example="90.0"),
+     *             @OA\Property(property="max_score", type="number", format="float", example="100"),
      *             @OA\Property(property="notes", type="string", example="Improved performance")
      *         )
      *     ),
@@ -447,7 +410,7 @@ class GradeController extends Controller
                             "message" =>
                                 "Nilai tidak boleh melebihi nilai maksimal.",
                         ],
-                        400,
+                        400
                     );
                 }
             } elseif (isset($validated["score"])) {
@@ -457,14 +420,14 @@ class GradeController extends Controller
                             "message" =>
                                 "Nilai tidak boleh melebihi nilai maksimal.",
                         ],
-                        400,
+                        400
                     );
                 }
             }
 
             $grade->update($validated);
             $grade->load([
-                "student:id,full_name,student_number",
+                "student:id,name,email",
                 "gradeComponent:id,name,weight",
                 "grader:id,name",
             ]);
@@ -479,18 +442,18 @@ class GradeController extends Controller
                     "message" => "Error update nilai.",
                     "error" => $e->getMessage(),
                 ],
-                500,
+                500
             );
         }
     }
 
     /**
      * @OA\Delete(
-     *     path="/api/grades/{id}",
+     *     path="/api/v1/grades/{id}",
      *     tags={"Grades"},
      *     summary="Delete nilai siswa",
      *     description="Remove a grade entry",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -527,7 +490,7 @@ class GradeController extends Controller
                     "message" => "Error menghapus nilai.",
                     "error" => $e->getMessage(),
                 ],
-                500,
+                500
             );
         }
     }

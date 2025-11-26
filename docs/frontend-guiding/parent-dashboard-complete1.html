@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Portal - SmartDev LMS</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                        secondary: '#64748b',
+                        sidebar: '#1e293b',
+                        'sidebar-text': '#cbd5e1',
+                    },
+                    fontFamily: { sans: ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        /* Sidebar Styles */
+        .nav-link-custom {
+            color: #cbd5e1;
+            padding: 0.8rem 1.5rem;
+            font-size: 0.95rem;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-link-custom:hover, 
+        .nav-link-custom.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.08);
+            border-left-color: #4f46e5;
+        }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Card Styles */
+        .dashboard-card { 
+            @apply bg-white p-6 rounded-xl shadow-sm border border-slate-200 transition-all duration-300; 
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Grade Card Specific */
+        .grade-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+    </style>
+</head>
+
+<body class="bg-[#f8fafc] font-sans text-slate-800 h-screen flex overflow-hidden leading-relaxed">
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mb-2 mx-auto"></div>
+            <div class="text-slate-600 font-bold">Memuat Data...</div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside
+        class="w-[260px] bg-sidebar text-white hidden md:flex flex-col shadow-xl z-50 shrink-0 fixed h-full transition-all duration-300">
+        <div class="p-6 text-center border-b border-white/10">
+            <div class="text-xl font-bold tracking-wide flex items-center justify-center gap-2">
+                <i class="bi bi-mortarboard-fill text-primary"></i> SmartDev
+            </div>
+        </div>
+
+        <div class="p-4 mb-2 border-b border-white/10 text-center">
+            <div
+                class="w-12 h-12 mx-auto bg-primary text-white rounded-full flex items-center justify-center text-xl mb-2 shadow-lg">
+                <i class="bi bi-person"></i>
+            </div>
+            <strong class="block text-sm" id="sidebar-username">Orang Tua</strong>
+            <small class="text-sidebar-text text-xs">Parent Panel</small>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-2 no-scrollbar">
+            <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-link-custom active">
+                <i class="bi bi-speedometer2 me-3 text-lg"></i> <span>Dashboard</span>
+            </button>
+            <button onclick="switchView('students')" id="nav-students" class="nav-link-custom">
+                <i class="bi bi-people me-3 text-lg"></i> <span>Anak Saya</span>
+            </button>
+            <button onclick="switchView('announcements')" id="nav-announcements" class="nav-link-custom">
+                <i class="bi bi-megaphone me-3 text-lg"></i> <span>Pengumuman</span>
+            </button>
+
+            <div class="mt-6 mb-2 px-6 text-xs font-bold text-sidebar-text uppercase tracking-wider opacity-70">Akademik
+            </div>
+
+            <button onclick="switchView('grades')" id="nav-grades" class="nav-link-custom">
+                <i class="bi bi-bar-chart-steps me-3 text-lg"></i> <span>Nilai & Evaluasi</span>
+            </button>
+            <button onclick="switchView('attendance')" id="nav-attendance" class="nav-link-custom">
+                <i class="bi bi-calendar-check me-3 text-lg"></i> <span>Kehadiran</span>
+            </button>
+            <button onclick="switchView('certificates')" id="nav-certificates" class="nav-link-custom">
+                <i class="bi bi-award me-3 text-lg"></i> <span>Sertifikat</span>
+            </button>
+        </nav>
+
+        <div class="p-4 border-t border-white/10 mt-auto">
+            <button onclick="logout()"
+                class="nav-link-custom text-red-400 hover:text-red-300 hover:bg-red-500/10 !border-l-transparent">
+                <i class="bi bi-box-arrow-right me-3 text-lg"></i> <span>Keluar</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative bg-[#f8fafc] w-full md:ml-[260px]">
+
+        <div class="md:hidden bg-sidebar text-white p-4 flex justify-between items-center shadow-md z-30 shrink-0">
+            <span class="font-bold flex items-center gap-2"><i class="bi bi-mortarboard-fill text-primary"></i> SmartDev
+                LMS</span>
+            <button onclick="alert('Menu mobile belum aktif di demo ini')" class="text-2xl"><i
+                    class="bi bi-list"></i></button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 lg:p-8 scroll-smooth" id="main-scroll">
+
+            <!-- DASHBOARD VIEW -->
+            <section id="view-dashboard" class="view-section fade-in max-w-7xl mx-auto">
+                <div
+                    class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-200">
+                    <h2 class="text-2xl font-bold text-secondary">Dashboard Overview</h2>
+                    <div
+                        class="flex items-center gap-3 bg-white px-3 py-1.5 rounded-md shadow-sm border border-slate-200">
+                        <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <span class="text-sm text-slate-500">API Connected</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div
+                        class="dashboard-card rounded p-4 !bg-primary !text-white relative overflow-hidden border-none">
+                        <div class="relative z-10">
+                            <h3 class="text-3xl font-bold mb-1" id="stat-students">0</h3>
+                            <p class="text-indigo-100 text-sm">Total Anak</p>
+                        </div>
+                        <i class="bi bi-people-fill absolute top-1/2 right-4 -translate-y-1/2 text-6xl opacity-20"></i>
+                    </div>
+                    <div class="dashboard-card rounded p-4 border-l-4 !border-l-emerald-500">
+                        <h3 class="text-3xl font-bold text-emerald-600 mb-1" id="stat-enrollments">0</h3>
+                        <p class="text-slate-500 text-sm">Total Kursus Aktif</p>
+                    </div>
+                    <div class="dashboard-card rounded p-4 border-l-4 !border-l-amber-500">
+                        <h3 class="text-3xl font-bold text-amber-500 mb-1" id="stat-avg-grade">-</h3>
+                        <p class="text-slate-500 text-sm">Rata-rata Nilai</p>
+                    </div>
+                    <div class="dashboard-card rounded p-4 border-l-4 !border-l-sky-500">
+                        <h3 class="text-3xl font-bold text-sky-500 mb-1" id="stat-attendance">-</h3>
+                        <p class="text-slate-500 text-sm">Kehadiran</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="dashboard-card rounded p-4 col-span-2">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 class="font-bold text-lg text-slate-800">Komparasi Nilai</h3>
+                                <p class="text-xs text-slate-500">Rata-rata per Anak</p>
+                            </div>
+                        </div>
+                        <div class="h-80 w-full"><canvas id="gradeTrendChart"></canvas></div>
+                    </div>
+
+                    <div class="dashboard-card rounded p-4">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 class="font-bold text-lg text-slate-800">Status Kehadiran</h3>
+                                <p class="text-xs text-slate-500">Total Sesi</p>
+                            </div>
+                            <div class="p-2 bg-emerald-50 rounded-lg text-emerald-600"><i class="bi bi-list-check"></i>
+                            </div>
+                        </div>
+                        <div class="h-80 relative w-full"><canvas id="attendanceBarChart"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card rounded p-4">
+                    <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+                        <h3 class="font-bold text-lg text-slate-800">Pengumuman Terbaru</h3>
+                        <button onclick="switchView('announcements')"
+                            class="text-sm text-indigo-600 hover:text-indigo-700 font-bold">Lihat Semua</button>
+                    </div>
+                    <div id="dashboard-announcements" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Announcements injected here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- STUDENTS VIEW -->
+            <section id="view-students" class="view-section hidden fade-in max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-6 pb-3 border-b">
+                    <h2 class="text-2xl font-bold text-secondary">Daftar Anak</h2>
+                </div>
+                <div id="students-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Students injected here -->
+                </div>
+            </section>
+
+            <!-- STUDENT DETAIL VIEW -->
+            <section id="view-student-detail" class="view-section hidden fade-in max-w-7xl mx-auto">
+                <button onclick="switchView('students')"
+                    class="mb-6 flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">
+                    <i class="bi bi-arrow-left"></i> Kembali ke Daftar Anak
+                </button>
+
+                <div
+                    class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8 mb-8 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-8 opacity-5 text-9xl text-indigo-600 pointer-events-none">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div class="relative z-10 flex flex-col md:flex-row gap-6 items-start md:items-center">
+                        <div id="detail-student-avatar"
+                            class="w-24 h-24 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-4xl shadow-md">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-3 mb-2">
+                                <h1 id="detail-student-name" class="text-3xl font-bold text-slate-800">-</h1>
+                                <span
+                                    class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">Aktif</span>
+                            </div>
+                            <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500">
+                                <span><i class="bi bi-envelope me-2"></i><span id="detail-student-email">-</span></span>
+                                <span><i class="bi bi-telephone me-2"></i><span
+                                        id="detail-student-phone">-</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <i class="bi bi-bar-chart-fill text-indigo-500"></i> Nilai Terbaru
+                        </h3>
+                        <div id="detail-student-grades" class="space-y-4">
+                            <!-- Grades injected here -->
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <i class="bi bi-calendar-check-fill text-emerald-500"></i> Riwayat Kehadiran
+                        </h3>
+                        <div id="detail-student-attendance" class="space-y-4">
+                            <!-- Attendance injected here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- GRADES VIEW -->
+            <section id="view-grades" class="view-section hidden fade-in max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-6 pb-3 border-b">
+                    <h2 class="text-2xl font-bold text-secondary">Laporan Nilai</h2>
+                    <select id="grade-student-filter" onchange="renderGrades()"
+                        class="px-4 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-indigo-500">
+                        <option value="all">Semua Anak</option>
+                    </select>
+                </div>
+                <div id="grades-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- Grades injected here -->
+                </div>
+            </section>
+
+            <!-- ATTENDANCE VIEW -->
+            <section id="view-attendance" class="view-section hidden fade-in max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-6 pb-3 border-b">
+                    <h2 class="text-2xl font-bold text-secondary">Riwayat Kehadiran</h2>
+                    <select id="attendance-student-filter" onchange="renderAttendance()"
+                        class="px-4 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-indigo-500">
+                        <option value="all">Semua Anak</option>
+                    </select>
+                </div>
+                <div class="dashboard-card space-y-4" id="attendance-list">
+                    <!-- Attendance injected here -->
+                </div>
+            </section>
+
+            <!-- ANNOUNCEMENTS VIEW -->
+            <section id="view-announcements" class="view-section hidden fade-in max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-6 pb-3 border-b">
+                    <h2 class="text-2xl font-bold text-secondary">Pengumuman Sekolah</h2>
+                </div>
+                <div class="grid gap-4" id="announcements-full-list">
+                    <!-- Announcements injected here -->
+                </div>
+            </section>
+
+            <!-- ANNOUNCEMENT DETAIL VIEW -->
+            <section id="view-announcement-detail" class="view-section hidden fade-in max-w-4xl mx-auto">
+                <button onclick="switchView('announcements')"
+                    class="mb-6 flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">
+                    <i class="bi bi-arrow-left"></i> Kembali ke Pengumuman
+                </button>
+
+                <div class="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
+                    <div class="h-32 bg-gradient-to-r from-indigo-500 to-purple-600 relative">
+                        <div
+                            class="absolute -bottom-10 left-8 h-20 w-20 bg-white rounded-2xl flex items-center justify-center text-indigo-600 shadow-md">
+                            <i class="bi bi-megaphone-fill text-4xl"></i>
+                        </div>
+                    </div>
+                    <div class="pt-12 px-8 pb-8">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span id="detail-announcement-tag"
+                                class="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold uppercase rounded-md">TAG</span>
+                            <span id="detail-announcement-date" class="text-sm text-slate-400">Date</span>
+                        </div>
+                        <h1 id="detail-announcement-title" class="text-3xl font-bold text-slate-800 mb-6">Judul
+                            Pengumuman</h1>
+
+                        <div class="prose max-w-none text-slate-600 leading-relaxed">
+                            <p id="detail-announcement-content">Isi konten pengumuman akan muncul di sini...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CERTIFICATES VIEW -->
+            <section id="view-certificates" class="view-section hidden fade-in max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-6 pb-3 border-b">
+                    <h2 class="text-2xl font-bold text-secondary">Sertifikat & Penghargaan</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="certificates-list">
+                    <!-- Certificates injected here -->
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        // --- CONFIGURATION ---
+        const API_BASE_URL = 'https://portohansgunawan.my.id/api';
+        const API_V1 = API_BASE_URL + '/v1';
+
+        // --- STATE ---
+        let currentUser = null;
+        let currentParent = null;
+        let myStudents = [];
+        let myAnnouncements = [];
+        let allGrades = [];
+        let allAttendance = [];
+        let allCertificates = [];
+
+        // --- PAGINATION STATE ---
+        let currentStudentId = null;
+        let gradesPage = 1;
+        let attendancePage = 1;
+        const ITEMS_PER_PAGE = 5;
+
+        // --- AUTH & INIT ---
+        document.addEventListener('DOMContentLoaded', initApp);
+
+        async function initApp() {
+            const token = localStorage.getItem('auth_token');
+
+            if (!token) {
+                const input = prompt("Token tidak ditemukan. Masukkan Bearer Token (dari Login):");
+                if (input) {
+                    localStorage.setItem('auth_token', input);
+                    location.reload();
+                } else {
+                    alert("Token diperlukan untuk mengakses dashboard.");
+                }
+                return;
+            }
+
+            // Show Loading
+            document.getElementById('loading-overlay').style.display = 'flex';
+
+            try {
+                // 1. Get User Profile
+                const userRes = await fetchApi('/user');
+                if (!userRes) throw new Error("Gagal memuat profil user");
+                currentUser = userRes;
+                document.getElementById('sidebar-username').innerText = currentUser.name;
+
+                // 2. Find Parent Profile
+                const parentRes = await fetchApi(`/v1/parents?search=${currentUser.email}`);
+                if (parentRes && parentRes.data && parentRes.data.length > 0) {
+                    currentParent = parentRes.data.find(p => p.email === currentUser.email);
+                }
+
+                if (!currentParent) {
+                    const allParents = await fetchApi('/v1/parents?per_page=100');
+                    if (allParents && allParents.data) {
+                        currentParent = allParents.data.find(p => p.user_id === currentUser.id || p.email === currentUser.email);
+                    }
+                }
+
+                if (!currentParent) {
+                    throw new Error("Profil Orang Tua tidak ditemukan untuk akun ini.");
+                }
+
+                // 3. Load Data
+                await loadDashboardData();
+
+            } catch (error) {
+                console.error("Init Error:", error);
+                alert("Terjadi kesalahan: " + error.message);
+                if (error.message.includes("Token")) {
+                    localStorage.removeItem('auth_token');
+                    location.reload();
+                }
+            } finally {
+                document.getElementById('loading-overlay').style.display = 'none';
+            }
+        }
+
+        async function fetchApi(endpoint, options = {}) {
+            const token = localStorage.getItem('auth_token');
+            const url = endpoint.startsWith('/v1') ? API_BASE_URL + endpoint : API_BASE_URL + endpoint;
+
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'ngrok-skip-browser-warning': 'true',
+                ...options.headers
+            };
+
+            try {
+                const res = await fetch(url, { ...options, headers });
+                if (res.status === 401) {
+                    throw new Error("Token Expired");
+                }
+                if (!res.ok) throw new Error(`API Error: ${res.status}`);
+                return await res.json();
+            } catch (err) {
+                console.error(`Fetch Error (${endpoint}):`, err);
+                return null;
+            }
+        }
+
+        async function loadDashboardData() {
+            // 1. Get Students
+            const studentsRes = await fetchApi(`/v1/parents/${currentParent.id}/students`);
+            myStudents = studentsRes || [];
+
+            // 2. Get Announcements
+            const annRes = await fetchApi('/v1/announcements');
+            myAnnouncements = Array.isArray(annRes) ? annRes : (annRes.data || []);
+
+            // 3. Get Grades & Attendance & Certificates for each student
+            allGrades = [];
+            allAttendance = [];
+            allCertificates = [];
+
+            for (const student of myStudents) {
+                // Grades
+                if (student.enrollments) {
+                    for (const enroll of student.enrollments) {
+                        try {
+                            const gradesRes = await fetchApi(`/v1/grades/student?student_id=${student.id}&course_id=${enroll.course_id}`);
+                            if (gradesRes && gradesRes.data && gradesRes.data.grades) {
+                                const studentGrades = gradesRes.data.grades.map(g => ({
+                                    ...g,
+                                    student_name: student.full_name,
+                                    student_id: student.id,
+                                    course_name: enroll.course ? enroll.course.course_name : 'Course'
+                                }));
+                                allGrades.push(...studentGrades);
+                            }
+                        } catch (e) {
+                            console.warn(`Failed to load grades for student ${student.id} course ${enroll.course_id}`, e);
+                        }
+                    }
+                }
+
+                // Attendance
+                if (student.enrollments) {
+                    for (const enroll of student.enrollments) {
+                        const attRes = await fetchApi(`/v1/attendance-records/student/${student.id}/course/${enroll.course_id}/history`);
+                        if (attRes) {
+                            const recs = (Array.isArray(attRes) ? attRes : (attRes.data || [])).map(a => ({
+                                ...a,
+                                student_name: student.full_name,
+                                student_id: student.id,
+                                course_name: enroll.course ? enroll.course.course_name : 'Course'
+                            }));
+                            allAttendance.push(...recs);
+                        }
+                    }
+                }
+
+                // Certificates
+                const certRes = await fetchApi(`/v1/certificates/student/${student.id}`);
+                if (certRes) {
+                    const certs = (Array.isArray(certRes) ? certRes : (certRes.data || [])).map(c => ({ ...c, student_name: student.full_name }));
+                    allCertificates.push(...certs);
+                }
+            }
+
+            // 4. Render All
+            renderDashboard();
+            renderStudents();
+            renderGrades();
+            renderAttendance();
+            renderAnnouncements();
+            renderCertificates();
+            updateFilters();
+        }
+
+        function updateFilters() {
+            const gradeSelect = document.getElementById('grade-student-filter');
+            const attSelect = document.getElementById('attendance-student-filter');
+
+            // Clear existing options except first
+            gradeSelect.innerHTML = '<option value="all">Semua Anak</option>';
+            attSelect.innerHTML = '<option value="all">Semua Anak</option>';
+
+            myStudents.forEach(s => {
+                const opt1 = document.createElement('option');
+                opt1.value = s.id;
+                opt1.innerText = s.full_name;
+                gradeSelect.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = s.id;
+                opt2.innerText = s.full_name;
+                attSelect.appendChild(opt2);
+            });
+        }
+
+        function switchView(viewName) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById('view-' + viewName);
+            if (target) {
+                target.classList.remove('hidden');
+                document.getElementById('main-scroll').scrollTop = 0;
+            }
+
+            // Update Sidebar
+            document.querySelectorAll('.nav-link-custom').forEach(el => el.classList.remove('active'));
+
+            let navId = 'nav-' + viewName;
+            if (viewName.includes('detail')) {
+                if (viewName.includes('student')) navId = 'nav-students';
+                else if (viewName.includes('announcement')) navId = 'nav-announcements';
+            }
+
+            const navEl = document.getElementById(navId);
+            if (navEl) navEl.classList.add('active');
+        }
+
+        function renderDashboard() {
+            // Stats
+            document.getElementById('stat-students').innerText = myStudents.length;
+            const totalEnrollments = myStudents.reduce((acc, s) => acc + (s.enrollments ? s.enrollments.length : 0), 0);
+            document.getElementById('stat-enrollments').innerText = totalEnrollments;
+
+            // Avg Grade
+            let totalScore = 0;
+            let countScore = 0;
+            allGrades.forEach(g => {
+                if (g.score) { totalScore += parseFloat(g.score); countScore++; }
+            });
+            const avg = countScore ? (totalScore / countScore).toFixed(1) : '-';
+            document.getElementById('stat-avg-grade').innerText = avg;
+
+            // Attendance Stat
+            const presentCount = allAttendance.filter(a => a.status === 'present').length;
+            const totalAtt = allAttendance.length;
+            const attRate = totalAtt ? Math.round((presentCount / totalAtt) * 100) + '%' : '-';
+            document.getElementById('stat-attendance').innerText = attRate;
+
+            // Charts
+            renderCharts();
+
+            // Announcements Widget
+            const recentAnn = myAnnouncements.slice(0, 2);
+            document.getElementById('dashboard-announcements').innerHTML = recentAnn.length ? recentAnn.map(a => `
+                <div class="flex flex-col p-4 rounded-xl bg-slate-50 border border-slate-100 hover:shadow-md transition-all">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="px-2 py-1 text-[10px] uppercase font-bold tracking-wide bg-indigo-100 text-indigo-700 rounded-md">${a.type || 'Info'}</span>
+                        <span class="text-xs text-slate-400">${new Date(a.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-sm mb-1">${a.title}</h4>
+                    <p class="text-xs text-slate-500 line-clamp-2 mb-2">${a.content || ''}</p>
+                    <button onclick="showAnnouncementDetail('${a.id}')" class="text-xs font-bold text-indigo-600 hover:underline self-start">Baca Selengkapnya</button>
+                </div>
+            `).join('') : '<p class="text-slate-500 text-sm p-4">Tidak ada pengumuman terbaru.</p>';
+        }
+
+        function renderCharts() {
+            // 1. Grade Trend Chart (Monthly Average)
+            const ctx1 = document.getElementById('gradeTrendChart');
+            if (ctx1) {
+                const existingChart1 = Chart.getChart("gradeTrendChart");
+                if (existingChart1) existingChart1.destroy();
+
+                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+                const sortedGrades = [...allGrades].sort((a, b) => new Date(a.graded_at || a.created_at) - new Date(b.graded_at || b.created_at));
+
+                const uniqueMonths = [...new Set(sortedGrades.map(g => {
+                    const d = new Date(g.graded_at || g.created_at);
+                    return `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+                }))];
+
+                const labels = uniqueMonths.length ? uniqueMonths : ["No Data"];
+                const colors = ['#4f46e5', '#ec4899', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4'];
+
+                const datasets = myStudents.map((s, idx) => {
+                    const data = labels.map(label => {
+                        const gradesInMonth = sortedGrades.filter(g => {
+                            const d = new Date(g.graded_at || g.created_at);
+                            const monthLabel = `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+                            return g.student_id === s.id && monthLabel === label;
+                        });
+
+                        if (gradesInMonth.length === 0) return null;
+
+                        const sum = gradesInMonth.reduce((acc, curr) => acc + parseFloat(curr.score), 0);
+                        return (sum / gradesInMonth.length).toFixed(1);
+                    });
+
+                    return {
+                        label: s.full_name,
+                        data: data,
+                        borderColor: colors[idx % colors.length],
+                        backgroundColor: colors[idx % colors.length],
+                        tension: 0.3,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        spanGaps: true
+                    };
+                });
+
+                new Chart(ctx1, {
+                    type: 'line',
+                    data: { labels: labels, datasets: datasets },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true, position: 'bottom' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return context.dataset.label + ': ' + context.parsed.y;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: { min: 0, max: 100, grid: { color: '#f1f5f9' }, title: { display: true, text: 'Rata-rata Nilai' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            // 2. Attendance Bar Chart
+            const ctx2 = document.getElementById('attendanceBarChart');
+            if (ctx2) {
+                const existingChart2 = Chart.getChart("attendanceBarChart");
+                if (existingChart2) existingChart2.destroy();
+
+                const labels = myStudents.map(s => s.full_name);
+                const presentData = myStudents.map(s => allAttendance.filter(a => a.student_id === s.id && a.status === 'present').length);
+                const absentData = myStudents.map(s => allAttendance.filter(a => a.student_id === s.id && a.status !== 'present').length);
+
+                new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { label: 'Hadir', data: presentData, backgroundColor: '#10b981', borderRadius: 4 },
+                            { label: 'Absen/Izin', data: absentData, backgroundColor: '#f59e0b', borderRadius: 4 }
+                        ]
+                    },
+                    options: {
+                        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                        scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, grid: { display: false } } },
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+            }
+        }
+
+        function renderStudents() {
+            const container = document.getElementById('students-container');
+            if (!myStudents.length) {
+                container.innerHTML = '<p class="col-span-3 text-center text-slate-500">Tidak ada data siswa.</p>';
+                return;
+            }
+
+            const colors = ['text-indigo-600 bg-indigo-50', 'text-pink-600 bg-pink-50', 'text-emerald-600 bg-emerald-50'];
+
+            container.innerHTML = myStudents.map((s, idx) => {
+                const colorClass = colors[idx % colors.length];
+                return `
+                <div class="dashboard-card group hover:border-indigo-300">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-16 h-16 rounded-2xl ${colorClass} flex items-center justify-center text-3xl shadow-sm group-hover:scale-105 transition-transform">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-lg">Aktif</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-1">${s.full_name}</h3>
+                    <p class="text-sm text-slate-500 mb-4">${s.email || '-'} | ${s.phone || '-'}</p>
+                    <div class="flex gap-2">
+                        <button onclick="showStudentDetail('${s.id}')" class="flex-1 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm shadow-indigo-200">
+                            Lihat Profil
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function showStudentDetail(id) {
+            const student = myStudents.find(s => s.id == id);
+            if (!student) return;
+
+            currentStudentId = id;
+            gradesPage = 1;
+            attendancePage = 1;
+
+            document.getElementById('detail-student-name').innerText = student.full_name;
+            document.getElementById('detail-student-email').innerText = student.email || '-';
+            document.getElementById('detail-student-phone').innerText = student.phone || '-';
+
+            renderStudentGrades();
+            renderStudentAttendance();
+
+            switchView('student-detail');
+        }
+
+        function renderStudentGrades() {
+            if (!currentStudentId) return;
+            const sGrades = allGrades.filter(g => g.student_id == currentStudentId);
+            const totalPages = Math.ceil(sGrades.length / ITEMS_PER_PAGE);
+
+            const start = (gradesPage - 1) * ITEMS_PER_PAGE;
+            const end = start + ITEMS_PER_PAGE;
+            const pageItems = sGrades.slice(start, end);
+
+            const container = document.getElementById('detail-student-grades');
+
+            let html = pageItems.length ? pageItems.map(g => `
+                <div class="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-xl shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg"><i class="bi bi-journal-text"></i></div>
+                        <div><p class="font-bold text-sm text-slate-800">${g.grade_component ? g.grade_component.name : 'Nilai'}</p><p class="text-xs text-slate-500">Score</p></div>
+                    </div>
+                    <span class="text-lg font-bold text-slate-800">${g.score}</span>
+                </div>
+            `).join('') : '<p class="text-slate-500 italic">Belum ada data nilai.</p>';
+
+            if (totalPages > 1) {
+                html += `
+                <div class="flex justify-between items-center mt-4 pt-2 border-t border-slate-100">
+                    <button onclick="changeGradesPage(-1)" ${gradesPage === 1 ? 'disabled' : ''} class="px-3 py-1 text-xs font-bold text-indigo-600 bg-indigo-50 rounded hover:bg-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed">Prev</button>
+                    <span class="text-xs text-slate-500">Page ${gradesPage} of ${totalPages}</span>
+                    <button onclick="changeGradesPage(1)" ${gradesPage === totalPages ? 'disabled' : ''} class="px-3 py-1 text-xs font-bold text-indigo-600 bg-indigo-50 rounded hover:bg-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+                </div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function changeGradesPage(delta) {
+            gradesPage += delta;
+            renderStudentGrades();
+        }
+
+        function renderStudentAttendance() {
+            if (!currentStudentId) return;
+            const sAtt = allAttendance.filter(a => a.student_id == currentStudentId);
+            const totalPages = Math.ceil(sAtt.length / ITEMS_PER_PAGE);
+
+            const start = (attendancePage - 1) * ITEMS_PER_PAGE;
+            const end = start + ITEMS_PER_PAGE;
+            const pageItems = sAtt.slice(start, end);
+
+            const container = document.getElementById('detail-student-attendance');
+
+            let html = pageItems.length ? pageItems.map(a => `
+                <div class="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-xl shadow-sm">
+                    <div class="flex items-center gap-3">
+                         <div class="p-2 bg-slate-50 text-slate-500 rounded-lg"><i class="bi bi-calendar-date"></i></div>
+                         <div><p class="font-bold text-sm text-slate-800">${new Date(a.attendance_time).toLocaleDateString()}</p><p class="text-xs text-slate-500">${a.course_name}</p></div>
+                    </div>
+                    <span class="px-2 py-1 text-xs font-bold rounded ${a.status === 'present' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">${a.status}</span>
+                </div>
+            `).join('') : '<p class="text-slate-500 italic">Belum ada data kehadiran.</p>';
+
+            if (totalPages > 1) {
+                html += `
+                <div class="flex justify-between items-center mt-4 pt-2 border-t border-slate-100">
+                    <button onclick="changeAttendancePage(-1)" ${attendancePage === 1 ? 'disabled' : ''} class="px-3 py-1 text-xs font-bold text-indigo-600 bg-indigo-50 rounded hover:bg-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed">Prev</button>
+                    <span class="text-xs text-slate-500">Page ${attendancePage} of ${totalPages}</span>
+                    <button onclick="changeAttendancePage(1)" ${attendancePage === totalPages ? 'disabled' : ''} class="px-3 py-1 text-xs font-bold text-indigo-600 bg-indigo-50 rounded hover:bg-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+                </div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function changeAttendancePage(delta) {
+            attendancePage += delta;
+            renderStudentAttendance();
+        }
+
+        function renderGrades() {
+            const filterId = document.getElementById('grade-student-filter').value;
+            let filtered = allGrades;
+            if (filterId !== 'all') {
+                filtered = allGrades.filter(g => g.student_id == filterId);
+            }
+
+            const container = document.getElementById('grades-container');
+            if (!filtered.length) {
+                container.innerHTML = '<p class="col-span-full text-center text-slate-500">Tidak ada data nilai.</p>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(g => {
+                const isGood = parseFloat(g.score) >= 75;
+                const badgeColor = isGood ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700';
+                const componentName = g.grade_component ? g.grade_component.name : 'Tugas';
+
+                return `
+                <div class="dashboard-card grade-card relative overflow-hidden group rounded p-4">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><i class="bi bi-journal-bookmark-fill text-6xl text-slate-400"></i></div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="p-2 bg-white rounded-lg shadow-sm text-indigo-600"><i class="bi bi-journal-text text-xl"></i></div>
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">${componentName}</div>
+                    </div>
+                    <div class="flex items-end justify-between mb-2">
+                        <div><span class="text-4xl font-extrabold text-slate-800">${g.score}</span><span class="text-xs text-slate-400">/100</span></div>
+                        <span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${badgeColor}">${isGood ? 'Lulus' : 'Remedial'}</span>
+                    </div>
+                    <div class="border-t border-slate-100 pt-3 mt-2">
+                        <p class="text-xs text-slate-500 font-medium mb-1 truncate">Siswa: ${g.student_name}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderAttendance() {
+            const filterId = document.getElementById('attendance-student-filter').value;
+            let filtered = allAttendance;
+            if (filterId !== 'all') {
+                filtered = allAttendance.filter(a => a.student_id == filterId);
+            }
+
+            const container = document.getElementById('attendance-list');
+            if (!filtered.length) {
+                container.innerHTML = '<p class="text-center text-slate-500">Tidak ada data kehadiran.</p>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(a => {
+                const dateObj = new Date(a.attendance_time);
+                const day = dateObj.getDate();
+                const month = dateObj.toLocaleString('default', { month: 'short' });
+
+                return `
+                <div class="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 hover:shadow-sm transition-all">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-indigo-50 p-2 rounded-lg text-center min-w-[50px]">
+                            <span class="block text-xs font-bold text-indigo-400 uppercase">${month}</span>
+                            <span class="block text-xl font-bold text-indigo-700">${day}</span>
+                        </div>
+                        <div><h4 class="font-bold text-sm text-slate-800">${a.student_name}</h4><p class="text-xs text-slate-500">${a.course_name}</p></div>
+                    </div>
+                    <span class="px-3 py-1 ${a.status === 'present' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'} text-xs font-bold rounded-full">${a.status}</span>
+                </div>`;
+            }).join('');
+        }
+
+        function renderAnnouncements() {
+            const container = document.getElementById('announcements-full-list');
+            if (!myAnnouncements.length) {
+                container.innerHTML = '<p class="text-center text-slate-500">Tidak ada pengumuman.</p>';
+                return;
+            }
+
+            container.innerHTML = myAnnouncements.map(a => `
+                <div class="dashboard-card rounded p-4 flex flex-col md:flex-row gap-4 items-start">
+                    <div class="shrink-0 pt-1 hidden md:block">
+                        <div class="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-xl">
+                            <i class="bi bi-megaphone-fill"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex flex-wrap items-center gap-2 mb-2">
+                            <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold uppercase rounded">${a.type || 'Umum'}</span>
+                            <span class="text-xs text-slate-400">• ${new Date(a.created_at).toLocaleDateString()}</span>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-lg mb-2">${a.title}</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-4 line-clamp-2">${a.content || ''}</p>
+                        <button onclick="showAnnouncementDetail('${a.id}')" class="px-4 py-2 text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors">
+                            Baca Selengkapnya
+                        </button>
+                    </div>
+                </div>
+                `).join('');
+        }
+
+        function showAnnouncementDetail(id) {
+            const ann = myAnnouncements.find(a => a.id == id);
+            if (!ann) return;
+
+            document.getElementById('detail-announcement-title').innerText = ann.title;
+            document.getElementById('detail-announcement-date').innerText = new Date(ann.created_at).toLocaleDateString();
+            document.getElementById('detail-announcement-tag').innerText = ann.type || 'Info';
+            document.getElementById('detail-announcement-content').innerText = ann.content;
+
+            switchView('announcement-detail');
+        }
+
+        function renderCertificates() {
+            const container = document.getElementById('certificates-list');
+            if (!allCertificates.length) {
+                container.innerHTML = '<p class="col-span-full text-center text-slate-500">Belum ada sertifikat.</p>';
+                return;
+            }
+
+            container.innerHTML = allCertificates.map(c => `
+                <div class="dashboard-card rounded p-4 relative overflow-hidden group border-b-4 border-b-amber-400">
+                    <div class="absolute -right-6 -top-6 text-8xl text-amber-50 opacity-50 group-hover:rotate-12 transition-transform"><i class="bi bi-award-fill"></i></div>
+                    <div class="relative z-10">
+                        <div class="h-12 w-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center mb-4 shadow-sm"><i class="bi bi-trophy-fill text-2xl"></i></div>
+                        <span class="inline-block px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] uppercase font-bold tracking-wider rounded mb-2">Sertifikat</span>
+                        <h3 class="text-lg font-bold text-slate-800 leading-tight mb-1">${c.certificate_code}</h3>
+                        <p class="text-sm text-slate-500 mb-4">Milik: ${c.student_name}</p>
+                        <div class="flex items-center gap-2 text-xs text-slate-400 border-t border-slate-100 pt-3">
+                            <i class="bi bi-calendar-check"></i> ${new Date(c.issued_at).toLocaleDateString()}
+                        </div>
+                        <button class="mt-4 w-full py-2 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors flex items-center justify-center gap-2"><i class="bi bi-download"></i> Unduh Sertifikat</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function logout() {
+            if (confirm('Keluar sistem?')) {
+                localStorage.removeItem('auth_token');
+                location.reload();
+            }
+        }
+    </script>
+</body>
+
+</html>

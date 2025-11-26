@@ -112,7 +112,9 @@ class DatabaseSeeder extends Seeder
         $this->call(NotificationSeeder::class);
         $this->command->newLine();
 
-        // Note: Certificates are NOT seeded as per user request
+        // 17. Seed Certificates
+        $this->command->info("1️⃣7️⃣  Seeding certificates...");
+        $this->call(CertificateSeeder::class);
 
         $this->command->newLine();
         $this->command->info("🎉 ========================================");

@@ -1,3 +1,25 @@
+<?php
+
+namespace App\Http\Controllers\API;
+
+use App\Http\Controllers\Controller;
+use App\Services\FileUploadService;
+use Illuminate\Http\Request;
+use OpenApi\Annotations as OA;
+
+class FileUploadController extends Controller
+{
+    protected $fileUploadService;
+
+    public function __construct(FileUploadService $fileUploadService)
+    {
+        $this->fileUploadService = $fileUploadService;
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/upload/profile-photo",
+     *     tags={"File Upload"},
      *     summary="Upload profile photo",
      *     description="Upload a profile photo for the authenticated user",
      *     security={{"bearerAuth":{}}},
@@ -55,7 +77,7 @@
                 'message' => 'Foto profil berhasil diupload.',
                 'data' => [
                     'photo_url' => $result['url'],
-                    'photo_path' => $result['path'],
+                    'photo_path' => $result['path']
                 ]
             ]);
 
@@ -114,9 +136,6 @@
         ]);
 
         try {
-            // TODO: Add authorization check untuk material
-            // $this->authorize('update', Material::find($materialId));
-
             $result = $this->fileUploadService->uploadMaterialFile(
                 $request->file('file'),
                 $materialId
@@ -182,9 +201,6 @@
         ]);
 
         try {
-            // TODO: Add authorization check untuk assignment
-            // $this->authorize('update', Assignment::find($assignmentId));
-
             $result = $this->fileUploadService->uploadAssignmentFile(
                 $request->file('file'),
                 $assignmentId
@@ -250,9 +266,6 @@
         ]);
 
         try {
-            // TODO: Add authorization check untuk submission
-            // $this->authorize('update', Submission::find($submissionId));
-
             $result = $this->fileUploadService->uploadSubmissionFile(
                 $request->file('file'),
                 $submissionId
@@ -273,7 +286,7 @@
 
     /**
      * @OA\Delete(
-     *     path="/api/v1/upload/delete",
+     *     path="/api/v1/upload/file",
      *     tags={"File Upload"},
      *     summary="Delete file",
      *     description="Delete a file from storage",
@@ -282,7 +295,7 @@
      *         required=true,
      *         @OA\JsonContent(
      *             required={"file_path"},
-     *             @OA\Property(property="file_path", type="string", description="Path of the file to delete")
+     *             @OA\Property(property="file_path", type="string", description="Path of the file to delete")   
      *         )
      *     ),
      *     @OA\Response(
@@ -325,7 +338,7 @@
 
     /**
      * @OA\Get(
-     *     path="/api/v1/upload/info",
+     *     path="/api/v1/upload/file-info",
      *     tags={"File Upload"},
      *     summary="Get file info",
      *     description="Get information about a file",
