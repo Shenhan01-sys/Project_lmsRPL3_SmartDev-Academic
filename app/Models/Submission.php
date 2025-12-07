@@ -11,7 +11,7 @@ class Submission extends Model
 
     protected $fillable = [
         'assignment_id',
-        'student_id',
+        'enrollment_id',
         'file_path',
         'grade',
         'feedback',
@@ -22,8 +22,8 @@ class Submission extends Model
         return $this->belongsTo(Assignment::class);
     }
 
-    public function student()
+    public function enrollment()
     {
-        return $this->belongsTo(Student::class, 'student_id');
+        return $this->belongsTo(Enrollment::class);
     }
 }

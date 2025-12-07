@@ -4,361 +4,252 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartDev Instructor - Ultimate Dashboard</title>
+    <title>Instructor Dashboard - SmartDev LMS</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0f172a', // Slate 900
+                        accent: '#4f46e5', // Indigo 600
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                        sidebar: '#1e293b',
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
 
     <style>
-        :root {
-            --primary: #4f46e5;
-            --primary-dark: #4338ca;
-            --secondary: #64748b;
-            --bg-light: #f8fafc;
-            --sidebar-width: 260px;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
         body {
-            background-color: var(--bg-light);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
         }
 
-        /* Sidebar */
-        #sidebar {
-            width: var(--sidebar-width);
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            background: #1e293b;
-            color: white;
-            transition: all 0.3s;
-            z-index: 1000;
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+        /* Navigation Styles */
+        .nav-link {
+            display: flex; align-items: center; padding: 0.75rem 1rem;
+            color: #94a3b8; transition: all 0.2s; border-right: 3px solid transparent;
+            cursor: pointer; border-radius: 0.5rem; margin-bottom: 0.25rem;
+        }
+        .nav-link:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
+        .nav-link.active {
+            background: linear-gradient(90deg, rgba(79, 70, 229, 0.2) 0%, transparent 100%);
+            color: #fff; border-right-color: #4f46e5;
         }
 
-        #sidebar .nav-link {
-            color: #cbd5e1;
-            padding: 0.8rem 1.5rem;
-            font-size: 0.95rem;
-            border-left: 3px solid transparent;
-            transition: all 0.2s;
+        /* Tab Buttons */
+        .tab-btn {
+            padding: 0.75rem 1.5rem; color: #64748b; border-bottom: 2px solid transparent;
+            font-weight: 500; transition: all 0.2s;
+        }
+        .tab-btn:hover { color: #4f46e5; }
+        .tab-btn.active { color: #4f46e5; border-bottom-color: #4f46e5; }
+
+        /* Loader */
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.8); z-index: 9999;
+            display: none; justify-content: center; align-items: center;
+            backdrop-filter: blur(4px);
         }
 
-        #sidebar .nav-link:hover,
-        #sidebar .nav-link.active {
-            color: white;
-            background: rgba(255, 255, 255, 0.08);
-            border-left-color: var(--primary);
-        }
-
-        #sidebar .brand {
-            padding: 1.5rem;
-            font-size: 1.4rem;
-            font-weight: bold;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-        }
-
-        /* Main Content */
-        #content {
-            margin-left: var(--sidebar-width);
-            padding: 2rem;
-            transition: margin-left 0.3s;
-        }
-
-        /* Cards */
-        .card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        /* HOVER EFFECTS */
-        .course-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-            cursor: pointer;
-        }
-
-        /* Progress Cards Hover */
-        .progress-card {
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .progress-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important;
-        }
-
-        .page-section {
-            display: none;
-            animation: fadein 0.4s ease-out;
-        }
-
-        .page-section.active {
-            display: block;
-        }
-
-        @keyframes fadein {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Loading Overlay */
-        #loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.8);
-            z-index: 2000;
-            display: none;
-            /* Default hidden agar aman */
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(3px);
-        }
-
-        /* Helpers */
-        .badge-soft-primary {
-            background-color: rgba(79, 70, 229, 0.1);
-            color: #4f46e5;
-        }
-
-        .badge-soft-success {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-        }
-
-        .badge-soft-warning {
-            background-color: rgba(245, 158, 11, 0.1);
-            color: #f59e0b;
-        }
-
-        .badge-soft-danger {
-            background-color: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-        }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 
-<body>
+<body class="flex h-screen overflow-hidden text-slate-800">
 
-    <div id="loading-overlay">
-        <div class="text-center">
-            <div class="spinner-border text-primary mb-2" role="status"></div>
-            <div class="text-muted fw-bold">Processing...</div>
+    <div id="loader">
+        <div class="flex flex-col items-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mb-3"></div>
+            <span class="text-slate-600 font-bold text-sm tracking-wider">MEMPROSES...</span>
         </div>
     </div>
 
-    <nav id="sidebar">
-        <div class="brand">
-            <i class="bi bi-mortarboard-fill me-2 text-primary"></i> SmartDev
+    <aside class="w-64 bg-sidebar text-white hidden md:flex flex-col shadow-2xl z-20 shrink-0 transition-all duration-300">
+        <div class="p-6 border-b border-white/10 flex items-center gap-3">
+            <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <i class="bi bi-mortarboard-fill text-white"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg tracking-tight">SmartDev</h1>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest">Instructor Panel</p>
+            </div>
         </div>
-        <div class="p-3 mb-3 border-bottom border-secondary border-opacity-25 text-center">
-            <div class="avatar bg-primary text-white rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center"
-                style="width:50px; height:50px; font-size:1.2rem;">
+
+        <div class="p-6 text-center border-b border-white/5">
+            <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mx-auto flex items-center justify-center text-2xl font-bold text-white shadow-lg mb-3">
                 <i class="bi bi-person"></i>
             </div>
-            <strong id="sidebarUserName" class="d-block">Instructor</strong>
-            <small class="text-muted">Instructor Panel</small>
-        </div>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link active" href="#" onclick="navTo('dashboard', this)">
-                    <i class="bi bi-speedometer2 me-2"></i> Dashboard
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" onclick="navTo('courses', this)">
-                    <i class="bi bi-book me-2"></i> My Courses
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" onclick="navTo('announcements', this)">
-                    <i class="bi bi-megaphone me-2"></i> Announcements
-                </a>
-            </li>
-            <li class="nav-item mt-5 pt-5 border-top border-secondary border-opacity-25">
-                <a class="nav-link text-danger" href="#" onclick="logout()">
-                    <i class="bi bi-box-arrow-right me-2"></i> Logout
-                </a>
-            </li>
-        </ul>
-    </nav>
-
-    <div id="content">
-
-        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-            <h4 class="mb-0 fw-bold text-secondary" id="pageTitle">Overview</h4>
-            <div class="input-group input-group-sm w-auto">
-                <span class="input-group-text bg-white"><i class="bi bi-link-45deg"></i></span>
-                <input type="text" id="ngrokUrl" class="form-control" value="https://portohansgunawan.my.id"
-                    style="width: 250px;">
-                <button class="btn btn-primary" onclick="initApp()">Refresh Connection</button>
-            </div>
+            <h4 id="sidebarUserName" class="font-bold text-sm text-white">Instructor</h4>
+            <p class="text-xs text-slate-400">Pengajar</p>
         </div>
 
-        <section id="dashboard" class="page-section active">
-            <div class="row g-4 mb-5">
-                <div class="col-md-4">
-                    <div class="card p-4 h-100 bg-primary text-white position-relative overflow-hidden">
-                        <div class="position-relative z-1">
-                            <h3><i class="bi bi-book"></i> <span id="statCourses">0</span></h3>
-                            <p class="mb-0 opacity-75">Active Courses</p>
-                        </div>
-                        <i class="bi bi-book position-absolute top-50 end-0 translate-middle-y opacity-25 me-3"
-                            style="font-size: 5rem;"></i>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card p-4 h-100 border-start border-4 border-success">
-                        <h3 class="text-success"><i class="bi bi-people"></i> <span id="statStudents">0</span></h3>
-                        <p class="text-muted mb-0">Enrolled Students</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card p-4 h-100 border-start border-4 border-warning">
-                        <h3 class="text-warning"><i class="bi bi-journal-text"></i> <span id="statAssignments">0</span>
-                        </h3>
-                        <p class="text-muted mb-0">Total Assignments</p>
-                    </div>
-                </div>
+        <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-1">
+            <div onclick="navTo('dashboard')" id="nav-dashboard" class="nav-link active">
+                <i class="bi bi-speedometer2 me-3 text-lg"></i> <span class="font-medium">Dashboard</span>
             </div>
+            <div onclick="navTo('courses')" id="nav-courses" class="nav-link">
+                <i class="bi bi-journal-bookmark-fill me-3 text-lg"></i> <span class="font-medium">Kursus Saya</span>
+            </div>
+            <div onclick="navTo('announcements')" id="nav-announcements" class="nav-link">
+                <i class="bi bi-megaphone me-3 text-lg"></i> <span class="font-medium">Pengumuman</span>
+            </div>
+        </nav>
 
-            <h5 class="text-muted mb-3">Recent Courses</h5>
-            <div id="dashboardCoursesList" class="row g-4">
-            </div>
-        </section>
-
-        <section id="courses" class="page-section">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold">Manage Courses</h2>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCourseModal">
-                    <i class="bi bi-plus-lg"></i> Create New Course
-                </button>
-            </div>
-            <div id="coursesList" class="row g-4">
-            </div>
-        </section>
-
-        <section id="courseDetail" class="page-section">
-            <button class="btn btn-sm btn-outline-secondary mb-4" onclick="navTo('courses')">
-                <i class="bi bi-arrow-left"></i> Back to Course List
+        <div class="p-4 border-t border-white/10 bg-slate-900/50">
+            <button onclick="logout()" class="w-full py-2.5 bg-white/5 hover:bg-red-500/20 text-slate-300 hover:text-red-400 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 group">
+                <i class="bi bi-box-arrow-right group-hover:scale-110 transition-transform"></i> KELUAR
             </button>
+        </div>
+    </aside>
 
-            <div class="card mb-4 border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <div class="d-flex align-items-center gap-2 mb-2">
-                                <span id="detailCode" class="badge bg-dark">CODE</span>
-                                <span class="badge bg-success bg-opacity-10 text-success">Active</span>
-                            </div>
-                            <h2 id="detailTitle" class="fw-bold text-primary mb-2">Course Title</h2>
-                            <p id="detailDesc" class="text-muted mb-0">Description...</p>
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative bg-slate-50">
+        <div class="bg-white border-b border-slate-200 px-6 py-2 flex justify-between items-center text-xs">
+            <span class="text-slate-400 font-mono">API Connection Check</span>
+            <div class="flex items-center gap-2">
+                <i class="bi bi-link-45deg text-slate-400"></i>
+                <input type="text" id="ngrokUrl" value="https://portohansgunawan.my.id" class="bg-slate-50 border border-slate-200 rounded px-2 py-1 text-slate-600 w-64 focus:outline-none focus:border-accent">
+                <button onclick="initApp()" class="text-accent hover:underline font-bold">Reconnect</button>
+            </div>
+        </div>
+
+        <div id="main-scroll" class="flex-1 overflow-y-auto p-6 lg:p-8 scroll-smooth">
+
+            <section id="view-dashboard" class="page-view fade-in">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800 tracking-tight">Ikhtisar Pengajar</h2>
+                    <p class="text-slate-500 mt-1">Pantau kinerja kursus dan aktivitas siswa Anda.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Kursus Aktif</p>
+                            <h3 class="text-3xl font-extrabold text-slate-800 mt-2" id="statCourses">0</h3>
                         </div>
-                        <div>
-                            <button class="btn btn-outline-danger btn-sm" id="btnDeleteCourse">
-                                <i class="bi bi-trash"></i> Delete Course
-                            </button>
+                        <i class="bi bi-journal-text absolute right-4 top-1/2 -translate-y-1/2 text-6xl text-slate-100 group-hover:text-indigo-50 transition-colors"></i>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Siswa</p>
+                            <h3 class="text-3xl font-extrabold text-emerald-600 mt-2" id="statStudents">0</h3>
                         </div>
+                        <i class="bi bi-people-fill absolute right-4 top-1/2 -translate-y-1/2 text-6xl text-slate-100 group-hover:text-emerald-50 transition-colors"></i>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Tugas</p>
+                            <h3 class="text-3xl font-extrabold text-amber-500 mt-2" id="statAssignments">0</h3>
+                        </div>
+                        <i class="bi bi-list-task absolute right-4 top-1/2 -translate-y-1/2 text-6xl text-slate-100 group-hover:text-amber-50 transition-colors"></i>
                     </div>
                 </div>
-            </div>
 
-            <div class="card">
-                <div class="card-header bg-white">
-                    <ul class="nav nav-tabs card-header-tabs" id="courseTabs">
-                        <li class="nav-item">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabModules"
-                                onclick="loadModulesTab()">Modules</button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link active" data-bs-toggle="tab"
-                                data-bs-target="#tabAssignments">Assignments</button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabAttendance"
-                                onclick="loadAttendanceTab()">Attendance</button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link" data-bs-toggle="tab"
-                                data-bs-target="#tabStudents">Students</button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabCertificates"
-                                onclick="loadCertificatesTab()">Certificates</button>
-                        </li>
-                    </ul>
+                <h4 class="font-bold text-slate-700 mb-4">Kursus Terbaru</h4>
+                <div id="dashboardCoursesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </section>
+
+            <section id="view-courses" class="page-view hidden fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Manajemen Kursus</h2>
+                        <p class="text-slate-500 text-sm">Kelola materi, tugas, dan penilaian.</p>
+                    </div>
+                    <button onclick="openModal('modal-create-course')" class="bg-accent hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-lg shadow-indigo-500/30 flex items-center gap-2">
+                        <i class="bi bi-plus-lg"></i> Buat Kursus
+                    </button>
                 </div>
-                <div class="card-body p-4">
-                    <div class="tab-content">
-                        <div class="tab-pane fade" id="tabModules">
-                            <div class="d-flex justify-content-between mb-4 align-items-center">
-                                <h5 class="mb-0">Course Modules</h5>
-                                <button class="btn btn-sm btn-primary" onclick="openCreateModuleModal()">
-                                    <i class="bi bi-plus-circle"></i> Add Module
-                                </button>
+                <div id="coursesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </section>
+
+            <section id="view-course-detail" class="page-view hidden fade-in">
+                <div class="mb-6">
+                    <button onclick="navTo('courses')" class="text-slate-500 hover:text-accent text-sm font-bold mb-2 flex items-center gap-1">
+                        <i class="bi bi-arrow-left"></i> Kembali ke Daftar
+                    </button>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span id="detailCode" class="px-2 py-0.5 bg-slate-800 text-white text-[10px] font-mono rounded">CODE</span>
+                                <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded">Active</span>
                             </div>
-                            <div class="accordion" id="modulesAccordion">
-                                <!-- Modules will be loaded here -->
-                                <div class="text-center p-4 text-muted">Loading modules...</div>
+                            <h2 id="detailTitle" class="text-3xl font-bold text-slate-800">Judul Kursus</h2>
+                            <p id="detailDesc" class="text-slate-500 text-sm mt-1 max-w-2xl">Deskripsi kursus...</p>
+                        </div>
+                        <button onclick="confirmDeleteCourse()" class="text-red-400 hover:text-red-600 text-sm font-bold border border-red-200 hover:bg-red-50 px-3 py-1.5 rounded transition-all">
+                            <i class="bi bi-trash"></i> Hapus Kursus
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden min-h-[500px]">
+                    <div class="flex border-b border-slate-200 overflow-x-auto">
+                        <button onclick="switchTab('modules')" class="tab-btn active" id="tab-btn-modules">Modul & Materi</button>
+                        <button onclick="switchTab('assignments')" class="tab-btn" id="tab-btn-assignments">Tugas</button>
+                        <button onclick="switchTab('attendance')" class="tab-btn" id="tab-btn-attendance">Absensi</button>
+                        <button onclick="switchTab('students')" class="tab-btn" id="tab-btn-students">Siswa</button>
+                        <button onclick="switchTab('certificates')" class="tab-btn" id="tab-btn-certificates">Sertifikat</button>
+                    </div>
+
+                    <div class="p-6">
+                        <div id="tab-modules" class="tab-content">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="font-bold text-slate-700">Daftar Modul</h4>
+                                <button onclick="openModal('modal-create-module')" class="text-accent hover:underline text-sm font-bold"><i class="bi bi-plus-lg"></i> Tambah Modul</button>
                             </div>
+                            <div id="modulesAccordion" class="space-y-4"></div>
                         </div>
 
-                        <div class="tab-pane fade show active" id="tabAssignments">
-                            <div class="d-flex justify-content-between mb-4 align-items-center">
-                                <h5 class="mb-0">Course Assignments</h5>
-                                <button class="btn btn-sm btn-primary" onclick="openAssignmentModal()">
-                                    <i class="bi bi-plus-circle"></i> Create Assignment
-                                </button>
+                        <div id="tab-assignments" class="tab-content hidden">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="font-bold text-slate-700">Daftar Tugas</h4>
+                                <button onclick="openAssignmentModal()" class="bg-accent text-white px-3 py-1.5 rounded text-sm font-bold shadow-sm hover:bg-indigo-700"><i class="bi bi-plus-lg"></i> Buat Tugas</button>
                             </div>
-                            <div id="assignmentListContainer">Loading...</div>
+                            <div id="assignmentListContainer" class="grid grid-cols-1 gap-4"></div>
                         </div>
 
-                        <div class="tab-pane fade" id="tabAttendance">
-                            <div class="d-flex justify-content-between mb-4">
-                                <h5 class="mb-0">Attendance Sessions</h5>
-                                <button class="btn btn-sm btn-primary" onclick="openCreateSessionModal()">
-                                    <i class="bi bi-calendar-plus"></i> Create Session
-                                </button>
+                        <div id="tab-attendance" class="tab-content hidden">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="font-bold text-slate-700">Sesi Absensi</h4>
+                                <button onclick="openCreateSessionModal()" class="bg-emerald-600 text-white px-3 py-1.5 rounded text-sm font-bold shadow-sm hover:bg-emerald-700"><i class="bi bi-calendar-plus"></i> Buat Sesi</button>
                             </div>
-                            <div class="row g-4">
-                                <div class="col-md-4">
-                                    <div class="list-group shadow-sm" id="sessionListGroup"
-                                        style="max-height: 400px; overflow-y: auto;">
-                                    </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="col-span-1 border-r border-slate-100 pr-4">
+                                    <div id="sessionListGroup" class="space-y-2 max-h-[400px] overflow-y-auto pr-2"></div>
                                 </div>
-                                <div class="col-md-8">
-                                    <div class="card border h-100">
-                                        <div class="card-header bg-light fw-bold" id="sessionDetailHeader">
-                                            Select a session to manage
-                                        </div>
-                                        <div class="card-body p-0 table-responsive">
-                                            <table class="table table-hover mb-0 align-middle" id="attendanceTable">
-                                                <thead class="table-light">
+                                <div class="col-span-2">
+                                    <div class="bg-slate-50 border border-slate-200 rounded-lg overflow-hidden">
+                                        <div class="px-4 py-3 border-b border-slate-200 bg-white font-bold text-slate-700" id="sessionDetailHeader">Pilih sesi di kiri</div>
+                                        <div class="max-h-[400px] overflow-y-auto">
+                                            <table class="w-full text-sm text-left">
+                                                <thead class="bg-slate-50 text-slate-500 font-bold border-b">
                                                     <tr>
-                                                        <th class="ps-4">Student</th>
-                                                        <th class="text-center">Status</th>
-                                                        <th class="text-end pe-4">Action</th>
+                                                        <th class="px-4 py-2">Siswa</th>
+                                                        <th class="px-4 py-2 text-center">Status</th>
+                                                        <th class="px-4 py-2 text-right">Aksi</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody id="attendanceTableBody">
-                                                    <tr>
-                                                        <td colspan="3" class="text-center p-5 text-muted">Select a
-                                                            session from the left list</td>
-                                                    </tr>
+                                                <tbody id="attendanceTableBody" class="divide-y divide-slate-100">
+                                                    <tr><td colspan="3" class="p-8 text-center text-slate-400">Belum ada sesi dipilih.</td></tr>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -367,1549 +258,785 @@
                             </div>
                         </div>
 
-                        <div class="tab-pane fade" id="tabStudents">
-                            <table class="table align-middle">
-                                <thead class="table-light">
+                        <div id="tab-students" class="tab-content hidden">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-slate-50 text-slate-500 font-bold uppercase border-b">
                                     <tr>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Status</th>
+                                        <th class="px-6 py-3">Nama Lengkap</th>
+                                        <th class="px-6 py-3">Email</th>
+                                        <th class="px-6 py-3 text-center">Status</th>
                                     </tr>
                                 </thead>
-                                <tbody id="studentListBody"></tbody>
+                                <tbody id="studentListBody" class="divide-y divide-slate-100"></tbody>
                             </table>
                         </div>
 
-                        <div class="tab-pane fade" id="tabCertificates">
-                            <div class="text-center p-5">
-                                <div class="spinner-border text-primary"></div>
+                        <div id="tab-certificates" class="tab-content hidden">
+                            <div class="flex justify-between items-center mb-6">
+                                <div>
+                                    <h4 class="font-bold text-slate-700">Student Progress & Certificates</h4>
+                                    <p class="text-xs text-slate-500">Monitor student eligibility. System automatically generates certificates for eligible students.</p>
+                                </div>
+                                <button onclick="bulkGenerateCertificates()" class="bg-accent text-white px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-indigo-700 transition-colors">
+                                    <i class="bi bi-arrow-repeat"></i> Check & Generate All Eligible
+                                </button>
                             </div>
+                            <div id="certificatesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
                         </div>
-
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <section id="submissionView" class="page-section">
-            <button class="btn btn-sm btn-outline-secondary mb-3" onclick="backToCourseDetail()">
-                <i class="bi bi-arrow-left"></i> Back to Course
-            </button>
-            <h3 id="submissionTitle">Submissions</h3>
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <table class="table align-middle table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Student</th>
-                                <th>Submitted At</th>
-                                <th>File</th>
-                                <th>Current Grade</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="submissionTableBody">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <section id="announcements" class="page-section">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="mb-1 fw-bold">Announcements</h2>
-                    <p class="text-muted small mb-0">Manage global and course-specific updates</p>
-                </div>
-                <button class="btn btn-primary" onclick="openAnnouncementModal()">
-                    <i class="bi bi-megaphone"></i> Post New
+            <section id="view-submissions" class="page-view hidden fade-in">
+                <button onclick="backToCourseDetail()" class="text-slate-500 hover:text-accent text-sm font-bold mb-4 flex items-center gap-1">
+                    <i class="bi bi-arrow-left"></i> Kembali ke Materi
                 </button>
-            </div>
-
-            <div class="d-flex gap-2 mb-4 border-bottom pb-3">
-                <button class="btn btn-sm btn-light active fw-bold" onclick="loadAnnouncements()">All</button>
-                <button class="btn btn-sm btn-light text-muted"
-                    onclick="loadAnnouncements({status: 'published'})">Published Only</button>
-            </div>
-
-            <div id="announcementList" class="row g-3">
-            </div>
-        </section>
-
-    </div>
-
-    <div class="modal fade" id="createCourseModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Create Course</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="formCreateCourse">
-                        <div class="mb-3">
-                            <label class="form-label">Course Code <span class="text-danger">*</span></label>
-                            <input type="text" name="course_code" class="form-control" placeholder="e.g. MTK101"
-                                required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Course Name <span class="text-danger">*</span></label>
-                            <input type="text" name="course_name" class="form-control"
-                                placeholder="e.g. Matematika Dasar" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea name="description" class="form-control" rows="3"
-                                placeholder="Optional course description..."></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="submitCreateCourse()">Save Course</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="createAssignmentModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">New Assignment</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="formCreateAssignment">
-                        <input type="hidden" id="assignId">
-                        <div class="mb-3"><label>Title <span class="text-danger">*</span></label><input type="text"
-                                id="assignTitle" class="form-control" required></div>
-                        <div class="mb-3"><label>Description</label><textarea id="assignDesc" class="form-control"
-                                rows="3"></textarea></div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3"><label>Due Date <span class="text-danger">*</span></label><input
-                                    type="datetime-local" id="assignDate" class="form-control" required></div>
-                            <div class="col-md-6 mb-3"><label>Max Score</label><input type="number" id="assignScore"
-                                    class="form-control" value="100"></div>
-                        </div>
-                        <div class="mb-3">
-                            <label>Attachment (Optional)</label>
-                            <input type="file" id="assignFile" class="form-control"
-                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-                            <small class="text-muted">Max 10MB. Instructions or resources.</small>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="submitAssignment()">Create</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Create Module Modal -->
-    <div class="modal fade" id="createModuleModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="moduleModalTitle">Add Module</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="formCreateModule">
-                        <input type="hidden" id="moduleId">
-                        <div class="mb-3">
-                            <label class="form-label">Module Title <span class="text-danger">*</span></label>
-                            <input type="text" id="moduleTitle" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Order</label>
-                            <input type="number" id="moduleOrder" class="form-control" value="1">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="submitModule()">Save Module</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Create Material Modal -->
-    <div class="modal fade" id="createMaterialModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="materialModalTitle">Add Material</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="formCreateMaterial">
-                        <input type="hidden" id="materialId">
-                        <input type="hidden" id="materialModuleId">
-
-                        <div class="mb-3">
-                            <label class="form-label">Title <span class="text-danger">*</span></label>
-                            <input type="text" id="materialTitle" class="form-control" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Type <span class="text-danger">*</span></label>
-                            <select id="materialType" class="form-select" onchange="toggleMaterialInput()">
-                                <option value="file">File Upload</option>
-                                <option value="link">External Link</option>
-                                <option value="video">Video URL</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3" id="materialFileInput">
-                            <label class="form-label">File <span class="text-danger">*</span></label>
-                            <input type="file" id="materialFile" class="form-control"
-                                accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.mp4,.mp3">
-                            <small class="text-muted">Max 50MB. Allowed: PDF, Docs, Images, Audio/Video</small>
-                        </div>
-
-                        <div class="mb-3 d-none" id="materialUrlInput">
-                            <label class="form-label">URL <span class="text-danger">*</span></label>
-                            <input type="url" id="materialUrl" class="form-control" placeholder="https://...">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="submitMaterial()">Save Material</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="createSessionModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">New Attendance Session</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="formCreateSession">
-                        <div class="mb-3">
-                            <label>Session Name</label>
-                            <input type="text" id="sessionName" class="form-control"
-                                placeholder="e.g. Week 1 Attendance" required>
-                        </div>
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <label>Date & Start Time</label>
-                                <input type="datetime-local" id="sessionStartTime" class="form-control" required>
-                            </div>
-                            <div class="col-12">
-                                <label>End Time</label>
-                                <input type="datetime-local" id="sessionEndTime" class="form-control" required>
-                            </div>
-                            <div class="col-12">
-                                <label>Deadline</label>
-                                <input type="datetime-local" id="sessionDeadline" class="form-control" required>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="submitSession()">Create Session</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="gradingModal" tabindex="-1">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Input Grade</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="gradeSubmissionId">
-                    <input type="hidden" id="gradeEnrollmentId">
-                    <div class="mb-3">
-                        <label>Score (0-100)</label>
-                        <input type="number" id="gradeValue" class="form-control" min="0" max="100">
-                    </div>
-                    <div class="mb-3">
-                        <label>Feedback</label>
-                        <textarea id="gradeFeedback" class="form-control" rows="2"></textarea>
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                    <h3 id="submissionTitle" class="text-xl font-bold text-slate-800 mb-4">Submission</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-slate-50 text-slate-500 font-bold border-b">
+                                <tr>
+                                    <th class="px-4 py-3">Siswa</th>
+                                    <th class="px-4 py-3">Waktu Kumpul</th>
+                                    <th class="px-4 py-3">File</th>
+                                    <th class="px-4 py-3">Nilai</th>
+                                    <th class="px-4 py-3">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="submissionTableBody" class="divide-y divide-slate-100"></tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="submitGrade()">Save Grade</button>
+            </section>
+
+            <section id="view-announcements" class="page-view hidden fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800">Pengumuman</h2>
+                    <button onclick="openAnnouncementModal()" class="bg-accent text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow hover:bg-indigo-700">
+                        <i class="bi bi-megaphone-fill"></i> Buat Baru
+                    </button>
                 </div>
+                <div class="flex gap-2 mb-6">
+                    <button onclick="loadAnnouncements()" class="px-3 py-1.5 bg-white border border-slate-300 rounded text-sm font-bold hover:bg-slate-50">Semua</button>
+                    <button onclick="loadAnnouncements({status: 'published'})" class="px-3 py-1.5 bg-white border border-slate-300 rounded text-sm font-bold hover:bg-slate-50">Terbit</button>
+                </div>
+                <div id="announcementList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </section>
+
+        </div>
+    </main>
+
+    <div id="modal-create-course" class="fixed inset-0 z-50 hidden bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-xl w-full max-w-md p-6 shadow-2xl">
+            <h3 class="font-bold text-lg mb-4">Buat Kursus Baru</h3>
+            <form id="formCreateCourse" onsubmit="event.preventDefault(); submitCreateCourse();">
+                <div class="space-y-3">
+                    <div><label class="text-xs font-bold uppercase text-slate-500">Kode</label><input type="text" name="course_code" class="w-full border rounded p-2 text-sm" required></div>
+                    <div><label class="text-xs font-bold uppercase text-slate-500">Nama</label><input type="text" name="course_name" class="w-full border rounded p-2 text-sm" required></div>
+                    <div><label class="text-xs font-bold uppercase text-slate-500">Deskripsi</label><textarea name="description" class="w-full border rounded p-2 text-sm" rows="3"></textarea></div>
+                </div>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" onclick="closeModal('modal-create-course')" class="px-4 py-2 text-slate-500 text-sm font-bold">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded text-sm font-bold hover:bg-emerald-700">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-create-module" class="fixed inset-0 z-50 hidden bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-xl w-full max-w-md p-6 shadow-2xl">
+            <h3 class="font-bold text-lg mb-4" id="moduleModalTitle">Tambah Modul</h3>
+            <form id="formCreateModule" onsubmit="event.preventDefault(); submitModule();">
+                <input type="hidden" id="moduleId">
+                <div class="space-y-3">
+                    <div><label class="text-xs font-bold uppercase text-slate-500">Judul Modul</label><input type="text" id="moduleTitle" class="w-full border rounded p-2 text-sm" required></div>
+                    <div><label class="text-xs font-bold uppercase text-slate-500">Urutan</label><input type="number" id="moduleOrder" class="w-full border rounded p-2 text-sm" value="1"></div>
+                </div>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" onclick="closeModal('modal-create-module')" class="px-4 py-2 text-slate-500 text-sm font-bold">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-accent text-white rounded text-sm font-bold hover:bg-indigo-700">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-create-material" class="fixed inset-0 z-50 hidden bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-xl w-full max-w-md p-6 shadow-2xl">
+            <h3 class="font-bold text-lg mb-4" id="materialModalTitle">Tambah Materi</h3>
+            <form id="formCreateMaterial" onsubmit="event.preventDefault(); submitMaterial();">
+                <input type="hidden" id="materialId">
+                <input type="hidden" id="materialModuleId">
+                <div class="space-y-3">
+                    <div><label class="text-xs font-bold uppercase text-slate-500">Judul</label><input type="text" id="materialTitle" class="w-full border rounded p-2 text-sm" required></div>
+                    <div>
+                        <label class="text-xs font-bold uppercase text-slate-500">Tipe</label>
+                        <select id="materialType" class="w-full border rounded p-2 text-sm bg-white" onchange="toggleMaterialInput()">
+                            <option value="file">Upload File</option>
+                            <option value="link">Link Eksternal</option>
+                            <option value="video">Video URL</option>
+                        </select>
+                    </div>
+                    <div id="materialFileInput">
+                        <label class="text-xs font-bold uppercase text-slate-500">File</label>
+                        <input type="file" id="materialFile" class="w-full border rounded p-2 text-sm" accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.mp4,.mp3">
+                        <p class="text-[10px] text-slate-400 mt-1">Max 50MB. PDF, Office, Gambar, Audio/Video.</p>
+                    </div>
+                    <div id="materialUrlInput" class="hidden">
+                        <label class="text-xs font-bold uppercase text-slate-500">URL</label>
+                        <input type="url" id="materialUrl" class="w-full border rounded p-2 text-sm" placeholder="https://...">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" onclick="closeModal('modal-create-material')" class="px-4 py-2 text-slate-500 text-sm font-bold">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-accent text-white rounded text-sm font-bold hover:bg-indigo-700">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-create-assignment" class="fixed inset-0 z-50 hidden bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-xl w-full max-w-lg p-6 shadow-2xl">
+            <h3 class="font-bold text-lg mb-4">Buat Tugas Baru</h3>
+            <form id="formCreateAssignment" onsubmit="event.preventDefault(); submitAssignment();">
+                <input type="hidden" id="assignId">
+                <div class="space-y-3">
+                    <div><label class="text-xs font-bold uppercase text-slate-500">Judul</label><input type="text" id="assignTitle" class="w-full border rounded p-2 text-sm" required></div>
+                    <div><label class="text-xs font-bold uppercase text-slate-500">Deskripsi</label><textarea id="assignDesc" class="w-full border rounded p-2 text-sm" rows="3"></textarea></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="text-xs font-bold uppercase text-slate-500">Tenggat Waktu</label><input type="datetime-local" id="assignDate" class="w-full border rounded p-2 text-sm" required></div>
+                        <div><label class="text-xs font-bold uppercase text-slate-500">Poin Maks</label><input type="number" id="assignScore" class="w-full border rounded p-2 text-sm" value="100"></div>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold uppercase text-slate-500">Lampiran (Opsional)</label>
+                        <input type="file" id="assignFile" class="w-full border rounded p-2 text-sm">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" onclick="closeModal('modal-create-assignment')" class="px-4 py-2 text-slate-500 text-sm font-bold">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-accent text-white rounded text-sm font-bold hover:bg-indigo-700">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-grading" class="fixed inset-0 z-50 hidden bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-xl w-full max-w-sm p-6 shadow-2xl">
+            <h3 class="font-bold text-lg mb-4">Beri Nilai</h3>
+            <input type="hidden" id="gradeSubmissionId">
+            <input type="hidden" id="gradeEnrollmentId">
+            <div class="space-y-3">
+                <div><label class="text-xs font-bold uppercase text-slate-500">Nilai (0-100)</label><input type="number" id="gradeValue" class="w-full border rounded p-2 text-sm" min="0" max="100"></div>
+                <div><label class="text-xs font-bold uppercase text-slate-500">Umpan Balik</label><textarea id="gradeFeedback" class="w-full border rounded p-2 text-sm" rows="3"></textarea></div>
+            </div>
+            <div class="flex justify-end gap-2 mt-6">
+                <button type="button" onclick="closeModal('modal-grading')" class="px-4 py-2 text-slate-500 text-sm font-bold">Batal</button>
+                <button type="button" onclick="submitGrade()" class="px-4 py-2 bg-emerald-600 text-white rounded text-sm font-bold hover:bg-emerald-700">Simpan</button>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="announcementModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Post Announcement</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div id="modal-announcement" class="fixed inset-0 z-50 hidden bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-xl w-full max-w-lg p-6 shadow-2xl">
+            <h3 class="font-bold text-lg mb-4">Buat Pengumuman</h3>
+            <form id="formAnnouncement" onsubmit="event.preventDefault(); submitAnnouncement();">
+                <div class="space-y-3">
+                    <input type="text" id="annTitle" placeholder="Judul" class="w-full border rounded p-2 text-sm" required>
+                    <textarea id="annContent" placeholder="Isi Pengumuman" class="w-full border rounded p-2 text-sm" rows="3" required></textarea>
+                    <div class="grid grid-cols-2 gap-4">
+                        <select id="annCourseId" class="w-full border rounded p-2 text-sm bg-white">
+                            <option value="">Global (Semua)</option>
+                        </select>
+                        <select id="annPriority" class="w-full border rounded p-2 text-sm bg-white">
+                            <option value="normal">Normal</option>
+                            <option value="high">Penting</option>
+                            <option value="urgent">Mendesak</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="datetime-local" id="annPublishedAt" class="w-full border rounded p-2 text-sm">
+                        <select id="annStatus" class="w-full border rounded p-2 text-sm bg-white">
+                            <option value="published">Terbit</option>
+                            <option value="draft">Draft</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <form id="formAnnouncement">
-                        <div class="mb-3">
-                            <label>Title <span class="text-danger">*</span></label>
-                            <input type="text" id="annTitle" class="form-control" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label>Content <span class="text-danger">*</span></label>
-                            <textarea id="annContent" class="form-control" rows="3" required></textarea>
-                        </div>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label>Target Course</label>
-                                <select id="annCourseId" class="form-select">
-                                    <option value="">Global (All)</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label>Priority <span class="text-danger">*</span></label>
-                                <select id="annPriority" class="form-select">
-                                    <option value="normal" selected>Normal</option>
-                                    <option value="high">High</option>
-                                    <option value="urgent">Urgent</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-4">
-                                <label>Status <span class="text-danger">*</span></label>
-                                <select id="annStatus" class="form-select">
-                                    <option value="published" selected>Published</option>
-                                    <option value="draft">Draft</option>
-                                    <option value="archived">Archived</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label>Publish At</label>
-                                <input type="datetime-local" id="annPublishedAt" class="form-control">
-                            </div>
-                            <div class="col-md-4">
-                                <label>Expires At</label>
-                                <input type="datetime-local" id="annExpiresAt" class="form-control">
-                            </div>
-                        </div>
-                    </form>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" onclick="closeModal('modal-announcement')" class="px-4 py-2 text-slate-500 text-sm font-bold">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-accent text-white rounded text-sm font-bold hover:bg-indigo-700">Kirim</button>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="submitAnnouncement()">Post
-                        Announcement</button>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <div id="modal-create-session" class="fixed inset-0 z-50 hidden bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-xl w-full max-w-md p-6 shadow-2xl">
+            <h3 class="font-bold text-lg mb-4">Sesi Absensi Baru</h3>
+            <form id="formCreateSession" onsubmit="event.preventDefault(); submitSession();">
+                <div class="space-y-3">
+                    <div><label class="text-xs font-bold uppercase text-slate-500">Nama Sesi</label><input type="text" id="sessionName" placeholder="Contoh: Pertemuan 1" class="w-full border rounded p-2 text-sm" required></div>
+                    <div><label class="text-xs font-bold uppercase text-slate-500">Mulai</label><input type="datetime-local" id="sessionStartTime" class="w-full border rounded p-2 text-sm" required></div>
+                    <div><label class="text-xs font-bold uppercase text-slate-500">Selesai</label><input type="datetime-local" id="sessionEndTime" class="w-full border rounded p-2 text-sm" required></div>
+                    <div><label class="text-xs font-bold uppercase text-slate-500">Batas Akhir Check-in</label><input type="datetime-local" id="sessionDeadline" class="w-full border rounded p-2 text-sm" required></div>
+                </div>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" onclick="closeModal('modal-create-session')" class="px-4 py-2 text-slate-500 text-sm font-bold">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-accent text-white rounded text-sm font-bold hover:bg-indigo-700">Buat Sesi</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script>
-        /**
-         * SMARTDEV LMS INSTRUCTOR LOGIC
-         * FIXED: Infinite Loop on Token Error / Connection Error
-         */
-
         let BASE_API = document.getElementById('ngrokUrl').value + '/api/v1';
         let currentUser = null;
         let currentCourseId = null;
         let globalCourses = [];
         let currentEnrollments = [];
 
-        // --- HTTP CLIENT ---
-
+        // --- HTTP CLIENT & AUTH ---
         function getHeaders() {
-            const token = localStorage.getItem('auth_token');
             return {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'Authorization': `Bearer ${token}`,
+                'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
                 'ngrok-skip-browser-warning': 'true'
             };
         }
 
         async function fetchApi(endpoint, options = {}) {
-            // Tampilkan loading
-            document.getElementById('loading-overlay').style.display = 'flex';
-
-            console.log(`%c[API] ${options.method || 'GET'} ${endpoint}`, 'color: blue; font-weight: bold;', options.body ? JSON.parse(options.body) : '');
-
+            showLoader(true);
             try {
                 BASE_API = document.getElementById('ngrokUrl').value + '/api/v1';
                 const res = await fetch(BASE_API + endpoint, { ...options, headers: getHeaders() });
-
-                // Jika 401 (Unauthorized), lempar error biar ditangkap di try/catch
-                if (res.status === 401) {
-                    throw new Error("Unauthorized");
-                }
-
+                
+                if (res.status === 401) throw new Error("Unauthorized");
                 if (res.status === 204) return true;
 
-                const jsonResponse = await res.json().catch(() => null);
-
-                if (!res.ok) {
-                    let errorMsg = `HTTP Error ${res.status}`;
-                    if (jsonResponse) {
-                        if (jsonResponse.message) errorMsg = jsonResponse.message;
-                        if (jsonResponse.errors) {
-                            const details = Object.values(jsonResponse.errors).flat().join('\n- ');
-                            errorMsg += `\nDetails:\n- ${details}`;
-                        }
-                    }
-                    throw new Error(errorMsg);
-                }
-
-                return jsonResponse;
-
+                const json = await res.json().catch(() => null);
+                if (!res.ok) throw new Error(json?.message || `HTTP ${res.status}`);
+                return json;
             } catch (e) {
-                console.error("Fetch Failed:", e);
-                // Handle 401 secara global disini jika perlu, 
-                // tapi lebih baik biarkan errornya muncul di UI.
+                console.error("API Error:", e);
                 if (e.message === "Unauthorized") {
-                    alert("Sesi Anda telah habis. Silakan refresh dan login ulang.");
-                    logout();
-                    return null;
+                    Swal.fire("Sesi Habis", "Silakan login kembali", "warning").then(() => logout());
+                } else {
+                    Swal.fire("Error", e.message, "error");
                 }
-                alert(e.message);
                 return null;
             } finally {
-                // PASTI MATIKAN LOADING, SUKSES ATAU GAGAL
-                document.getElementById('loading-overlay').style.display = 'none';
+                showLoader(false);
             }
         }
 
-        // --- AUTH & INIT ---
-
         async function initApp() {
             const token = localStorage.getItem('auth_token');
-            const loader = document.getElementById('loading-overlay');
-
-            // 1. Jika Token Kosong -> Minta Input
             if (!token) {
-                loader.style.display = 'none'; // Pastikan loading mati sebelum prompt
-
-                const input = prompt("Token tidak ditemukan atau salah. Masukkan Bearer Token:");
-
+                const { value: input } = await Swal.fire({
+                    title: 'Instructor Login',
+                    input: 'text',
+                    inputLabel: 'Masukkan Token API',
+                    confirmButtonText: 'Masuk',
+                    allowOutsideClick: false
+                });
                 if (input) {
-                    // Jika user mengisi token, simpan dan coba lagi
                     localStorage.setItem('auth_token', input);
                     initApp();
-                } else {
-                    // Jika user tekan CANCEL, diam saja (jangan looping)
-                    console.log("User cancelled token input.");
                 }
                 return;
             }
 
-            // 2. Jika Token Ada -> Validasi ke API User
             try {
-                loader.style.display = 'flex'; // Nyalakan loading
-
+                showLoader(true);
                 const url = document.getElementById('ngrokUrl').value + '/api/user';
-
-                // Fetch manual untuk cek auth awal
-                const res = await fetch(url, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                        'ngrok-skip-browser-warning': 'true'
-                    }
-                });
-
+                const res = await fetch(url, { headers: getHeaders() });
+                
                 if (res.ok) {
-                    // Sukses Login
                     currentUser = await res.json();
                     document.getElementById('sidebarUserName').innerText = currentUser.full_name || currentUser.name;
                     loadDashboard();
                 } else {
-                    // Token ada tapi ditolak server (401/500)
-                    throw new Error("Token Invalid (Response not OK)");
+                    throw new Error("Token Invalid");
                 }
-
             } catch (e) {
-                // ERROR TERJADI (Koneksi putus atau Token Salah)
-                console.warn("Init Error:", e);
-
-                // Hapus token yang rusak
                 localStorage.removeItem('auth_token');
-
-                // Beri tahu user KENAPA error
-                alert("Gagal terhubung atau Token Salah. Silakan masukkan token baru.");
-
-                // Panggil ulang fungsi untuk memunculkan prompt
-                // KARENA token sudah dihapus di baris atas, initApp() akan masuk ke kondisi 'if(!token)'
-                // yang memunculkan prompt.
-                initApp();
+                Swal.fire("Login Gagal", "Token tidak valid", "error").then(() => initApp());
             } finally {
-                // PASTIKAN LOADING MATI DI AKHIR
-                // Jika initApp dipanggil ulang di catch, loader mungkin nyala lagi di recursi,
-                // tapi baris ini memastikan flow saat ini bersih.
-                loader.style.display = 'none';
+                showLoader(false);
             }
         }
 
         // --- DASHBOARD ---
-
         async function loadDashboard() {
             const res = await fetchApi('/courses');
             if (!res) return;
 
             let allCourses = Array.isArray(res) ? res : (res.data || []);
-
+            // Filter: Only courses taught by this instructor
             const myCourses = allCourses.filter(c => {
                 if (currentUser?.role === 'admin') return true;
                 if (!c.instructor) return false;
                 return (currentUser.instructor && c.instructor.id === currentUser.instructor.id) ||
-                    (c.instructor.user_id === currentUser.id);
+                       (c.instructor.user_id === currentUser.id);
             });
 
             globalCourses = myCourses;
+            
+            // Calc stats
+            const totalStudents = myCourses.reduce((acc, c) => acc + (c.students_count || c.enrollments?.length || 0), 0);
+            const totalAssignments = myCourses.reduce((acc, c) => acc + (c.assignments_count || 0), 0); // Assuming backend sends count or we need deeper fetch
+
             document.getElementById('statCourses').innerText = myCourses.length;
-            renderCourseList(myCourses);
+            document.getElementById('statStudents').innerText = totalStudents;
+            document.getElementById('statAssignments').innerText = totalAssignments; // Placeholder if count not available
+
+            renderCourseList(myCourses, 'dashboardCoursesList');
+            renderCourseList(myCourses, 'coursesList'); // Also populate Courses Tab
         }
 
-        function renderCourseList(courses) {
-            const container = document.getElementById('coursesList');
+        function renderCourseList(courses, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
             if (courses.length === 0) {
-                container.innerHTML = '<div class="col-12 text-center text-muted py-5">No courses found.</div>';
+                container.innerHTML = '<div class="col-span-full text-center py-10 text-slate-400">Belum ada kursus.</div>';
                 return;
             }
+
             container.innerHTML = courses.map(c => `
-                <div class="col-md-6 col-xl-4">
-                    <div class="card course-card h-100">
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex justify-content-between mb-3">
-                                <span class="badge bg-primary">${c.course_code}</span>
-                                <span class="badge bg-light text-dark border">${c.status}</span>
-                            </div>
-                            <h5 class="card-title fw-bold mb-1">${c.course_name}</h5>
-                            <p class="text-muted small mb-3 flex-grow-1">${c.description ? c.description.substring(0, 80) + '...' : ''}</p>
-                            <button onclick="openCourseDetail(${c.id})" class="btn btn-outline-primary w-100 mt-auto">Manage Course</button>
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-all group">
+                    <div class="h-24 bg-gradient-to-r from-indigo-500 to-purple-600 p-4 flex items-end">
+                        <h4 class="text-white font-bold text-lg truncate w-full">${c.course_name}</h4>
+                    </div>
+                    <div class="p-5">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-mono bg-slate-100 px-2 py-1 rounded text-slate-600">${c.course_code}</span>
+                            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">${c.status || 'Active'}</span>
                         </div>
+                        <p class="text-sm text-slate-500 line-clamp-2 mb-4">${c.description || 'Tidak ada deskripsi.'}</p>
+                        <button onclick="openCourseDetail(${c.id})" class="w-full py-2 bg-white border border-indigo-200 text-indigo-600 rounded-lg text-sm font-bold hover:bg-indigo-50 transition-colors">
+                            Kelola Kursus
+                        </button>
                     </div>
                 </div>
             `).join('');
-
-            const dashList = document.getElementById('dashboardCoursesList');
-            if (dashList) dashList.innerHTML = container.innerHTML;
         }
 
-        // --- ANNOUNCEMENTS ---
-
-        async function loadAnnouncements(filters = {}) {
-            const container = document.getElementById('announcementList');
-            container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
-
-            try {
-                let endpoint = '/announcements';
-                const params = new URLSearchParams();
-                if (filters.status) params.append('status', filters.status);
-                if (filters.course_id) params.append('course_id', filters.course_id);
-                if (params.toString()) endpoint += `?${params.toString()}`;
-
-                const res = await fetchApi(endpoint);
-
-                let list = [];
-                if (res === null || res === undefined) list = [];
-                else if (Array.isArray(res)) list = res;
-                else if (res.data && Array.isArray(res.data)) list = res.data;
-
-                renderAnnouncements(list);
-
-            } catch (error) {
-                console.error("Error loading announcements:", error);
-                container.innerHTML = `<div class="col-12 text-center py-5 text-danger">Error loading announcements: ${error.message}</div>`;
-            }
-        }
-
-        function renderAnnouncements(announcements) {
-            const container = document.getElementById('announcementList');
-            if (!announcements || announcements.length === 0) {
-                container.innerHTML = `
-                    <div class="col-12 text-center py-5">
-                        <div class="text-muted mb-3"><i class="bi bi-megaphone display-4"></i></div>
-                        <h5>No announcements found.</h5>
-                    </div>`;
-                return;
-            }
-
-            container.innerHTML = announcements.map(a => {
-                const title = a.title || 'Untitled';
-                const content = a.content || '';
-                const priority = a.priority || 'normal';
-                const status = a.status || 'published';
-                const dateStr = a.published_at || a.created_at || new Date();
-
-                let borderClass = 'secondary';
-                if (priority === 'high') borderClass = 'danger';
-                if (priority === 'urgent') borderClass = 'warning';
-
-                let contextBadge = '<span class="badge bg-dark">Global</span>';
-                if (a.course) contextBadge = `<span class="badge bg-primary">${a.course.course_code}</span>`;
-                else if (a.course_id) contextBadge = `<span class="badge bg-info text-dark">Course #${a.course_id}</span>`;
-
-                return `
-                    <div class="col-md-6">
-                        <div class="card h-100 border-start border-4 border-${borderClass} shadow-sm">
-                            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                                <div>${contextBadge}</div>
-                                <span class="badge badge-soft-${borderClass} text-uppercase">${priority}</span>
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title fw-bold">${title}</h5>
-                                <p class="card-text text-secondary small">${content}</p>
-                            </div>
-                            <div class="card-footer bg-white border-0 pt-0 d-flex justify-content-between small text-muted">
-                                <span><i class="bi bi-calendar3 me-1"></i> ${new Date(dateStr).toLocaleDateString()}</span>
-                                <span class="text-capitalize badge bg-light text-dark border">${status}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        async function submitAnnouncement() {
-            const cid = document.getElementById('annCourseId').value;
-            const pubAt = document.getElementById('annPublishedAt').value;
-            const expAt = document.getElementById('annExpiresAt').value;
-
-            if (!document.getElementById('annTitle').value) { alert("Title required"); return; }
-
-            const payload = {
-                title: document.getElementById('annTitle').value,
-                content: document.getElementById('annContent').value,
-                course_id: cid && cid !== "" ? parseInt(cid) : null,
-                announcement_type: (cid && cid !== "") ? 'course' : 'global',
-                priority: document.getElementById('annPriority').value,
-                status: document.getElementById('annStatus').value,
-                published_at: pubAt ? new Date(pubAt).toISOString() : null,
-                expires_at: expAt ? new Date(expAt).toISOString() : null
-            };
-
-            const res = await fetchApi('/announcements', {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            });
-
-            if (res) {
-                alert('Announcement Posted!');
-                bootstrap.Modal.getInstance(document.getElementById('announcementModal')).hide();
-                loadAnnouncements();
-            }
-        }
-
-        function openAnnouncementModal() {
-            const sel = document.getElementById('annCourseId');
-            sel.innerHTML = '<option value="">Global (All Students)</option>';
-            globalCourses.forEach(c => {
-                sel.innerHTML += `<option value="${c.id}">${c.course_code} - ${c.course_name}</option>`;
-            });
-            document.getElementById('formAnnouncement').reset();
-            const now = new Date();
-            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-            document.getElementById('annPublishedAt').value = now.toISOString().slice(0, 16);
-            new bootstrap.Modal(document.getElementById('announcementModal')).show();
-        }
-
-        // --- ASSIGNMENTS ---
-
-        function renderAssignments(assignments) {
-            const container = document.getElementById('assignmentList');
-            if (!assignments || assignments.length === 0) {
-                container.innerHTML = '<div class="text-center p-4 text-muted">No assignments yet.</div>';
-                return;
-            }
-            container.innerHTML = assignments.map(a => `
-                        <div class="card mb-3 border-0 shadow-sm" >
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h5 class="card-title fw-bold mb-1">${a.title}</h5>
-                                        <p class="text-muted small mb-2">Due: ${new Date(a.due_date).toLocaleString()}</p>
-                                        <p class="card-text">${a.description || ''}</p>
-                                        ${a.attachment_url ? `<div class="mb-2"><a href="${a.attachment_url}" target="_blank" class="btn btn-sm btn-outline-info"><i class="bi bi-paperclip"></i> Download Attachment</a></div>` : ''}
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light btn-sm" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li><a class="dropdown-item" href="#" onclick="openEditAssignmentModal(${a.id}, '${a.title.replace(/'/g, "\\'")}', '${(a.description || '').replace(/'/g, "\\'")}', '${a.due_date}', ${a.max_score})">Edit</a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="viewSubmissions(${a.id})">View Submissions</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteAssignment(${a.id})">Delete</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                    </div>
-                `).join('');
-        }
-
-        function openAssignmentModal() {
-            document.getElementById('formCreateAssignment').reset();
-            document.getElementById('assignId').value = '';
-            document.querySelector('#createAssignmentModal .modal-title').innerText = 'Create Assignment';
-            new bootstrap.Modal(document.getElementById('createAssignmentModal')).show();
-        }
-
-        function openEditAssignmentModal(id, title, desc, date, score) {
-            document.getElementById('formCreateAssignment').reset();
-            document.getElementById('assignId').value = id;
-            document.getElementById('assignTitle').value = title;
-            document.getElementById('assignDesc').value = desc;
-
-            // Format date for datetime-local input (YYYY-MM-DDTHH:mm)
-            const d = new Date(date);
-            d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-            document.getElementById('assignDate').value = d.toISOString().slice(0, 16);
-
-            document.getElementById('assignScore').value = score;
-
-            document.querySelector('#createAssignmentModal .modal-title').innerText = 'Edit Assignment';
-            new bootstrap.Modal(document.getElementById('createAssignmentModal')).show();
-        }
-
-        async function submitAssignment() {
-            const id = document.getElementById('assignId').value;
-            const title = document.getElementById('assignTitle').value;
-            const desc = document.getElementById('assignDesc').value;
-            const date = document.getElementById('assignDate').value;
-            const score = document.getElementById('assignScore').value;
-            const fileInput = document.getElementById('assignFile');
-
-            if (!title || !date) { alert("Title and Due Date are required"); return; }
-
-            const payload = {
-                course_id: parseInt(currentCourseId),
-                title: title,
-                description: desc,
-                due_date: new Date(date).toISOString(),
-                max_score: parseInt(score) || 100
-            };
-
-            let res;
-            if (id) {
-                res = await fetchApi(`/assignments/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
-            } else {
-                res = await fetchApi('/assignments', { method: 'POST', body: JSON.stringify(payload) });
-            }
-
-            if (res) {
-                const targetId = id || res.id;
-
-                // Handle File Upload
-                if (fileInput.files.length > 0) {
-                    const file = fileInput.files[0];
-                    if (file.size > 10 * 1024 * 1024) { // 10MB limit
-                        alert("Assignment saved, but file too large (Max 10MB). Upload skipped.");
-                    } else {
-                        const formData = new FormData();
-                        formData.append('file', file);
-
-                        const token = localStorage.getItem('auth_token');
-                        const baseUrl = document.getElementById('ngrokUrl').value + '/api/v1';
-
-                        try {
-                            const uploadRes = await fetch(`${baseUrl}/upload/assignment/${targetId}`, {
-                                method: 'POST',
-                                headers: {
-                                    'Authorization': `Bearer ${token}`,
-                                    'ngrok-skip-browser-warning': 'true'
-                                },
-                                body: formData
-                            });
-                            if (!uploadRes.ok) throw new Error('Upload failed');
-                        } catch (err) {
-                            console.error("Upload error:", err);
-                            alert("Assignment saved but file upload failed.");
-                        }
-                    }
-                }
-
-                bootstrap.Modal.getInstance(document.getElementById('createAssignmentModal')).hide();
-                openCourseDetail(currentCourseId); // Refresh list
-            }
-        }
-
-        // --- COURSE DETAIL & ATTENDANCE ---
-
+        // --- COURSE DETAIL & TABS ---
         async function openCourseDetail(id) {
             currentCourseId = id;
-            console.log('👤 Current User:', currentUser);
-            console.log('🆔 User ID:', currentUser?.id, '| Role:', currentUser?.role);
-            console.log('📚 Opening Course ID:', id);
-
             const course = await fetchApi(`/courses/${id}`);
             if (course) {
-                console.log('📖 Course Data:', course);
-                console.log('👨‍🏫 Course Instructor ID:', course.instructor_id);
-
                 document.getElementById('detailTitle').innerText = course.course_name;
                 document.getElementById('detailCode').innerText = course.course_code;
                 document.getElementById('detailDesc').innerText = course.description || '';
-                document.getElementById('btnDeleteCourse').onclick = () => deleteCourse(id);
-
-                renderAssignments(course.assignments || []);
+                
                 currentEnrollments = course.enrollments || [];
-                renderStudents(currentEnrollments);
-
-                document.getElementById('sessionListGroup').innerHTML = '';
-                document.getElementById('attendanceTableBody').innerHTML = '<tr><td colspan="3" class="text-center p-5 text-muted">Select a session</td></tr>';
-
-                navTo('courseDetail');
+                renderStudentsTable(currentEnrollments);
+                renderAssignmentsList(course.assignments || []);
+                
+                // Switch view
+                navTo('course-detail');
+                switchTab('modules'); // Default tab
+                loadModulesTab(); // Initial load
             }
         }
 
-        async function submitSession() {
-            const start = document.getElementById('sessionStartTime').value;
-            const end = document.getElementById('sessionEndTime').value;
-            const deadline = document.getElementById('sessionDeadline').value;
-            const name = document.getElementById('sessionName').value;
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-btn-${tabName}`).classList.add('active');
 
-            if (!start || !end || !deadline || !name) {
-                alert("All fields are required");
-                return;
-            }
+            // Lazy load data based on tab
+            if(tabName === 'modules') loadModulesTab();
+            if(tabName === 'attendance') loadAttendanceTab();
+            if(tabName === 'certificates') loadCertificatesTab();
+        }
 
-            const data = {
-                course_id: parseInt(currentCourseId),
-                session_name: name,
-                status: 'open',
-                start_time: new Date(start).toISOString(),
-                end_time: new Date(end).toISOString(),
-                deadline: new Date(deadline).toISOString()
-            };
+        // --- MODULES ---
+        async function loadModulesTab() {
+            const container = document.getElementById('modulesAccordion');
+            container.innerHTML = '<div class="text-center py-4 text-slate-400">Memuat modul...</div>';
+            
+            // In real scenario, fetch specific endpoint. Here reusing logic:
+            const allModules = await fetchApi('/course-modules'); 
+            const allMaterials = await fetchApi('/materials');
+            
+            if(allModules) {
+                let modules = (Array.isArray(allModules) ? allModules : allModules.data).filter(m => m.course_id == currentCourseId);
+                let materials = Array.isArray(allMaterials) ? allMaterials : allMaterials.data || [];
 
-            const res = await fetchApi('/attendance-sessions', {
-                method: 'POST',
-                body: JSON.stringify(data)
-            });
-
-            if (res) {
-                alert('Session Created!');
-                bootstrap.Modal.getInstance(document.getElementById('createSessionModal')).hide();
-                loadAttendanceTab();
+                modules.sort((a,b) => a.module_order - b.module_order);
+                
+                container.innerHTML = modules.length ? modules.map(m => {
+                    const myMaterials = materials.filter(mat => mat.module_id == m.id || mat.course_module_id == m.id);
+                    return renderModuleItem(m, myMaterials);
+                }).join('') : '<div class="text-center py-8 text-slate-400">Belum ada modul.</div>';
             }
         }
 
-        async function loadAttendanceTab() {
-            const sessions = await fetchApi(`/attendance-sessions/course/${currentCourseId}/all`);
-            const el = document.getElementById('sessionListGroup');
-            let list = Array.isArray(sessions) ? sessions : (sessions?.data || []);
-
-            if (!list.length) { el.innerHTML = '<div class="p-3 text-muted text-center">No sessions found.</div>'; return; }
-
-            el.innerHTML = list.map(s => `
-                <a href="#" class="list-group-item list-group-item-action" onclick="loadSessionDetail(${s.id}, '${s.session_name || s.topic}')">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h6 class="mb-1 fw-bold">${s.session_name || s.topic}</h6>
-                        <small>${new Date(s.start_time || s.session_date).toLocaleDateString()}</small>
+        function renderModuleItem(m, materials) {
+            return `
+                <div class="border border-slate-200 rounded-lg overflow-hidden">
+                    <div class="bg-slate-50 p-4 flex justify-between items-center cursor-pointer hover:bg-slate-100 transition-colors" onclick="document.getElementById('mod-body-${m.id}').classList.toggle('hidden')">
+                        <div class="font-bold text-slate-700">${m.title || m.module_name}</div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="event.stopPropagation(); openEditModuleModal(${m.id}, '${m.title || m.module_name}', ${m.module_order})" class="p-1 text-slate-400 hover:text-blue-600"><i class="bi bi-pencil"></i></button>
+                            <button onclick="event.stopPropagation(); deleteModule(${m.id})" class="p-1 text-slate-400 hover:text-red-500"><i class="bi bi-trash"></i></button>
+                            <i class="bi bi-chevron-down text-slate-400 text-xs ml-2"></i>
+                        </div>
                     </div>
-                    <small class="text-${s.status === 'open' ? 'success' : 'secondary'} text-uppercase">${s.status}</small>
-                </a>
+                    <div id="mod-body-${m.id}" class="hidden bg-white p-4 border-t border-slate-100">
+                        <div class="space-y-2">
+                            ${materials.map(mat => `
+                                <div class="flex justify-between items-center p-2 hover:bg-slate-50 rounded group">
+                                    <div class="flex items-center gap-3">
+                                        <i class="${getMaterialIcon(mat.material_type)} text-lg text-indigo-500"></i>
+                                        <div>
+                                            <div class="text-sm font-medium text-slate-700">${mat.title}</div>
+                                            ${mat.content_path ? `<a href="${mat.content_path}" target="_blank" class="text-[10px] text-blue-500 hover:underline">Buka Materi</a>` : ''}
+                                        </div>
+                                    </div>
+                                    <button onclick="deleteMaterial(${mat.id})" class="text-slate-300 hover:text-red-500"><i class="bi bi-x-lg"></i></button>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button onclick="openCreateMaterialModal(${m.id})" class="mt-3 w-full py-1.5 border border-dashed border-slate-300 text-slate-500 text-xs font-bold rounded hover:bg-slate-50 hover:text-accent">+ Tambah Materi</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getMaterialIcon(type) {
+            if(type === 'video') return 'bi bi-play-circle-fill';
+            if(type === 'link') return 'bi bi-link-45deg';
+            return 'bi bi-file-earmark-text-fill';
+        }
+
+        // --- ASSIGNMENTS ---
+        function renderAssignmentsList(list) {
+            const container = document.getElementById('assignmentListContainer');
+            if(!list.length) { container.innerHTML = '<div class="text-center py-10 text-slate-400">Belum ada tugas.</div>'; return; }
+            container.innerHTML = list.map(a => `
+                <div class="p-4 bg-white border border-slate-200 rounded-lg shadow-sm flex justify-between items-center">
+                    <div>
+                        <h5 class="font-bold text-slate-800">${a.title}</h5>
+                        <p class="text-xs text-slate-500 mt-1">Due: ${new Date(a.due_date).toLocaleString()}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="viewSubmissions(${a.id})" class="px-3 py-1.5 text-xs font-bold text-accent bg-indigo-50 rounded hover:bg-indigo-100">Lihat Jawaban</button>
+                        <button onclick="deleteAssignment(${a.id})" class="px-2 py-1.5 text-xs text-red-400 hover:text-red-600"><i class="bi bi-trash"></i></button>
+                    </div>
+                </div>
             `).join('');
         }
 
-        async function loadSessionDetail(sid, topic) {
-            document.getElementById('sessionDetailHeader').innerText = topic;
-            const tbody = document.getElementById('attendanceTableBody');
-            tbody.innerHTML = '<tr><td colspan="3" class="text-center p-3">Loading...</td></tr>';
-
-            const res = await fetchApi(`/attendance-records/session/${sid}/records`);
-            let recs = Array.isArray(res) ? res : (res?.data || []);
-
-            if (recs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="text-center p-3">No students found in this session.</td></tr>';
-                return;
+        async function viewSubmissions(id) {
+            const a = await fetchApi(`/assignments/${id}`);
+            if(a) {
+                document.getElementById('submissionTitle').innerText = `Jawaban: ${a.title}`;
+                const tbody = document.getElementById('submissionTableBody');
+                const list = a.submissions || [];
+                tbody.innerHTML = list.length ? list.map(s => `
+                    <tr class="border-b hover:bg-slate-50">
+                        <td class="px-4 py-3">${s.enrollment?.student?.full_name || 'Siswa'}</td>
+                        <td class="px-4 py-3 text-xs text-slate-500">${new Date(s.created_at).toLocaleString()}</td>
+                        <td class="px-4 py-3">${s.file_path ? `<a href="${s.file_path}" target="_blank" class="text-blue-500 underline text-xs">File</a>` : '-'}</td>
+                        <td class="px-4 py-3 font-bold">${s.grade ? s.grade.score : '-'}</td>
+                        <td class="px-4 py-3"><button onclick="openGradingModal(${s.id}, ${s.enrollment_id})" class="text-xs bg-slate-800 text-white px-2 py-1 rounded">Nilai</button></td>
+                    </tr>
+                `).join('') : '<tr><td colspan="5" class="text-center p-4 text-slate-400">Belum ada pengumpulan.</td></tr>';
+                navTo('submissions');
             }
+        }
 
-            tbody.innerHTML = recs.map(r => `
-                <tr>
-                    <td>
-                        <div class="fw-bold">${r.enrollment?.student?.full_name || 'Student'}</div>
-                        <small class="text-muted">${r.enrollment?.user?.email || ''}</small>
-                    </td>
-                    <td class="text-center"><span class="badge bg-secondary">${r.status}</span></td>
-                    <td class="text-end">
-                        <div class="btn-group btn-group-sm">
-                            <button onclick="markAttendance(${sid}, ${r.enrollment_id}, 'present')" class="btn btn-outline-success">P</button>
-                            <button onclick="markAttendance(${sid}, ${r.enrollment_id}, 'sick')" class="btn btn-outline-warning">S</button>
-                            <button onclick="markAttendance(${sid}, ${r.enrollment_id}, 'absent')" class="btn btn-outline-danger">A</button>
+        // --- ATTENDANCE ---
+        async function loadAttendanceTab() {
+            const res = await fetchApi(`/attendance-sessions/course/${currentCourseId}/all`);
+            const list = document.getElementById('sessionListGroup');
+            const data = (Array.isArray(res) ? res : res?.data) || [];
+            
+            list.innerHTML = data.length ? data.map(s => `
+                <div onclick="loadSessionDetail(${s.id}, '${s.session_name}')" class="p-3 bg-white border border-slate-200 rounded cursor-pointer hover:border-accent hover:shadow-sm transition-all">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-bold text-sm text-slate-700">${s.session_name}</span>
+                        <span class="text-[10px] uppercase font-bold ${s.status === 'open' ? 'text-green-600 bg-green-50' : 'text-slate-500 bg-slate-100'} px-1.5 py-0.5 rounded">${s.status}</span>
+                    </div>
+                    <div class="text-xs text-slate-400">${new Date(s.start_time).toLocaleDateString()}</div>
+                </div>
+            `).join('') : '<div class="text-center text-xs text-slate-400 py-4">Belum ada sesi.</div>';
+        }
+
+        async function loadSessionDetail(sid, name) {
+            document.getElementById('sessionDetailHeader').innerText = name;
+            const tbody = document.getElementById('attendanceTableBody');
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center p-4 text-slate-400">Memuat data...</td></tr>';
+            
+            const res = await fetchApi(`/attendance-records/session/${sid}/records`);
+            const recs = (Array.isArray(res) ? res : res?.data) || [];
+            
+            tbody.innerHTML = recs.length ? recs.map(r => `
+                <tr class="border-b hover:bg-slate-50">
+                    <td class="px-4 py-2 text-sm font-medium text-slate-700">${r.enrollment?.student?.full_name || 'Siswa'}</td>
+                    <td class="px-4 py-2 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100">${r.status}</span></td>
+                    <td class="px-4 py-2 text-right">
+                        <div class="flex justify-end gap-1">
+                            <button onclick="markAttendance(${sid}, ${r.enrollment_id}, 'present')" class="w-6 h-6 rounded bg-green-100 text-green-700 hover:bg-green-200 text-xs font-bold">H</button>
+                            <button onclick="markAttendance(${sid}, ${r.enrollment_id}, 'sick')" class="w-6 h-6 rounded bg-yellow-100 text-yellow-700 hover:bg-yellow-200 text-xs font-bold">S</button>
+                            <button onclick="markAttendance(${sid}, ${r.enrollment_id}, 'absent')" class="w-6 h-6 rounded bg-red-100 text-red-700 hover:bg-red-200 text-xs font-bold">A</button>
                         </div>
                     </td>
                 </tr>
-            `).join('');
+            `).join('') : '<tr><td colspan="3" class="text-center p-4 text-slate-400">Tidak ada data siswa di sesi ini.</td></tr>';
         }
 
         async function markAttendance(sid, eid, status) {
-            await fetchApi(`/attendance-records/mark/${sid}/${eid}`, {
-                method: 'POST',
-                body: JSON.stringify({ status })
-            });
-            loadSessionDetail(sid, document.getElementById('sessionDetailHeader').innerText);
+            await fetchApi(`/attendance-records/mark/${sid}/${eid}`, { method: 'POST', body: JSON.stringify({ status }) });
+            // Refresh table quietly
+            const name = document.getElementById('sessionDetailHeader').innerText;
+            loadSessionDetail(sid, name);
         }
 
-        function openCreateSessionModal() {
-            document.getElementById('formCreateSession').reset();
-            const now = new Date();
-            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-            const nowStr = now.toISOString().slice(0, 16);
-            document.getElementById('sessionStartTime').value = nowStr;
-            document.getElementById('sessionEndTime').value = nowStr;
-            document.getElementById('sessionDeadline').value = nowStr;
-            new bootstrap.Modal(document.getElementById('createSessionModal')).show();
+        // --- STUDENTS & CERTIFICATES ---
+        function renderStudentsTable(list) {
+            const tbody = document.getElementById('studentListBody');
+            tbody.innerHTML = list.length ? list.map(e => `
+                <tr class="border-b hover:bg-slate-50">
+                    <td class="px-6 py-3 font-medium text-slate-700">${e.student?.full_name || 'Unknown'}</td>
+                    <td class="px-6 py-3 text-slate-500">${e.student?.user?.email || '-'}</td>
+                    <td class="px-6 py-3 text-center"><span class="text-xs bg-emerald-50 text-emerald-600 px-2 py-1 rounded font-bold">Active</span></td>
+                </tr>
+            `).join('') : '<tr><td colspan="3" class="text-center p-4 text-slate-400">Belum ada siswa terdaftar.</td></tr>';
         }
-
-        // --- CERTIFICATES (REFACTORED: PROGRESS CARDS & AUTO GENERATE) ---
 
         async function loadCertificatesTab() {
-            // Kita ubah container dari tbody tabel menjadi div grid untuk kartu
-            const tabPane = document.getElementById('tabCertificates');
-
-            // Reset isi tab pane agar sesuai layout grid baru (bukan tabel lagi)
-            tabPane.innerHTML = `
-                <div class="d-flex justify-content-between mb-4 align-items-center">
-                    <div>
-                        <h5 class="mb-1">Student Progress & Certificates</h5>
-                        <p class="text-muted small mb-0">
-                            Monitor student eligibility. System automatically generates certificates for eligible students.
-                        </p>
-                    </div>
-                    <button class="btn btn-sm btn-primary" onclick="bulkGenerateCertificates()">
-                        <i class="bi bi-arrow-repeat"></i> Check & Generate All Eligible
-                    </button>
-                </div>
-                
-                <div id="certificatesContainer" class="row g-3">
-                    <div class="col-12 text-center p-5"><div class="spinner-border text-primary"></div></div>
-                </div>
-            `;
-
-            const gridContainer = document.getElementById('certificatesContainer');
-
+            const container = document.getElementById('certificatesContainer');
+            container.innerHTML = '<div class="col-span-full text-center py-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500 mx-auto"></div></div>';
+            
             try {
-                // 1. Get existing certificates
                 const certRes = await fetchApi(`/certificates?course_id=${currentCourseId}`);
-                let issuedCerts = Array.isArray(certRes) ? certRes : (certRes?.data || []);
+                const issuedCerts = (Array.isArray(certRes) ? certRes : certRes?.data) || [];
+                
+                if(!currentEnrollments.length) { container.innerHTML = '<div class="col-span-full text-center text-slate-400">Tidak ada siswa.</div>'; return; }
 
-                // 2. Get all students (currentEnrollments loaded in openCourseDetail)
-                if (!currentEnrollments || currentEnrollments.length === 0) {
-                    gridContainer.innerHTML = '<div class="col-12 text-center p-5 text-muted">No students enrolled.</div>';
-                    return;
-                }
-
-                gridContainer.innerHTML = ''; // Clear loading
-
-                // 3. Process each student
-                for (const enrollment of currentEnrollments) {
-                    const studentId = enrollment.student_id;
-                    const existingCert = issuedCerts.find(c => c.student_id == studentId);
-
-                    // Ambil nama siswa dengan aman
-                    let studentName = `Student #${studentId}`;
-                    if (enrollment.student && enrollment.student.user) {
-                        studentName = enrollment.student.user.full_name || enrollment.student.user.name;
-                    }
-
-                    if (existingCert) {
-                        // STATE A: Issued (Tampilkan Kartu Hijau)
-                        gridContainer.innerHTML += renderCertificateCard(studentName, existingCert);
+                container.innerHTML = '';
+                
+                for(const enrollment of currentEnrollments) {
+                    const cert = issuedCerts.find(c => c.student_id == enrollment.student_id);
+                    const name = enrollment.student?.user?.full_name || 'Siswa';
+                    
+                    if(cert) {
+                        // Issued Card (Green)
+                        container.innerHTML += `
+                            <div class="bg-white p-5 rounded-xl border border-emerald-200 shadow-sm relative overflow-hidden h-full flex flex-col">
+                                <div class="absolute top-0 right-0 p-2"><i class="bi bi-patch-check-fill text-emerald-500 text-xl"></i></div>
+                                <h5 class="font-bold text-slate-800">${name}</h5>
+                                <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-bold w-max mt-1">Certified</span>
+                                <p class="text-xs text-slate-500 mt-2 font-mono">${cert.certificate_code}</p>
+                                <div class="mt-auto pt-4 flex gap-2">
+                                    <button onclick="window.open('${BASE_API}/certificates/${cert.id}/download?token=${localStorage.getItem('auth_token')}')" class="flex-1 py-1.5 border border-emerald-500 text-emerald-600 rounded text-xs font-bold hover:bg-emerald-50">Download</button>
+                                </div>
+                            </div>`;
                     } else {
-                        // STATE B: Not Issued (Check Eligibility ke Backend)
-                        // Call backend eligibility check for each student without cert
+                        // Progress Card (In Progress - Matching User's Design Request)
                         const eligibility = await fetchApi(`/certificates/eligibility/${enrollment.id}`);
-                        gridContainer.innerHTML += renderProgressCard(studentName, eligibility);
+                        const att = eligibility?.attendance_percentage || 0;
+                        const ass = eligibility?.assignment_completion_rate || 0;
+                        const errors = eligibility?.errors || [];
+
+                        // Generate Requirements List
+                        let reqList = '';
+                        if (errors.length > 0) {
+                            reqList = errors.map(e => `<li class="text-[11px] text-slate-500">${e}</li>`).join('');
+                        } else {
+                            reqList = `<li class="text-[11px] text-emerald-600 font-bold">All requirements met! Ready to generate.</li>`;
+                        }
+                        
+                        container.innerHTML += `
+                            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm h-full flex flex-col">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="font-bold text-slate-800 text-base">${name}</h5>
+                                    <span class="bg-slate-600 text-white text-[10px] px-2 py-1 rounded font-bold tracking-wide">In Progress</span>
+                                </div>
+
+                                <div class="space-y-3 mb-4">
+                                    <div class="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
+                                        <span class="text-slate-500">Attendance</span>
+                                        <span class="font-mono font-bold ${att >= 75 ? 'text-emerald-600' : 'text-slate-700'}">${att}% / 75%</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-sm pb-2">
+                                        <span class="text-slate-500">Assignments</span>
+                                        <span class="font-mono font-bold ${ass >= 80 ? 'text-emerald-600' : 'text-slate-700'}">${ass}% / 80%</span>
+                                    </div>
+                                </div>
+
+                                <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 mt-auto">
+                                    <div class="flex items-center gap-1.5 mb-2 text-xs text-slate-400">
+                                        <i class="bi bi-info-circle"></i> <span>Requirements:</span>
+                                    </div>
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        ${reqList}
+                                    </ul>
+                                </div>
+                            </div>`;
                     }
                 }
-            } catch (e) {
-                console.error(e);
-                gridContainer.innerHTML = `<div class="alert alert-danger">Error loading certificate data: ${e.message}</div>`;
-            }
-        }
-
-        function renderCertificateCard(studentName, cert) {
-            // Added 'progress-card' class for hover effect
-            return `
-                <div class="col-md-6 col-xl-4">
-                    <div class="card h-100 border-success border-2 shadow-sm progress-card">
-                        <div class="card-body text-center">
-                            <div class="mb-3 text-success">
-                                <i class="bi bi-patch-check-fill display-4"></i>
-                            </div>
-                            <h5 class="card-title fw-bold">${studentName}</h5>
-                            <p class="badge bg-success bg-opacity-10 text-success fs-6 mb-2">Certified</p>
-                            <p class="text-muted small mb-3">
-                                Code: <span class="font-monospace text-dark">${cert.certificate_code}</span><br>
-                                Issued: ${new Date(cert.issued_at).toLocaleDateString()}
-                            </p>
-                            <div class="d-flex gap-2 justify-content-center">
-                                <button class="btn btn-sm btn-outline-success" onclick="downloadCertificate('${cert.id}')">
-                                    <i class="bi bi-download"></i> Download
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteCertificate('${cert.id}')">
-                                    <i class="bi bi-x-circle"></i> Revoke
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderProgressCard(studentName, eligibility) {
-            // Fallback if API fails or returns null
-            // Added 'progress-card' class for hover effect
-            if (!eligibility) {
-                return `
-                    <div class="col-md-6 col-xl-4">
-                        <div class="card h-100 border-light bg-light progress-card">
-                            <div class="card-body text-center text-muted">
-                                <h5>${studentName}</h5>
-                                <p>Unable to check eligibility.</p>
-                            </div>
-                        </div>
-                    </div>`;
-            }
-
-            // Calculate progress visually 
-            const attendancePct = eligibility.attendance_percentage || 0;
-            const assignmentPct = eligibility.assignment_completion_rate || 0;
-
-            return `
-                <div class="col-md-6 col-xl-4">
-                    <div class="card h-100 border-0 shadow-sm progress-card">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="card-title fw-bold mb-0">${studentName}</h6>
-                                <span class="badge bg-secondary">In Progress</span>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between small mb-1">
-                                    <span>Attendance</span>
-                                    <span>${attendancePct}% / 75%</span>
-                                </div>
-                                <div class="progress mb-2" style="height: 6px;">
-                                    <div class="progress-bar bg-${attendancePct >= 75 ? 'success' : 'warning'}" style="width: ${attendancePct}%"></div>
-                                </div>
-                                
-                                <div class="d-flex justify-content-between small mb-1">
-                                    <span>Assignments</span>
-                                    <span>${assignmentPct}% / 80%</span>
-                                </div>
-                                <div class="progress" style="height: 6px;">
-                                    <div class="progress-bar bg-${assignmentPct >= 80 ? 'success' : 'warning'}" style="width: ${assignmentPct}%"></div>
-                                </div>
-                            </div>
-
-                            <div class="alert alert-light border small mb-0 text-muted py-2">
-                                <i class="bi bi-info-circle me-1"></i> Requirements:
-                                <ul class="mb-0 ps-3 mt-1" style="font-size: 0.85rem;">
-                                    ${eligibility.errors && eligibility.errors.length > 0
-                    ? eligibility.errors.map(e => `<li>${e}</li>`).join('')
-                    : '<li>All requirements met! Ready to generate.</li>'}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
+            } catch(e) { console.error(e); container.innerHTML = '<div class="text-red-400 text-center col-span-full">Gagal memuat data.</div>'; }
         }
 
         async function bulkGenerateCertificates() {
-            if (!confirm("System will auto-check all students and issue certificates for eligible ones.\n\nContinue?")) return;
-
-            // Call endpoint: POST /api/v1/certificates/bulk-generate/{courseId}
-            const res = await fetchApi(`/certificates/bulk-generate/${currentCourseId}`, { method: 'POST' });
-
-            if (res) {
-                const count = res.generated_count || res.count || 0;
-                alert(`Success! ${count} new certificates generated.`);
-                loadCertificatesTab(); // Reload to update cards
-            }
-        }
-
-        async function deleteCertificate(id) {
-            if (confirm("Revoke this certificate? The student will lose access to it.")) {
-                const res = await fetchApi(`/certificates/${id}`, { method: 'DELETE' });
-                if (res !== null) {
-                    alert("Certificate revoked successfully.");
+            if(await Swal.fire({ title: 'Generate Otomatis?', text: 'Sistem akan mengecek semua siswa yang memenuhi syarat.', icon: 'question', showCancelButton: true }).then(r => r.isConfirmed)) {
+                const res = await fetchApi(`/certificates/bulk-generate/${currentCourseId}`, { method: 'POST' });
+                if(res) {
+                    Swal.fire('Selesai', `${res.generated_count || res.count || 0} sertifikat baru dibuat.`, 'success');
                     loadCertificatesTab();
                 }
             }
         }
 
-        async function downloadCertificate(id) {
-            window.open(`${BASE_API}/certificates/${id}/download?token=${localStorage.getItem('auth_token')}`, '_blank');
-        }
+        // --- ANNOUNCEMENTS ---
+        async function loadAnnouncements(filter = {}) {
+            const container = document.getElementById('announcementList');
+            container.innerHTML = '<div class="col-span-full text-center py-10"><div class="spinner-border text-primary"></div></div>';
+            
+            const res = await fetchApi('/announcements');
+            const list = (Array.isArray(res) ? res : res?.data) || [];
+            
+            const filtered = filter.status ? list.filter(a => a.status === filter.status) : list;
 
-        // --- HELPERS ---
+            if(!filtered.length) { container.innerHTML = '<div class="col-span-full text-center text-slate-400 py-10">Belum ada pengumuman.</div>'; return; }
 
-        function renderAssignments(list) {
-            const el = document.getElementById('assignmentListContainer');
-            if (!list.length) { el.innerHTML = '<div class="alert alert-light text-center">No assignments yet.</div>'; return; }
-            el.innerHTML = list.map(a => `
-                <div class="card mb-3 border-start border-primary border-3 shadow-sm">
-                    <div class="card-body py-3 d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-1 fw-bold">${a.title}</h6>
-                            <div class="text-muted small">
-                                <span class="me-3"><i class="bi bi-calendar"></i> ${a.due_date ? new Date(a.due_date).toLocaleDateString() : 'No Due Date'}</span>
-                                <span class="badge bg-${a.status === 'published' ? 'success' : 'secondary'}">${a.status}</span>
-                            </div>
-                        </div>
-                        <button onclick="viewSubmissions(${a.id})" class="btn btn-sm btn-outline-primary">View Submissions</button>
+            container.innerHTML = filtered.map(a => `
+                <div class="bg-white p-5 rounded-xl border-l-4 ${a.priority === 'urgent' ? 'border-red-500' : 'border-indigo-500'} shadow-sm">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-100 px-2 py-1 rounded text-slate-500">${a.course ? a.course.course_code : 'GLOBAL'}</span>
+                        <span class="text-[10px] ${a.status === 'published' ? 'text-green-600' : 'text-amber-600'} font-bold bg-white border px-2 py-0.5 rounded-full">${a.status}</span>
                     </div>
+                    <h4 class="font-bold text-slate-800 text-lg mb-1">${a.title}</h4>
+                    <p class="text-sm text-slate-600 mb-3">${a.content}</p>
+                    <div class="text-xs text-slate-400 flex items-center gap-1"><i class="bi bi-clock"></i> ${new Date(a.created_at).toLocaleDateString()}</div>
                 </div>
             `).join('');
         }
 
-        function renderStudents(list) {
-            const tbody = document.getElementById('studentListBody');
-            if (!list.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center p-4">No students enrolled.</td></tr>'; return; }
-            tbody.innerHTML = list.map(e => `
-                <tr>
-                    <td>${e.student?.full_name || 'Unknown'}</td>
-                    <td>${e.student?.user?.email || '-'}</td>
-                    <td><span class="badge bg-success rounded-pill">Active</span></td>
-                </tr>
-            `).join('');
-        }
-
-        async function submitCreateCourse() {
-            // Debug: Log current user info
-            console.log('Current User:', currentUser);
-            console.log('User Role:', currentUser.role);
-
-            const data = {
-                course_code: document.querySelector('[name="course_code"]').value,
-                course_name: document.querySelector('[name="course_name"]').value,
-                description: document.querySelector('[name="description"]').value
-            };
-
-            // Only admin can specify instructor_id manually
-            // Instructor's ID will be auto-filled by backend
-            if (currentUser.role === 'admin') {
-                // For admin, we could add an instructor selector in the form
-                // For now, if admin has instructor role, they can also rely on backend auto-fill
-                const instructorIdField = document.querySelector('[name="instructor_id"]');
-                if (instructorIdField && instructorIdField.value) {
-                    data.instructor_id = parseInt(instructorIdField.value);
-                }
-            }
-            // If user is instructor, don't send instructor_id - backend will auto-fill it
-
-            console.log('Data being sent to backend:', data);
-
-            const res = await fetchApi('/courses', { method: 'POST', body: JSON.stringify(data) });
-            if (res) {
-                bootstrap.Modal.getInstance(document.getElementById('createCourseModal')).hide();
-                loadDashboard();
-            }
-        }
-
-        // --- MODULES & MATERIALS ---
-
-        async function loadModulesTab() {
-            if (!currentCourseId) {
-                console.error('❌ currentCourseId is null/undefined!');
-                return;
-            }
-
-            console.log('🔍 Loading modules for courseId:', currentCourseId);
-            const container = document.getElementById('modulesAccordion');
-            container.innerHTML = '<div class="text-center p-4 text-muted">Loading modules...</div>';
-
-            try {
-                const [modulesRes, materialsRes] = await Promise.all([
-                    fetchApi('/course-modules'),
-                    fetchApi('/materials')
-                ]);
-
-                console.log('📦 Raw API Response - Modules:', modulesRes);
-                console.log('📦 Raw API Response - Materials:', materialsRes);
-
-                if (modulesRes) {
-                    // Handle response variations (Array vs {data: Array})
-                    let rawModules = Array.isArray(modulesRes) ? modulesRes : (modulesRes.data || []);
-                    console.log('📋 Total modules from API:', rawModules.length);
-                    console.log('📋 Sample module:', rawModules[0]);
-
-                    // Filter modules for current course
-                    let modules = rawModules.filter(m => {
-                        const match = m.course_id == currentCourseId;
-                        if (match) {
-                            console.log('✅ Module matched:', m.id, m.title || m.module_name, 'course_id:', m.course_id);
-                        }
-                        return match;
-                    });
-
-                    console.log(`🎯 Filtered modules for course ${currentCourseId}:`, modules.length, 'modules');
-                    console.log('📝 Filtered modules:', modules);
-
-                    modules.sort((a, b) => (a.module_order || 0) - (b.module_order || 0));
-
-                    if (materialsRes) {
-                        let rawMaterials = Array.isArray(materialsRes) ? materialsRes : (materialsRes.data || []);
-                        console.log('📚 Total materials from API:', rawMaterials.length);
-
-                        modules.forEach(m => {
-                            // Match materials to module (API might return course_module_id)
-                            m.materials = rawMaterials.filter(mat =>
-                                (mat.course_module_id == m.id) || (mat.module_id == m.id)
-                            );
-                            console.log(`📎 Module ${m.id} has ${m.materials.length} materials`);
-                        });
-                    }
-                    renderModules(modules);
-                } else {
-                    console.error('❌ modulesRes is null/undefined');
-                    container.innerHTML = '<div class="text-center p-4 text-muted">Failed to load modules data.</div>';
-                }
-            } catch (err) {
-                console.error("❌ Error loading modules:", err);
-                container.innerHTML = `<div class="text-center text-danger p-4">Error loading modules: ${err.message}</div>`;
-            }
-        }
-
-        function renderModules(modules) {
-            const container = document.getElementById('modulesAccordion');
-            if (modules.length === 0) {
-                container.innerHTML = '<div class="text-center p-4 text-muted">No modules found. Create one to get started.</div>';
-                return;
-            }
-
-            container.innerHTML = modules.map((m, index) => `
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="heading${m.id}">
-                        <button class="accordion-button ${index === 0 ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${m.id}">
-                            <div class="d-flex justify-content-between w-100 me-3 align-items-center">
-                                <span class="fw-bold">${m.module_name || m.title || 'Untitled Module'}</span>
-                                <div class="btn-group btn-group-sm" onclick="event.stopPropagation()">
-                                    <button class="btn btn-outline-secondary" onclick="openEditModuleModal(${m.id}, '${m.module_name || m.title || ''}', ${m.module_order || 0})"><i class="bi bi-pencil"></i></button>
-                                    <button class="btn btn-outline-danger" onclick="deleteModule(${m.id})"><i class="bi bi-trash"></i></button>
-                                </div>
-                            </div>
-                        </button>
-                    </h2>
-                    <div id="collapse${m.id}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}" data-bs-parent="#modulesAccordion">
-                        <div class="accordion-body bg-light">
-                            <div class="d-flex justify-content-between mb-3">
-                                <h6 class="text-muted">Learning Materials</h6>
-                                <button class="btn btn-sm btn-outline-primary" onclick="openCreateMaterialModal(${m.id})">
-                                    <i class="bi bi-plus-lg"></i> Add Material
-                                </button>
-                            </div>
-                            <div class="list-group">
-                                ${renderMaterials(m.materials || [])}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function renderMaterials(materials) {
-            if (!materials || materials.length === 0) {
-                return '<div class="text-center py-3 text-muted small">No materials yet.</div>';
-            }
-            return materials.map(mat => `
-                <div class="list-group-item d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <i class="${getMaterialIcon(mat.material_type)} fs-4 me-3 text-primary"></i>
-                        <div>
-                            <div class="fw-bold">${mat.title}</div>
-                            <small class="text-muted text-capitalize">${mat.material_type}</small>
-                            ${mat.content_path && mat.material_type !== 'file' ? `<a href="${mat.content_path}" target="_blank" class="ms-2 small text-decoration-none"><i class="bi bi-box-arrow-up-right"></i> Open</a>` : ''}
-                            ${mat.material_type === 'file' && mat.content_path && mat.content_path !== 'pending_upload' ? `<a href="${mat.content_path}" target="_blank" class="ms-2 small text-decoration-none"><i class="bi bi-download"></i> Download</a>` : ''}
-                        </div>
-                    </div>
-                    <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-secondary" onclick="openEditMaterialModal(${mat.id}, '${mat.title.replace(/'/g, "\\'")}', '${mat.material_type}', '${(mat.content_path || '').replace(/'/g, "\\'")}')"><i class="bi bi-pencil"></i></button>
-                        <button class="btn btn-outline-danger" onclick="deleteMaterial(${mat.id})"><i class="bi bi-trash"></i></button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function getMaterialIcon(type) {
-            switch (type) {
-                case 'video': return 'bi bi-play-circle';
-                case 'link': return 'bi bi-link-45deg';
-                case 'file': return 'bi bi-file-earmark-text';
-                default: return 'bi bi-file-earmark';
-            }
-        }
-
-        // Module CRUD
-        function openCreateModuleModal() {
-            document.getElementById('formCreateModule').reset();
-            document.getElementById('moduleId').value = '';
-            document.getElementById('moduleModalTitle').innerText = 'Add Module';
-            new bootstrap.Modal(document.getElementById('createModuleModal')).show();
-        }
-
-        function openEditModuleModal(id, title, order) {
-            document.getElementById('moduleId').value = id;
-            document.getElementById('moduleTitle').value = title;
-            document.getElementById('moduleOrder').value = order;
-            document.getElementById('moduleModalTitle').innerText = 'Edit Module';
-            new bootstrap.Modal(document.getElementById('createModuleModal')).show();
-        }
-
-        async function submitModule() {
-            const id = document.getElementById('moduleId').value;
-            const title = document.getElementById('moduleTitle').value;
-            const order = document.getElementById('moduleOrder').value;
-
-            if (!title) { alert("Title is required"); return; }
-
+        async function submitAnnouncement() {
             const payload = {
-                course_id: parseInt(currentCourseId),
-                title: title,
-                module_order: parseInt(order)
+                title: document.getElementById('annTitle').value,
+                content: document.getElementById('annContent').value,
+                course_id: document.getElementById('annCourseId').value || null,
+                announcement_type: document.getElementById('annCourseId').value ? 'course' : 'global',
+                priority: document.getElementById('annPriority').value,
+                status: document.getElementById('annStatus').value
             };
-
-            let res;
-            if (id) {
-                res = await fetchApi(`/course-modules/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
-            } else {
-                res = await fetchApi('/course-modules', { method: 'POST', body: JSON.stringify(payload) });
-            }
-
-            if (res) {
-                bootstrap.Modal.getInstance(document.getElementById('createModuleModal')).hide();
-
-                // Switch to Modules tab to show the new/updated module
-                const modulesTab = document.querySelector('[data-bs-target="#tabModules"]');
-                if (modulesTab) {
-                    const tabInstance = new bootstrap.Tab(modulesTab);
-                    tabInstance.show();
-                }
-
-                loadModulesTab();
-            }
+            closeModal('modal-announcement');
+            const res = await fetchApi('/announcements', { method: 'POST', body: JSON.stringify(payload) });
+            if(res) { Swal.fire('Berhasil', 'Pengumuman dibuat', 'success'); loadAnnouncements(); }
         }
 
-        async function deleteModule(id) {
-            if (!confirm("Are you sure? All materials in this module will be deleted.")) return;
-            const res = await fetchApi(`/course-modules/${id}`, { method: 'DELETE' });
-            if (res) loadModulesTab();
+        // --- UTILS & MODALS ---
+        function navTo(viewId) {
+            document.querySelectorAll('.page-view').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${viewId}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active', 'text-white', 'bg-white/5'));
+            const activeNav = document.getElementById(`nav-${viewId === 'course-detail' || viewId === 'submissions' ? 'courses' : viewId}`);
+            if(activeNav) activeNav.classList.add('active');
+
+            if(viewId === 'dashboard') loadDashboard();
+            if(viewId === 'courses') loadDashboard(); // Re-use logic
+            if(viewId === 'announcements') loadAnnouncements();
         }
 
-        // Material CRUD
-        function openCreateMaterialModal(moduleId) {
-            document.getElementById('formCreateMaterial').reset();
-            document.getElementById('materialId').value = '';
-            document.getElementById('materialModuleId').value = moduleId;
-            document.getElementById('materialModalTitle').innerText = 'Add Material';
-            document.getElementById('materialType').disabled = false;
-            toggleMaterialInput();
-            new bootstrap.Modal(document.getElementById('createMaterialModal')).show();
-        }
-
-        function openEditMaterialModal(id, title, type, content) {
-            document.getElementById('formCreateMaterial').reset();
-            document.getElementById('materialId').value = id;
-            document.getElementById('materialTitle').value = title;
-            document.getElementById('materialType').value = type;
-            document.getElementById('materialType').disabled = true; // Cannot change type on edit
-
-            if (type !== 'file') {
-                document.getElementById('materialUrl').value = content;
-            }
-
-            document.getElementById('materialModalTitle').innerText = 'Edit Material';
-            toggleMaterialInput();
-            new bootstrap.Modal(document.getElementById('createMaterialModal')).show();
-        }
-
-        function toggleMaterialInput() {
-            const type = document.getElementById('materialType').value;
-            const fileInput = document.getElementById('materialFileInput');
-            const urlInput = document.getElementById('materialUrlInput');
-
-            if (type === 'file') {
-                fileInput.classList.remove('d-none');
-                urlInput.classList.add('d-none');
-            } else {
-                fileInput.classList.add('d-none');
-                urlInput.classList.remove('d-none');
-            }
-        }
-
-        async function submitMaterial() {
-            const id = document.getElementById('materialId').value;
-            const moduleId = document.getElementById('materialModuleId').value;
-            const title = document.getElementById('materialTitle').value;
-            const type = document.getElementById('materialType').value;
-            const url = document.getElementById('materialUrl').value;
-            const fileInput = document.getElementById('materialFile');
-
-            if (!title) { alert("Title is required"); return; }
-
-            // Validation
-            if (!id) {
-                if (type !== 'file' && !url) { alert("URL is required"); return; }
-                if (type === 'file' && fileInput.files.length === 0) { alert("File is required"); return; }
-            }
-
-            // File Validation
-            if (type === 'file' && fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                const allowed = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'jpg', 'jpeg', 'png', 'mp4', 'mp3'];
-                const ext = file.name.split('.').pop().toLowerCase();
-                if (!allowed.includes(ext)) {
-                    alert(`Invalid file type. Allowed: ${allowed.join(', ')}`);
-                    return;
-                }
-                if (file.size > 50 * 1024 * 1024) { // 50MB
-                    alert("File size exceeds 50MB limit.");
-                    return;
-                }
-            }
-
-            const payload = {
-                title: title,
-                material_type: type,
-                content_path: type === 'file' ? (id ? undefined : 'pending_upload') : url
-            };
-
-            if (!id) {
-                payload.module_id = parseInt(moduleId);
-            }
-
-            let res;
-            if (id) {
-                res = await fetchApi(`/materials/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
-            } else {
-                res = await fetchApi('/materials', { method: 'POST', body: JSON.stringify(payload) });
-            }
-
-            if (res) {
-                const targetId = id || res.id;
-
-                // Upload file if selected
-                if (type === 'file' && fileInput.files.length > 0) {
-                    const formData = new FormData();
-                    formData.append('file', fileInput.files[0]);
-
-                    const token = localStorage.getItem('auth_token');
-                    const baseUrl = document.getElementById('ngrokUrl').value + '/api/v1';
-
-                    try {
-                        const uploadRes = await fetch(`${baseUrl}/upload/material/${targetId}`, {
-                            method: 'POST',
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'ngrok-skip-browser-warning': 'true'
-                            },
-                            body: formData
-                        });
-
-                        if (!uploadRes.ok) {
-                            const errJson = await uploadRes.json();
-                            throw new Error(errJson.message || 'Upload failed');
-                        }
-
-                        bootstrap.Modal.getInstance(document.getElementById('createMaterialModal')).hide();
-                        loadModulesTab();
-                    } catch (err) {
-                        console.error("Upload error:", err);
-                        alert(`Material saved but upload failed: ${err.message}`);
-                        loadModulesTab();
-                    }
-                } else {
-                    bootstrap.Modal.getInstance(document.getElementById('createMaterialModal')).hide();
-                    loadModulesTab();
-                }
-            }
-        }
-
-        async function deleteMaterial(id) {
-            if (!confirm("Delete this material?")) return;
-            const res = await fetchApi(`/materials/${id}`, { method: 'DELETE' });
-            if (res) loadModulesTab();
+        function showLoader(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        
+        function openCreateSessionModal() {
+            document.getElementById('formCreateSession').reset();
+            const now = new Date().toISOString().slice(0, 16);
+            document.getElementById('sessionStartTime').value = now;
+            document.getElementById('sessionEndTime').value = now;
+            document.getElementById('sessionDeadline').value = now;
+            openModal('modal-create-session');
         }
 
         function openAssignmentModal() {
             document.getElementById('formCreateAssignment').reset();
-            new bootstrap.Modal(document.getElementById('createAssignmentModal')).show();
+            document.getElementById('assignId').value = '';
+            openModal('modal-create-assignment');
         }
 
-        async function viewSubmissions(id) {
-            const a = await fetchApi(`/assignments/${id}`);
-            if (a) {
-                document.getElementById('submissionTitle').innerText = `Submissions: ${a.title}`;
-                const tbody = document.getElementById('submissionTableBody');
-                const list = a.submissions || [];
-                if (!list.length) tbody.innerHTML = '<tr><td colspan="5" class="text-center p-4">No submissions yet.</td></tr>';
-                else tbody.innerHTML = list.map(s => `
-                    <tr>
-                        <td>${s.enrollment?.student?.full_name || 'Student'}</td>
-                        <td>${new Date(s.created_at).toLocaleDateString()}</td>
-                        <td>${s.file_path ? `<a href="${s.file_path}" target="_blank">Link</a>` : '-'}</td>
-                        <td>${s.grade ? s.grade.score : '-'}</td>
-                        <td><button onclick="openGradingModal(${s.id}, ${s.enrollment_id})" class="btn btn-sm btn-primary">Grade</button></td>
-                    </tr>
-                `).join('');
-                navTo('submissionView');
+        function openAnnouncementModal() {
+            const sel = document.getElementById('annCourseId');
+            sel.innerHTML = '<option value="">Global (Semua)</option>';
+            globalCourses.forEach(c => sel.innerHTML += `<option value="${c.id}">${c.course_name}</option>`);
+            openModal('modal-announcement');
+        }
+
+        function toggleMaterialInput() {
+            const type = document.getElementById('materialType').value;
+            if(type === 'file') {
+                document.getElementById('materialFileInput').classList.remove('hidden');
+                document.getElementById('materialUrlInput').classList.add('hidden');
+            } else {
+                document.getElementById('materialFileInput').classList.add('hidden');
+                document.getElementById('materialUrlInput').classList.remove('hidden');
             }
         }
 
-        function openGradingModal(sid, eid) {
-            document.getElementById('gradeEnrollmentId').value = eid;
-            new bootstrap.Modal(document.getElementById('gradingModal')).show();
-        }
-
-        async function submitGrade() {
-            const data = {
-                enrollment_id: document.getElementById('gradeEnrollmentId').value,
-                grade_component_id: 1,
-                score: document.getElementById('gradeValue').value,
-                feedback: document.getElementById('gradeFeedback').value
+        async function submitCreateCourse() {
+            const payload = {
+                course_code: document.getElementsByName('course_code')[0].value,
+                course_name: document.getElementsByName('course_name')[0].value,
+                description: document.getElementsByName('description')[0].value
             };
-            const res = await fetchApi('/grades', { method: 'POST', body: JSON.stringify(data) });
-            if (res) {
-                alert('Saved');
-                bootstrap.Modal.getInstance(document.getElementById('gradingModal')).hide();
+            closeModal('modal-create-course');
+            const res = await fetchApi('/courses', { method: 'POST', body: JSON.stringify(payload) });
+            if(res) { Swal.fire('Sukses', 'Kursus berhasil dibuat', 'success'); loadDashboard(); }
+        }
+
+        async function submitModule() {
+            const id = document.getElementById('moduleId').value;
+            const payload = {
+                course_id: parseInt(currentCourseId),
+                title: document.getElementById('moduleTitle').value,
+                module_order: parseInt(document.getElementById('moduleOrder').value)
+            };
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `/course-modules/${id}` : '/course-modules';
+            
+            closeModal('modal-create-module');
+            const res = await fetchApi(url, { method, body: JSON.stringify(payload) });
+            if(res) loadModulesTab();
+        }
+
+        async function submitAssignment() {
+            const id = document.getElementById('assignId').value;
+            const payload = {
+                course_id: parseInt(currentCourseId),
+                title: document.getElementById('assignTitle').value,
+                description: document.getElementById('assignDesc').value,
+                due_date: new Date(document.getElementById('assignDate').value).toISOString(),
+                max_score: parseInt(document.getElementById('assignScore').value)
+            };
+            closeModal('modal-create-assignment');
+            const res = await fetchApi(id ? `/assignments/${id}` : '/assignments', { method: id ? 'PUT' : 'POST', body: JSON.stringify(payload) });
+            if(res) { 
+                switchTab('assignments'); 
+                const course = await fetchApi(`/courses/${currentCourseId}`); // refresh list
+                renderAssignmentsList(course.assignments || []);
             }
         }
 
-        async function deleteCourse(id) {
-            if (confirm('Delete course?')) {
-                await fetchApi(`/courses/${id}`, { method: 'DELETE' });
-                loadDashboard();
-                navTo('courses');
-            }
-        }
-
-        function navTo(id, el) {
-            document.querySelectorAll('.page-section').forEach(d => d.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            if (el) {
-                document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-                el.classList.add('active');
-            }
-            if (id === 'announcements') loadAnnouncements();
-            if (id === 'courses') loadDashboard();
-        }
-
-        function backToCourseDetail() { navTo('courseDetail'); }
-        function logout() { localStorage.removeItem('auth_token'); window.location.reload(); }
-
+        // Initialize
         document.addEventListener('DOMContentLoaded', initApp);
-
+        
+        function logout() {
+            localStorage.removeItem('auth_token');
+            location.reload();
+        }
     </script>
 </body>
-
 </html>

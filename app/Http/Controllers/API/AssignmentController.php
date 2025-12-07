@@ -136,18 +136,32 @@ class AssignmentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+     public function store(Request $request)
     {
         $validated = $request->validate([
             "course_id" => "required|exists:courses,id",
             "title" => "required|string|max:255",
             "description" => "required|string",
             "due_date" => "nullable|date",
+            "max_score" => "required|integer|min:0|max:100" // Tambahkan validasi score
         ]);
 
         $course = Course::find($validated["course_id"]);
         $user = $request->user();
-        if (!$user->instructor || $user->instructor->id !== $course->instructor_id) {
+
+        // --- PERBAIKAN LOGIKA OTORISASI ---
+        // Izinkan jika user adalah 'admin' ATAU instruktur yang sesuai
+        $isAuthorized = false;
+
+        if ($user->role === 'admin') {
+            $isAuthorized = true;
+        } elseif ($user->role === 'instructor' && $user->instructor) {
+            if ($user->instructor->id === $course->instructor_id) {
+                $isAuthorized = true;
+            }
+        }
+
+        if (!$isAuthorized) {
             return response()->json(
                 [
                     "message" => "You are not authorized to create assignments for this course.",
@@ -155,8 +169,12 @@ class AssignmentController extends Controller
                 403,
             );
         }
+        // ----------------------------------
 
         try {
+            // Pastikan field status ada default value atau ditambahkan
+            $validated['status'] = 'published'; 
+            
             $assignment = Assignment::create($validated);
             return response()->json($assignment, 201);
         } catch (\Exception $e) {

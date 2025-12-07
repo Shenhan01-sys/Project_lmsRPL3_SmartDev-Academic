@@ -342,7 +342,7 @@ class CourseModuleController extends Controller
                 if ($user->role === "student") {
                     $enrolledCourseIds = Enrollment::where(
                         "student_id",
-                        $user->id,
+                        $user->student ? $user->student->id : null,
                     )->pluck("course_id");
                 } else {
                     // parent
@@ -418,7 +418,7 @@ class CourseModuleController extends Controller
                     ->whereHas("course.enrollments", function ($query) use (
                         $user,
                     ) {
-                        $query->where("student_id", $user->id);
+                        $query->where("student_id", $user->student ? $user->student->id : null);
                     })
                     ->get();
             } elseif ($user->role === "parent") {

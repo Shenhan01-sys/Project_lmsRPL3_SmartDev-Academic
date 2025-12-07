@@ -8,6 +8,8 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
+use Illuminate\Support\Facades\Auth;
+
 class EnrollmentController extends Controller
 {
     use AuthorizesRequests;
@@ -17,7 +19,7 @@ class EnrollmentController extends Controller
      *     path="/api/v1/enrollments",
      *     tags={"Enrollments"},
      *     summary="Get all enrollments",
-     *     description="Retrieve a list of all enrollments with student and course details",
+     *     description="Retrieve a list of enrollments based on user role",
      *     security={{"sanctum":{}}},
      *     @OA\Response(
      *         response=200,
@@ -39,10 +41,37 @@ class EnrollmentController extends Controller
     public function index()
     {
         try {
-            $enrollments = Enrollment::with([
+            $user = Auth::user();
+            $query = Enrollment::with([
                 "student.user",
                 "course.instructor",
-            ])->get();
+            ]);
+
+            if ($user->role === 'student') {
+                if ($user->student) {
+                    $query->where('student_id', $user->student->id);
+                } else {
+                    return response()->json([]);
+                }
+            } elseif ($user->role === 'instructor') {
+                if ($user->instructor) {
+                    $query->whereHas('course', function($q) use ($user) {
+                        $q->where('instructor_id', $user->instructor->id);
+                    });
+                } else {
+                    return response()->json([]);
+                }
+            } elseif ($user->role === 'parent') {
+                if ($user->parentProfile) { // Assuming relationship is parentProfile
+                     $studentIds = $user->parentProfile->students()->pluck('students.id');
+                     $query->whereIn('student_id', $studentIds);
+                } else {
+                    return response()->json([]);
+                }
+            }
+            // Admin sees all
+
+            $enrollments = $query->get();
             return response()->json($enrollments);
         } catch (\Exception $e) {
             return response()->json(

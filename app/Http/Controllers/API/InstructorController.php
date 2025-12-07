@@ -336,13 +336,23 @@ class InstructorController extends Controller
      *     @OA\Response(response=404, description="Instructor not found")
      * )
      */
-    public function courses(string $id)
-    {
-        $instructor = Instructor::findOrFail($id);
-        $courses = $instructor->courses()->with('enrollments')->get();
+     public function courses(string $id)
+     {
+         $instructor = Instructor::findOrFail($id);
+         
+         // Tambahkan withCount untuk menghitung enrollments
+         $courses = $instructor->courses()
+             ->withCount([
+                 'enrollments as students_count' => function ($query) {
+                     // Hitung hanya yang statusnya 'enrolled' atau 'active'
+                     $query->whereIn('status', ['enrolled', 'active']);
+                 }
+             ])
+             ->get();
+     
+         return response()->json($courses);
+     }
 
-        return response()->json($courses);
-    }
 
     /**
      * @OA\Get(
@@ -366,11 +376,19 @@ class InstructorController extends Controller
      *     @OA\Response(response=404, description="Instructor not found")
      * )
      */
-    public function activeCourses(string $id)
-    {
-        $instructor = Instructor::findOrFail($id);
-        $courses = $instructor->activeCourses()->with('enrollments')->get();
+     public function activeCourses(string $id)
+     {
+         $instructor = Instructor::findOrFail($id);
+         
+         $courses = $instructor->activeCourses()
+             ->withCount([
+                 'enrollments as students_count' => function ($query) {
+                     $query->whereIn('status', ['enrolled', 'active']);
+                 }
+             ])
+             ->get();
+     
+         return response()->json($courses);
+     }
 
-        return response()->json($courses);
-    }
 }

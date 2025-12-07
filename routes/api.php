@@ -20,6 +20,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\PasswordController;
 use App\Http\Controllers\API\FileUploadController;
+use App\Http\Controllers\API\DashboardController;
 
 Route::get("/test", function () {
     return response()->json(["message" => "File api.php berhasil diakses!"]);
@@ -65,7 +66,15 @@ Route::middleware("auth:sanctum")->group(function () {
 Route::middleware("auth:sanctum")->group(function () {
     // Rute untuk mendapatkan data user yang sedang login
     Route::get("/user", function (Request $request) {
-        return $request->user();
+        $user = $request->user();
+        if ($user->role === 'student') {
+            $user->load('student');
+        } elseif ($user->role === 'instructor') {
+            $user->load('instructor');
+        } elseif ($user->role === 'parent') {
+            $user->load('parentProfile');
+        }
+        return $user;
     });
 
     // Rute untuk logout
@@ -101,6 +110,17 @@ Route::middleware("auth:sanctum")->group(function () {
 
     // Grup untuk semua rute CRUD resource dengan prefix v1
     Route::prefix("v1")->group(function () {
+        // Dashboard / Stats routes
+        Route::prefix('stats')->group(function () {
+            Route::get('registrations', [DashboardController::class, 'getRegistrationStats']);
+            Route::get('users', [DashboardController::class, 'getUserDistribution']);
+            Route::get('academic', [DashboardController::class, 'getAcademicPerformance']);
+            Route::get('finance', [DashboardController::class, 'getFinanceStats']);
+            Route::get('summary', [DashboardController::class, 'getSummaryStats']);
+            Route::get('risk-analysis', [DashboardController::class, 'getStudentRiskAnalysis']);
+            Route::get('certificates', [DashboardController::class, 'getCertificateAnalytics']);
+        });
+
         // User management (Admin only, for managing admin accounts)
         Route::get("instructors", [
             UserController::class,
@@ -141,15 +161,7 @@ Route::middleware("auth:sanctum")->group(function () {
             "activeStudents",
         ])->name("parents.active-students");
 
-        // Course & Academic routes
-        Route::apiResource("courses", CourseController::class);
-        Route::apiResource("enrollments", EnrollmentController::class);
-        Route::apiResource("course-modules", CourseModuleController::class);
-        Route::apiResource("materials", MaterialController::class);
-        Route::apiResource("assignments", AssignmentController::class);
-        Route::apiResource("submissions", SubmissionController::class);
-
-        // Hybrid approach routes for discovery
+        // Hybrid approach routes for discovery (Must be before apiResource)
         Route::get("course-modules/browse", [
             CourseModuleController::class,
             "browse",
@@ -167,22 +179,31 @@ Route::middleware("auth:sanctum")->group(function () {
             "myMaterials",
         ])->name("materials.my");
 
+        // Course & Academic routes
+        Route::apiResource("courses", CourseController::class);
+        Route::apiResource("enrollments", EnrollmentController::class);
+        Route::apiResource("course-modules", CourseModuleController::class);
+        Route::apiResource("materials", MaterialController::class);
+        Route::apiResource("assignments", AssignmentController::class);
+        Route::apiResource("submissions", SubmissionController::class);
+
         // Registration management routes (Admin only)
-        Route::get("registrations/pending", [
-            App\Http\Controllers\API\RegistrationController::class,
-            "getPendingRegistrations",
-        ])->name("registrations.pending");
+        // Registration management routes (Admin only)
         Route::get("registrations", [
             App\Http\Controllers\API\RegistrationController::class,
-            "getAllRegistrations",
-        ])->name("registrations.all");
-        Route::post("registrations/{user}/approve", [
+            "index",
+        ])->name("registrations.index");
+        Route::get("registrations/{id}", [
             App\Http\Controllers\API\RegistrationController::class,
-            "approveRegistration",
+            "show",
+        ])->name("registrations.show");
+        Route::post("registrations/{id}/approve", [
+            App\Http\Controllers\API\RegistrationController::class,
+            "approve",
         ])->name("registrations.approve");
-        Route::post("registrations/{user}/reject", [
+        Route::post("registrations/{id}/reject", [
             App\Http\Controllers\API\RegistrationController::class,
-            "rejectRegistration",
+            "reject",
         ])->name("registrations.reject");
 
         // Routes khusus untuk grading

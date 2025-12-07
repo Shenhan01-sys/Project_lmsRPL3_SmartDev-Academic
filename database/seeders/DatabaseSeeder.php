@@ -112,8 +112,13 @@ class DatabaseSeeder extends Seeder
         $this->call(NotificationSeeder::class);
         $this->command->newLine();
 
-        // 17. Seed Certificates
-        $this->command->info("1️⃣7️⃣  Seeding certificates...");
+        // 17. Seed Payments
+        $this->command->info("1️⃣7️⃣  Seeding payments...");
+        $this->call(PaymentSeeder::class);
+        $this->command->newLine();
+
+        // 18. Seed Certificates
+        $this->command->info("1️⃣8️⃣  Seeding certificates...");
         $this->call(CertificateSeeder::class);
 
         $this->command->newLine();
@@ -154,6 +159,7 @@ class DatabaseSeeder extends Seeder
                 ["Attendance Records", \App\Models\AttendanceRecord::count()],
                 ["Announcements", \App\Models\Announcement::count()],
                 ["Notifications", \App\Models\Notification::count()],
+                ["Payments", \App\Models\Payment::count()],
             ],
         );
 

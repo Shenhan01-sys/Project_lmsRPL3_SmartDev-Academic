@@ -466,10 +466,17 @@
                 if (res.status === 401) {
                     throw new Error("Token Expired");
                 }
+                // For 404, just return null without logging error (it's expected for some cases)
+                if (res.status === 404) {
+                    return null;
+                }
                 if (!res.ok) throw new Error(`API Error: ${res.status}`);
                 return await res.json();
             } catch (err) {
-                console.error(`Fetch Error (${endpoint}):`, err);
+                // Only log non-404 errors
+                if (!err.message.includes('404')) {
+                    console.error(`Fetch Error (${endpoint}):`, err);
+                }
                 return null;
             }
         }
@@ -512,15 +519,20 @@
                 // Attendance
                 if (student.enrollments) {
                     for (const enroll of student.enrollments) {
-                        const attRes = await fetchApi(`/v1/attendance-records/student/${student.id}/course/${enroll.course_id}/history`);
-                        if (attRes) {
-                            const recs = (Array.isArray(attRes) ? attRes : (attRes.data || [])).map(a => ({
-                                ...a,
-                                student_name: student.full_name,
-                                student_id: student.id,
-                                course_name: enroll.course ? enroll.course.course_name : 'Course'
-                            }));
-                            allAttendance.push(...recs);
+                        try {
+                            const attRes = await fetchApi(`/v1/attendance-records/student/${student.id}/course/${enroll.course_id}/history`);
+                            if (attRes) {
+                                const recs = (Array.isArray(attRes) ? attRes : (attRes.data || [])).map(a => ({
+                                    ...a,
+                                    student_name: student.full_name,
+                                    student_id: student.id,
+                                    course_name: enroll.course ? enroll.course.course_name : 'Course'
+                                }));
+                                allAttendance.push(...recs);
+                            }
+                        } catch (e) {
+                            // Silently skip if student not enrolled or no attendance records
+                            console.warn(`No attendance data for student ${student.id} in course ${enroll.course_id}`);
                         }
                     }
                 }
@@ -601,7 +613,7 @@
             document.getElementById('stat-avg-grade').innerText = avg;
 
             // Attendance Stat
-            const presentCount = allAttendance.filter(a => a.status === 'present').length;
+            const presentCount = allAttendance.filter(a => a.attendance_status === 'present').length;
             const totalAtt = allAttendance.length;
             const attRate = totalAtt ? Math.round((presentCount / totalAtt) * 100) + '%' : '-';
             document.getElementById('stat-attendance').innerText = attRate;
@@ -625,49 +637,59 @@
         }
 
         function renderCharts() {
-            // 1. Grade Trend Chart (Monthly Average)
+            // 1. Grade Trend Chart (Per Assignment)
             const ctx1 = document.getElementById('gradeTrendChart');
             if (ctx1) {
                 const existingChart1 = Chart.getChart("gradeTrendChart");
                 if (existingChart1) existingChart1.destroy();
 
-                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                // Sort grades by date
+                const sortedGrades = [...allGrades].sort((a, b) => 
+                    new Date(a.graded_at || a.created_at) - new Date(b.graded_at || b.created_at)
+                );
 
-                const sortedGrades = [...allGrades].sort((a, b) => new Date(a.graded_at || a.created_at) - new Date(b.graded_at || b.created_at));
+                if (sortedGrades.length === 0) {
+                    return; // No data to show
+                }
 
-                const uniqueMonths = [...new Set(sortedGrades.map(g => {
+                // Get unique grade dates/assignments as labels (limit to last 10 for readability)
+                const uniqueDates = [...new Set(sortedGrades.map(g => {
                     const d = new Date(g.graded_at || g.created_at);
-                    return `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
-                }))];
+                    return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+                }))].slice(-10); // Show last 10 data points
 
-                const labels = uniqueMonths.length ? uniqueMonths : ["No Data"];
+                const labels = uniqueDates.length ? uniqueDates : ["No Data"];
                 const colors = ['#4f46e5', '#ec4899', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4'];
 
+                // Create dataset per student
                 const datasets = myStudents.map((s, idx) => {
+                    const studentGrades = sortedGrades.filter(g => g.student_id === s.id);
+                    
+                    // Map each label to corresponding grade
                     const data = labels.map(label => {
-                        const gradesInMonth = sortedGrades.filter(g => {
+                        // Find grade that matches this label
+                        const grade = studentGrades.find(g => {
                             const d = new Date(g.graded_at || g.created_at);
-                            const monthLabel = `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
-                            return g.student_id === s.id && monthLabel === label;
+                            const dateLabel = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+                            return dateLabel === label;
                         });
-
-                        if (gradesInMonth.length === 0) return null;
-
-                        const sum = gradesInMonth.reduce((acc, curr) => acc + parseFloat(curr.score), 0);
-                        return (sum / gradesInMonth.length).toFixed(1);
+                        
+                        return grade ? parseFloat(grade.score) : null;
                     });
 
                     return {
                         label: s.full_name,
                         data: data,
                         borderColor: colors[idx % colors.length],
-                        backgroundColor: colors[idx % colors.length],
-                        tension: 0.3,
+                        backgroundColor: colors[idx % colors.length] + '40', // Add transparency
+                        tension: 0.4, // More curve for smoother lines
                         borderWidth: 3,
                         pointBackgroundColor: '#fff',
                         pointBorderWidth: 2,
-                        pointRadius: 4,
-                        spanGaps: true
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        spanGaps: true,
+                        fill: false
                     };
                 });
 
@@ -675,20 +697,43 @@
                     type: 'line',
                     data: { labels: labels, datasets: datasets },
                     options: {
-                        responsive: true, maintainAspectRatio: false,
+                        responsive: true, 
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
                         plugins: {
-                            legend: { display: true, position: 'bottom' },
+                            legend: { 
+                                display: true, 
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 15
+                                }
+                            },
                             tooltip: {
                                 callbacks: {
                                     label: function (context) {
-                                        return context.dataset.label + ': ' + context.parsed.y;
+                                        return context.dataset.label + ': ' + (context.parsed.y || 'N/A');
                                     }
                                 }
                             }
                         },
                         scales: {
-                            y: { min: 0, max: 100, grid: { color: '#f1f5f9' }, title: { display: true, text: 'Rata-rata Nilai' } },
-                            x: { grid: { display: false } }
+                            y: { 
+                                min: 0, 
+                                max: 100, 
+                                grid: { color: '#f1f5f9' }, 
+                                title: { display: true, text: 'Nilai' },
+                                ticks: {
+                                    stepSize: 10
+                                }
+                            },
+                            x: { 
+                                grid: { display: false },
+                                title: { display: true, text: 'Tanggal Penilaian' }
+                            }
                         }
                     }
                 });
@@ -701,8 +746,8 @@
                 if (existingChart2) existingChart2.destroy();
 
                 const labels = myStudents.map(s => s.full_name);
-                const presentData = myStudents.map(s => allAttendance.filter(a => a.student_id === s.id && a.status === 'present').length);
-                const absentData = myStudents.map(s => allAttendance.filter(a => a.student_id === s.id && a.status !== 'present').length);
+                const presentData = myStudents.map(s => allAttendance.filter(a => a.student_id === s.id && a.attendance_status === 'present').length);
+                const absentData = myStudents.map(s => allAttendance.filter(a => a.student_id === s.id && a.attendance_status !== 'present').length);
 
                 new Chart(ctx2, {
                     type: 'bar',

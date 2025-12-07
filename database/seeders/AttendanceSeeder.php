@@ -33,10 +33,19 @@ class AttendanceSeeder extends Seeder
             'Pertemuan 7 - Project Work',
             'Pertemuan 8 - Presentasi',
             'Pertemuan 9 - Evaluasi',
-            'Pertemuan 10 - Final Review',
+            'Pertemuan 10 - Ujian Tengah Semester',
+            'Pertemuan 11 - Studi Kasus',
+            'Pertemuan 12 - Praktikum',
+            'Pertemuan 13 - Review Akhir',
+            'Pertemuan 14 - Ujian Akhir Semester',
         ];
 
+        $sessionCount = 0;
+        $recordCount = 0;
+
         foreach ($courses as $course) {
+            $this->command->info("Creating attendance sessions for course: {$course->course_name}");
+            
             // Simulate a full semester (14-16 weeks)
             $numSessions = rand(14, 16);
             
@@ -51,19 +60,15 @@ class AttendanceSeeder extends Seeder
                 if ($sessionDate->isPast()) {
                     $status = 'closed';
                 } else {
-                    $status = 'open';
-                    // If it's too far in future, maybe 'scheduled' but enum only has open/closed usually? 
-                    // Checking migration: enum('open','closed') in testingData.txt
-                    // So future sessions might be 'closed' (not yet open) or 'open' if we want to allow early check-in?
-                    // Usually future sessions are 'closed' until the day of.
+                    // Future sessions
                     if ($sessionDate->diffInDays(Carbon::now()) > 1) {
-                         $status = 'closed'; 
+                        $status = 'closed'; // Not yet open
                     } else {
-                         $status = 'open';
+                        $status = 'open'; // Today or tomorrow
                     }
                 }
 
-                $startTime = $sessionDate->setTime(rand(8, 15), 0); // 08:00 - 15:00
+                $startTime = $sessionDate->copy()->setTime(rand(8, 15), 0, 0); // 08:00 - 15:00
                 $endTime = $startTime->copy()->addHours(2);
                 $deadline = $endTime->copy()->addMinutes(30);
 
@@ -76,90 +81,157 @@ class AttendanceSeeder extends Seeder
                     'end_time' => $endTime,
                 ]);
 
+                $sessionCount++;
+
                 // Create records only for past/closed sessions or active open sessions
                 if ($sessionDate->isPast() || $status === 'open') {
-                    $this->createAttendanceRecords($session);
+                    $recordCount += $this->createAttendanceRecords($session);
                 }
             }
         }
 
-        $this->command->info('Attendance sessions and records seeded successfully!');
-        $this->command->info('Total sessions: ' . AttendanceSession::count());
-        $this->command->info('Total records: ' . AttendanceRecord::count());
+        $this->command->info("\n✅ Attendance seeded successfully!");
+        $this->command->info("   Total sessions: {$sessionCount}");
+        $this->command->info("   Total records: {$recordCount}");
+        
+        // Show statistics
+        $this->showStatistics();
     }
 
     /**
      * Create attendance records for a session
      */
-    private function createAttendanceRecords(AttendanceSession $session): void
+    private function createAttendanceRecords(AttendanceSession $session): int
     {
         $enrollments = Enrollment::where('course_id', $session->course_id)
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'completed'])
             ->get();
 
         if ($enrollments->isEmpty()) {
-            return;
+            return 0;
         }
 
-        $statuses = ['present', 'absent', 'sick', 'permission'];
+        $recordCount = 0;
+        
+        // ✅ Status weights sesuai enum yang ada: present, absent, late
         $statusWeights = [
             'present' => 75,      // 75% present
             'absent' => 15,       // 15% absent
-            'sick' => 6,          // 6% sick
-            'permission' => 4,    // 4% permission
+            'late' => 10,         // 10% late (terlambat)
         ];
 
         foreach ($enrollments as $enrollment) {
             // Weighted random status
             $rand = rand(1, 100);
+            
             if ($rand <= $statusWeights['present']) {
-                $status = 'present';
+                $attendanceStatus = 'present';
             } elseif ($rand <= $statusWeights['present'] + $statusWeights['absent']) {
-                $status = 'absent';
-            } elseif ($rand <= $statusWeights['present'] + $statusWeights['absent'] + $statusWeights['sick']) {
-                $status = 'excused'; // sick -> excused
+                $attendanceStatus = 'absent';
             } else {
-                $status = 'excused'; // permission -> excused
+                $attendanceStatus = 'late';
             }
 
-            // Check-in time (for present students)
-            $checkedInAt = null;
-            if ($status === 'present') {
-                // Check-in between start time and end time
-                $minutesAfterStart = rand(0, 30); // Check-in within 30 minutes of start
-                $checkedInAt = $session->start_time->copy()->addMinutes($minutesAfterStart);
-            }
+            $recordData = $this->generateRecordData($attendanceStatus, $session);
 
-            // Notes for non-present students
-            $notes = null;
-            if ($status !== 'present') {
-                $notesOptions = [
-                    'absent' => [
+            try {
+                AttendanceRecord::create([
+                    'enrollment_id' => $enrollment->id,
+                    'attendance_session_id' => $session->id,
+                    'attendance_status' => $attendanceStatus, // ✅ Kolom yang benar
+                    'attendance_time' => $recordData['attendance_time'],
+                    'notes' => $recordData['notes'],
+                ]);
+                $recordCount++;
+            } catch (\Exception $e) {
+                $this->command->warn("Error: {$e->getMessage()}");
+            }
+        }
+
+        return $recordCount;
+    }
+
+    /**
+     * Generate attendance record data based on status
+     */
+    private function generateRecordData(string $attendanceStatus, AttendanceSession $session): array
+    {
+        $data = [
+            'attendance_time' => $session->start_time,
+            'notes' => null,
+        ];
+
+        switch ($attendanceStatus) {
+            case 'present':
+                // Check-in tepat waktu (0-15 menit setelah start)
+                $minutesAfterStart = rand(0, 15);
+                $data['attendance_time'] = $session->start_time->copy()->addMinutes($minutesAfterStart);
+                
+                // 10% chance ada notes
+                if (rand(1, 100) <= 10) {
+                    $notes = [
+                        'Hadir tepat waktu',
+                        'Check-in berhasil',
+                        'Aktif mengikuti kelas',
+                        'Partisipasi baik',
+                    ];
+                    $data['notes'] = $notes[array_rand($notes)];
+                }
+                break;
+
+            case 'late':
+                // Check-in terlambat (15-45 menit setelah start)
+                $minutesLate = rand(15, 45);
+                $data['attendance_time'] = $session->start_time->copy()->addMinutes($minutesLate);
+                
+                // 50% chance ada notes untuk late
+                if (rand(1, 100) <= 50) {
+                    $notes = [
+                        'Terlambat karena macet',
+                        'Terlambat ' . $minutesLate . ' menit',
+                        'Hadir terlambat',
+                    ];
+                    $data['notes'] = $notes[array_rand($notes)];
+                }
+                break;
+
+            case 'absent':
+                // Untuk absent, time = start time, bisa ada notes
+                if (rand(1, 100) <= 30) {
+                    $notes = [
                         'Tidak hadir tanpa keterangan',
                         'Alpha',
-                        null,
-                    ],
-                    'excused' => [
-                        'Sakit',
-                        'Sakit dengan surat dokter',
-                        'Izin sakit',
-                        'Izin keperluan keluarga',
-                        'Izin acara sekolah',
-                        'Dispensasi',
-                    ],
-                ];
-
-                $options = $notesOptions[$status] ?? [null];
-                $notes = $options[array_rand($options)];
-            }
-
-            AttendanceRecord::create([
-                'enrollment_id' => $enrollment->id,
-                'attendance_session_id' => $session->id,
-                'status' => $status,
-                'attendance_time' => $checkedInAt ?? $session->start_time,
-                'notes' => $notes,
-            ]);
+                        'Tidak ada konfirmasi',
+                        'Sakit tanpa surat',
+                    ];
+                    $data['notes'] = $notes[array_rand($notes)];
+                }
+                break;
         }
+
+        return $data;
+    }
+
+    /**
+     * Show attendance statistics
+     */
+    private function showStatistics(): void
+    {
+        $total = AttendanceRecord::count();
+        
+        if ($total === 0) {
+            $this->command->warn('   No attendance records created.');
+            return;
+        }
+
+        $present = AttendanceRecord::where('attendance_status', 'present')->count();
+        $absent = AttendanceRecord::where('attendance_status', 'absent')->count();
+        $late = AttendanceRecord::where('attendance_status', 'late')->count();
+
+        $this->command->info("\n📊 Attendance Statistics:");
+        $this->command->info("   Present: {$present} (" . round(($present / $total) * 100, 1) . "%)");
+        $this->command->info("   Absent: {$absent} (" . round(($absent / $total) * 100, 1) . "%)");
+        $this->command->info("   Late: {$late} (" . round(($late / $total) * 100, 1) . "%)");
+        $this->command->info("\n   ✅ Attendance percentage will be calculated as (Present + Late) / Total");
     }
 }

@@ -8,6 +8,7 @@ use App\Models\Enrollment;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class MaterialController extends Controller
 {
@@ -110,31 +111,60 @@ class MaterialController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        // Authorization: Check if user can create materials
-        $this->authorize("create", Material::class);
-
-        $validated = $request->validate([
-            "module_id" => "required|exists:course_modules,id",
-            "title" => "required|string|max:255",
-            "material_type" => "required|in:file,link,video",
-            "content_path" => "required|string",
-        ]);
-
-        try {
-            $material = Material::create($validated);
-            return response()->json($material, 201);
-        } catch (\Exception $e) {
-            return response()->json(
-                [
-                    "message" => "Error creating material",
-                    "error" => $e->getMessage(),
-                ],
-                500,
-            );
-        }
-    }
+     public function store(Request $request)
+     {
+         $this->authorize("create", Material::class);
+     
+         // 1. Validasi Input
+         // Kita ubah validasi agar fleksibel (file atau string)
+         $request->validate([
+             "module_id" => "required|exists:course_modules,id",
+             "title" => "required|string|max:255",
+             "material_type" => "required|in:file,link,video",
+             // Hapus validasi 'content_path' string disini, kita handle manual di bawah
+         ]);
+     
+         try {
+             $path = null;
+     
+             // 2. Cek Tipe Materi
+             if ($request->material_type === 'file') {
+                 // Validasi khusus file
+                 $request->validate([
+                     'content_file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx,jpg,png,mp4|max:51200' // Max 50MB
+                 ]);
+     
+                 // 3. PROSES UPLOAD FILE KE SERVER
+                 if ($request->hasFile('content_file')) {
+                     // Simpan ke folder: storage/app/public/materials
+                     $path = $request->file('content_file')->store('materials', 'public');
+                 }
+             } else {
+                 // Jika Link/Video
+                 $request->validate([
+                     'content_url' => 'required|string'
+                 ]);
+                 $path = $request->content_url;
+             }
+     
+             // 4. Simpan ke Database
+             $material = Material::create([
+                 'course_module_id' => $request->module_id, // Perhatikan nama kolom di DB mu (module_id atau course_module_id?)
+                 'title' => $request->title,
+                 'material_type' => $request->material_type,
+                 'content_path' => $path, // Path hasil upload atau URL link
+                 'description' => $request->description ?? null
+             ]);
+     
+             return response()->json($material, 201);
+     
+         } catch (\Exception $e) {
+             return response()->json([
+                 "message" => "Error creating material",
+                 "error" => $e->getMessage(),
+             ], 500);
+         }
+     }
 
     /**
      * Display the specified resource.

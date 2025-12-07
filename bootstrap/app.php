@@ -13,7 +13,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // ✅ Add custom CORS middleware to API routes
+        $middleware->api(prepend: [
+            \App\Http\Middleware\HandleCorsPolicy::class,
+        ]);
+        
+        // ✅ Stateful API untuk Sanctum
+        $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

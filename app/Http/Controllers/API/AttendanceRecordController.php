@@ -679,64 +679,93 @@ class AttendanceRecordController extends Controller
      * @param  int  $courseId
      * @return \Illuminate\Http\Response
      */
-    public function getStudentAttendanceHistory($studentId, $courseId)
-    {
-        try {
-            $user = Auth::user();
+     public function getStudentAttendanceHistory($studentId, $courseId)
+     {
+         try {
+             $user = Auth::user();
+     
+             // Authorization: Student can only view their own history
+             if ($user->role === "student" && $user->student->id != $studentId) {
+                 return response()->json(
+                     [
+                         "message" =>
+                             "You can only view your own attendance history",
+                     ],
+                     403,
+                 );
+             }
+     
+             // Authorization: Instructor can view their course students
+             if ($user->role === "instructor") {
+                 $course = Course::findOrFail($courseId);
+                 if ($course->instructor_id !== $user->instructor->id) {
+                     return response()->json(
+                         [
+                             "message" =>
+                                 "You can only view attendance for your courses",
+                         ],
+                         403,
+                     );
+                 }
+             }
+     
+             // Authorization: Parent can only view their own children's attendance
+             if ($user->role === "parent") {
+                 $parent = $user->parent;
+                 if (!$parent) {
+                     return response()->json(
+                         [
+                             "message" => "Parent profile not found",
+                         ],
+                         404,
+                     );
+                 }
+     
+                 // Check if the student is a child of this parent
+                 $isChildOfParent = $parent->students()
+                     ->where('students.id', $studentId)
+                     ->exists();
+     
+                 if (!$isChildOfParent) {
+                     return response()->json(
+                         [
+                             "message" => "You can only view attendance for your own children",
+                         ],
+                         403,
+                     );
+                 }
+             }
+     
+             $enrollment = Enrollment::where("student_id", $studentId)
+                 ->where("course_id", $courseId)
+                 ->first();
+     
+             if (!$enrollment) {
+                 return response()->json(
+                     [
+                         "message" => "Student is not enrolled in this course",
+                     ],
+                     404,
+                 );
+             }
+     
+             $records = AttendanceRecord::with(["attendanceSession", "reviewer"])
+                 ->where("enrollment_id", $enrollment->id)
+                 ->orderBy("created_at", "desc")
+                 ->get();
+     
+             return response()->json($records);
+         } catch (\Exception $e) {
+             return response()->json(
+                 [
+                     "message" => "Error retrieving attendance history",
+                     "error" => $e->getMessage(),
+                 ],
+                 500,
+             );
+         }
+     }
 
-            // Authorization: Student can only view their own history, instructors can view their course students
-            if ($user->role === "student" && $user->student->id != $studentId) {
-                return response()->json(
-                    [
-                        "message" =>
-                            "You can only view your own attendance history",
-                    ],
-                    403,
-                );
-            }
-
-            if ($user->role === "instructor") {
-                $course = Course::findOrFail($courseId);
-                if ($course->instructor_id !== $user->instructor->id) {
-                    return response()->json(
-                        [
-                            "message" =>
-                                "You can only view attendance for your courses",
-                        ],
-                        403,
-                    );
-                }
-            }
-
-            $enrollment = Enrollment::where("student_id", $studentId)
-                ->where("course_id", $courseId)
-                ->first();
-
-            if (!$enrollment) {
-                return response()->json(
-                    [
-                        "message" => "Student is not enrolled in this course",
-                    ],
-                    404,
-                );
-            }
-
-            $records = AttendanceRecord::with(["attendanceSession", "reviewer"])
-                ->where("enrollment_id", $enrollment->id)
-                ->orderBy("created_at", "desc")
-                ->get();
-
-            return response()->json($records);
-        } catch (\Exception $e) {
-            return response()->json(
-                [
-                    "message" => "Error retrieving attendance history",
-                    "error" => $e->getMessage(),
-                ],
-                500,
-            );
-        }
-    }
 
     /**
      * @OA\Get(
@@ -859,92 +888,89 @@ class AttendanceRecordController extends Controller
      * @param  int  $courseId
      * @return \Illuminate\Http\Response
      */
-    public function getStudentAttendanceStats($studentId, $courseId)
-    {
-        try {
-            $user = Auth::user();
+     public function getStudentAttendanceStats($studentId, $courseId)
+     {
+         try {
+             $user = Auth::user();
+     
+             // Authorization: Student can only view their own stats
+             if ($user->role === "student" && $user->student->id != $studentId) {
+                 return response()->json(
+                     [
+                         "message" =>
+                             "You can only view your own attendance statistics",
+                     ],
+                     403,
+                 );
+             }
+     
+             if ($user->role === "instructor") {
+                 $course = Course::findOrFail($courseId);
+                 if ($course->instructor_id !== $user->instructor->id) {
+                     return response()->json(
+                         [
+                             "message" =>
+                                 "You can only view statistics for your courses",
+                         ],
+                         403,
+                     );
+                 }
+             }
+     
+             $enrollment = Enrollment::where("student_id", $studentId)
+                 ->where("course_id", $courseId)
+                 ->first();
+     
+             if (!$enrollment) {
+                 return response()->json(
+                     [
+                         "message" => "Student is not enrolled in this course",
+                     ],
+                     404,
+                 );
+             }
+     
+             $records = AttendanceRecord::where(
+                 "enrollment_id",
+                 $enrollment->id,
+             )->get();
+     
+             // ✅ FIX: Gunakan 'attendance_status' bukan 'status'
+             $stats = [
+                 "total_sessions" => $records->count(),
+                 "present" => $records->where("attendance_status", "present")->count(),
+                 "absent" => $records->where("attendance_status", "absent")->count(),
+                 "late" => $records->where("attendance_status", "late")->count(),
+             ];
+     
+             // ✅ Hitung attendance percentage (present + late dianggap hadir)
+             $stats["attendance_percentage"] =
+                 $stats["total_sessions"] > 0
+                     ? round(
+                         (($stats["present"] + $stats["late"]) / $stats["total_sessions"]) * 100,
+                         2,
+                     )
+                     : 0;
+     
+             // ✅ Hitung on-time percentage (hanya present tepat waktu)
+             $stats["on_time_percentage"] =
+                 $stats["total_sessions"] > 0
+                     ? round(
+                         ($stats["present"] / $stats["total_sessions"]) * 100,
+                         2,
+                     )
+                     : 0;
+     
+             return response()->json($stats);
+         } catch (\Exception $e) {
+             return response()->json(
+                 [
+                     "message" => "Error retrieving attendance statistics",
+                     "error" => $e->getMessage(),
+                 ],
+                 500,
+             );
+         }
+     }
 
-            // Authorization: Student can only view their own stats
-            if ($user->role === "student" && $user->student->id != $studentId) {
-                return response()->json(
-                    [
-                        "message" =>
-                            "You can only view your own attendance statistics",
-                    ],
-                    403,
-                );
-            }
-
-            if ($user->role === "instructor") {
-                $course = Course::findOrFail($courseId);
-                if ($course->instructor_id !== $user->instructor->id) {
-                    return response()->json(
-                        [
-                            "message" =>
-                                "You can only view statistics for your courses",
-                        ],
-                        403,
-                    );
-                }
-            }
-
-            $enrollment = Enrollment::where("student_id", $studentId)
-                ->where("course_id", $courseId)
-                ->first();
-
-            if (!$enrollment) {
-                return response()->json(
-                    [
-                        "message" => "Student is not enrolled in this course",
-                    ],
-                    404,
-                );
-            }
-
-            $records = AttendanceRecord::where(
-                "enrollment_id",
-                $enrollment->id,
-            )->get();
-
-            $stats = [
-                "total_sessions" => $records->count(),
-                "present" => $records->where("status", "present")->count(),
-                "absent" => $records->where("status", "absent")->count(),
-                "sick" => $records->where("status", "sick")->count(),
-                "permission" => $records
-                    ->where("status", "permission")
-                    ->count(),
-                "pending" => $records->where("status", "pending")->count(),
-            ];
-
-            $stats["attendance_percentage"] =
-                $stats["total_sessions"] > 0
-                    ? round(
-                        ($stats["present"] / $stats["total_sessions"]) * 100,
-                        2,
-                    )
-                    : 0;
-
-            $stats["excused"] = $stats["sick"] + $stats["permission"];
-            $stats["excused_percentage"] =
-                $stats["total_sessions"] > 0
-                    ? round(
-                        (($stats["present"] + $stats["excused"]) /
-                            $stats["total_sessions"]) *
-                            100,
-                        2,
-                    )
-                    : 0;
-
-            return response()->json($stats);
-        } catch (\Exception $e) {
-            return response()->json(
-                [
-                    "message" => "Error retrieving attendance statistics",
-                    "error" => $e->getMessage(),
-                ],
-                500,
-            );
-        }
-    }
 }

@@ -83,7 +83,7 @@ class UserController extends Controller
             });
         }
 
-        $users = $query->paginate(20);
+        $users = $query->with(['student', 'instructor', 'parentProfile'])->paginate(20);
 
         return response()->json($users);
     }

@@ -14,6 +14,7 @@ class Material extends Model
         'title',
         'material_type',
         'content_path',
+        'file_size',
     ];
 
     public function courseModule()

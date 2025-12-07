@@ -56,7 +56,7 @@ class CourseController extends Controller
     {
         $this->authorize("viewAny", Course::class);
         try {
-            $courses = Course::with("instructor")->get();
+            $courses = Course::with("instructor.user")->get();
             return response()->json($courses);
         } catch (\Exception $e) {
             return response()->json(
