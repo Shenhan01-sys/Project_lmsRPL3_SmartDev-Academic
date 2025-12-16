@@ -1,0 +1,1845 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Student Portal - SmartDev LMS</title>
+
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            primary: "#4f46e5",
+                            secondary: "#64748b",
+                            sidebar: "#1e293b",
+                            "sidebar-text": "#cbd5e1",
+                        },
+                        fontFamily: {
+                            sans: [
+                                "Segoe UI",
+                                "Tahoma",
+                                "Geneva",
+                                "Verdana",
+                                "sans-serif",
+                            ],
+                        },
+                    },
+                },
+            };
+        </script>
+        <style type="text/tailwindcss">
+            .nav-link-custom {
+                color: #cbd5e1;
+                padding: 0.8rem 1.5rem;
+                font-size: 0.95rem;
+                border-left: 3px solid transparent;
+                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                width: 100%;
+                text-align: left;
+            }
+            .nav-link-custom:hover,
+            .nav-link-custom.active {
+                color: white;
+                background: rgba(255, 255, 255, 0.08);
+                border-left-color: #4f46e5;
+            }
+            .fade-in {
+                animation: fadeIn 0.4s ease-out;
+            }
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            .dashboard-card {
+                @apply bg-white p-6 rounded-xl shadow-sm border border-slate-200 transition-all duration-300;
+            }
+            .dashboard-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            }
+            .no-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+            #loading-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(255, 255, 255, 0.9);
+                z-index: 2000;
+                display: none;
+                justify-content: center;
+                align-items: center;
+                backdrop-filter: blur(3px);
+            }
+            .badge {
+                @apply px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wide;
+            }
+            .badge-pending {
+                @apply bg-amber-100 text-amber-700;
+            }
+            .badge-submitted {
+                @apply bg-blue-100 text-blue-700;
+            }
+            .badge-graded {
+                @apply bg-emerald-100 text-emerald-700;
+            }
+            .badge-late {
+                @apply bg-red-100 text-red-700;
+            }
+        </style>
+    </head>
+
+    <body
+        class="bg-[#f8fafc] font-sans text-slate-800 h-screen flex overflow-hidden leading-relaxed"
+    >
+        <div id="loading-overlay">
+            <div class="text-center">
+                <div
+                    class="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mb-2 mx-auto"
+                ></div>
+                <div class="text-slate-600 font-bold">Memuat Data...</div>
+            </div>
+        </div>
+
+        <aside
+            class="w-[260px] bg-sidebar text-white hidden md:flex flex-col shadow-xl z-50 shrink-0 fixed h-full transition-all duration-300"
+        >
+            <div class="p-6 text-center border-b border-white/10">
+                <div
+                    class="text-xl font-bold tracking-wide flex items-center justify-center gap-2"
+                >
+                    <i class="bi bi-mortarboard-fill text-primary"></i> SmartDev
+                </div>
+            </div>
+
+            <div class="p-4 mb-2 border-b border-white/10 text-center">
+                <div
+                    class="w-12 h-12 mx-auto bg-primary text-white rounded-full flex items-center justify-center text-xl mb-2 shadow-lg"
+                >
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <strong
+                    class="block text-sm truncate px-2"
+                    id="sidebar-username"
+                    >Student</strong
+                >
+                <small class="text-sidebar-text text-xs">Student Panel</small>
+            </div>
+
+            <div class="px-6 mb-2">
+                <button
+                    onclick="manualTokenInput()"
+                    class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded flex items-center justify-center gap-2 transition-colors"
+                >
+                    <i class="bi bi-key-fill"></i> Update Token
+                </button>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto py-2 no-scrollbar">
+                <button
+                    onclick="switchView('dashboard')"
+                    id="nav-dashboard"
+                    class="nav-link-custom active"
+                >
+                    <i class="bi bi-speedometer2 me-3 text-lg"></i>
+                    <span>Dashboard</span>
+                </button>
+                <div
+                    class="mt-6 mb-2 px-6 text-xs font-bold text-sidebar-text uppercase tracking-wider opacity-70"
+                >
+                    Akademik
+                </div>
+                <button
+                    onclick="switchView('courses')"
+                    id="nav-courses"
+                    class="nav-link-custom"
+                >
+                    <i class="bi bi-book me-3 text-lg"></i>
+                    <span>Kursus Saya</span>
+                </button>
+                <button
+                    onclick="switchView('assignments')"
+                    id="nav-assignments"
+                    class="nav-link-custom"
+                >
+                    <i class="bi bi-journal-text me-3 text-lg"></i>
+                    <span>Tugas</span>
+                </button>
+                <button
+                    onclick="switchView('grades')"
+                    id="nav-grades"
+                    class="nav-link-custom"
+                >
+                    <i class="bi bi-bar-chart-steps me-3 text-lg"></i>
+                    <span>Nilai</span>
+                </button>
+                <button
+                    onclick="switchView('attendance')"
+                    id="nav-attendance"
+                    class="nav-link-custom"
+                >
+                    <i class="bi bi-calendar-check me-3 text-lg"></i>
+                    <span>Kehadiran</span>
+                </button>
+                <button
+                    onclick="switchView('certificates')"
+                    id="nav-certificates"
+                    class="nav-link-custom"
+                >
+                    <i class="bi bi-award me-3 text-lg"></i>
+                    <span>Sertifikat</span>
+                </button>
+                <div
+                    class="mt-6 mb-2 px-6 text-xs font-bold text-sidebar-text uppercase tracking-wider opacity-70"
+                >
+                    Akun
+                </div>
+                <button
+                    onclick="switchView('profile')"
+                    id="nav-profile"
+                    class="nav-link-custom"
+                >
+                    <i class="bi bi-person-gear me-3 text-lg"></i>
+                    <span>Profil</span>
+                </button>
+                <button
+                    onclick="logout()"
+                    class="nav-link-custom text-red-400 hover:text-red-300 hover:bg-red-900/20 hover:border-l-red-500"
+                >
+                    <i class="bi bi-box-arrow-right me-3 text-lg"></i>
+                    <span>Keluar</span>
+                </button>
+            </nav>
+        </aside>
+
+        <main
+            class="flex-1 ml-0 md:ml-[260px] h-full overflow-hidden flex flex-col w-full relative"
+        >
+            <div
+                class="flex-1 overflow-y-auto p-6 lg:p-8 scroll-smooth"
+                id="main-scroll"
+            >
+                <section
+                    id="view-dashboard"
+                    class="view-section fade-in max-w-7xl mx-auto"
+                >
+                    <div
+                        class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-200"
+                    >
+                        <div>
+                            <h2 class="text-2xl font-bold text-secondary">
+                                Dashboard Siswa
+                            </h2>
+                            <p class="text-sm text-slate-500">
+                                Selamat datang kembali, mari belajar!
+                            </p>
+                        </div>
+                        <div
+                            class="flex items-center gap-3 bg-white px-3 py-1.5 rounded-md shadow-sm border border-slate-200"
+                        >
+                            <div
+                                class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"
+                            ></div>
+                            <span
+                                class="text-sm text-slate-500"
+                                id="current-date"
+                                >Loading...</span
+                            >
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                        <div
+                            class="dashboard-card rounded p-4 !bg-primary !text-white relative overflow-hidden border-none"
+                        >
+                            <div class="relative z-10">
+                                <h3
+                                    class="text-3xl font-bold mb-1"
+                                    id="stat-courses"
+                                >
+                                    0
+                                </h3>
+                                <p class="text-indigo-100 text-sm">
+                                    Kursus Diikuti
+                                </p>
+                            </div>
+                            <i
+                                class="bi bi-book-half absolute top-1/2 right-4 -translate-y-1/2 text-6xl opacity-20"
+                            ></i>
+                        </div>
+                        <div
+                            class="dashboard-card rounded p-4 border-l-4 !border-l-amber-500"
+                        >
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3
+                                        class="text-3xl font-bold text-amber-500 mb-1"
+                                        id="stat-pending"
+                                    >
+                                        0
+                                    </h3>
+                                    <p class="text-slate-500 text-sm">
+                                        Tugas Pending
+                                    </p>
+                                </div>
+                                <div
+                                    class="bg-amber-50 p-3 rounded-full text-amber-500"
+                                >
+                                    <i class="bi bi-clock-history text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="dashboard-card rounded p-4 border-l-4 !border-l-emerald-500"
+                        >
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3
+                                        class="text-3xl font-bold text-emerald-500 mb-1"
+                                        id="stat-attendance"
+                                    >
+                                        0%
+                                    </h3>
+                                    <p class="text-slate-500 text-sm">
+                                        Rata-rata Kehadiran
+                                    </p>
+                                </div>
+                                <div
+                                    class="bg-emerald-50 p-3 rounded-full text-emerald-500"
+                                >
+                                    <i
+                                        class="bi bi-calendar-check text-2xl"
+                                    ></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="dashboard-card col-span-2">
+                            <div
+                                class="flex justify-between items-center mb-4 pb-2 border-b border-slate-100"
+                            >
+                                <h3 class="font-bold text-lg text-slate-800">
+                                    Tugas Terbaru
+                                </h3>
+                                <button
+                                    onclick="switchView('assignments')"
+                                    class="text-sm text-primary font-semibold hover:underline"
+                                >
+                                    Lihat Semua
+                                </button>
+                            </div>
+                            <div
+                                id="dashboard-assignments-list"
+                                class="space-y-3"
+                            ></div>
+                        </div>
+                        <div
+                            class="dashboard-card bg-gradient-to-b from-indigo-50 to-white"
+                        >
+                            <h3 class="font-bold text-lg text-slate-800 mb-4">
+                                Jadwal Hari Ini
+                            </h3>
+                            <div id="dashboard-schedule" class="space-y-4">
+                                <p
+                                    class="text-slate-500 text-center py-4 text-sm"
+                                >
+                                    Tidak ada jadwal kelas spesifik hari ini.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section
+                    id="view-courses"
+                    class="view-section hidden fade-in max-w-7xl mx-auto"
+                >
+                    <div
+                        class="flex justify-between items-center mb-6 pb-3 border-b"
+                    >
+                        <h2 class="text-2xl font-bold text-secondary">
+                            Kursus Saya
+                        </h2>
+                    </div>
+                    <div
+                        id="courses-container"
+                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                    ></div>
+                </section>
+
+                <section
+                    id="view-course-detail"
+                    class="view-section hidden fade-in max-w-7xl mx-auto"
+                >
+                    <button
+                        onclick="switchView('courses')"
+                        class="mb-4 text-sm text-slate-500 hover:text-primary flex items-center gap-1 transition-colors"
+                    >
+                        <i class="bi bi-arrow-left"></i> Kembali ke Kursus
+                    </button>
+
+                    <div
+                        class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6"
+                    >
+                        <div
+                            class="h-40 bg-gradient-to-r from-indigo-600 to-purple-600 p-6 md:p-8 flex items-end relative overflow-hidden"
+                        >
+                            <div class="absolute top-0 right-0 p-8 opacity-10">
+                                <i
+                                    class="bi bi-journal-bookmark-fill text-9xl text-white"
+                                ></i>
+                            </div>
+                            <div class="relative z-10">
+                                <span
+                                    class="px-2 py-1 bg-white/20 text-white text-xs font-bold rounded backdrop-blur-sm mb-2 inline-block"
+                                    id="detail-course-code"
+                                    >CODE</span
+                                >
+                                <h1
+                                    class="text-2xl md:text-3xl font-bold text-white mb-1"
+                                    id="detail-course-name"
+                                >
+                                    Course Name
+                                </h1>
+                                <p
+                                    class="text-indigo-100 text-sm flex items-center gap-2"
+                                >
+                                    <i class="bi bi-person-circle"></i>
+                                    <span id="detail-course-instructor"
+                                        >Instructor Name</span
+                                    >
+                                </p>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-bold text-slate-800 mb-2">
+                                Tentang Kursus
+                            </h3>
+                            <p
+                                class="text-slate-600 leading-relaxed text-sm"
+                                id="detail-course-desc"
+                            >
+                                Description...
+                            </p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="flex gap-6 border-b border-slate-200 mb-6 overflow-x-auto"
+                    >
+                        <button
+                            onclick="switchCourseTab('modules')"
+                            id="tab-course-modules"
+                            class="course-tab-btn px-2 py-2 text-sm font-bold text-primary border-b-2 border-primary transition-colors whitespace-nowrap"
+                        >
+                            Materi Pembelajaran
+                        </button>
+                        <button
+                            onclick="switchCourseTab('assignments')"
+                            id="tab-course-assignments"
+                            class="course-tab-btn px-2 py-2 text-sm font-bold text-slate-500 hover:text-slate-700 border-b-2 border-transparent transition-colors whitespace-nowrap"
+                        >
+                            Tugas & Kuis
+                        </button>
+                        <button
+                            onclick="switchCourseTab('attendance')"
+                            id="tab-course-attendance"
+                            class="course-tab-btn px-2 py-2 text-sm font-bold text-slate-500 hover:text-slate-700 border-b-2 border-transparent transition-colors whitespace-nowrap"
+                        >
+                            Kehadiran
+                        </button>
+                        <button
+                            onclick="switchCourseTab('people')"
+                            id="tab-course-people"
+                            class="course-tab-btn px-2 py-2 text-sm font-bold text-slate-500 hover:text-slate-700 border-b-2 border-transparent transition-colors whitespace-nowrap"
+                        >
+                            Peserta
+                        </button>
+                    </div>
+
+                    <div
+                        id="course-content-modules"
+                        class="course-tab-content space-y-4"
+                    ></div>
+                    <div
+                        id="course-content-assignments"
+                        class="course-tab-content hidden space-y-4"
+                    ></div>
+                    <div
+                        id="course-content-attendance"
+                        class="course-tab-content hidden space-y-6"
+                    ></div>
+                    <div
+                        id="course-content-people"
+                        class="course-tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-4"
+                    ></div>
+                </section>
+
+                <section
+                    id="view-assignments"
+                    class="view-section hidden fade-in max-w-7xl mx-auto"
+                >
+                    <div
+                        class="flex flex-col md:flex-row justify-between items-center mb-6 pb-3 border-b gap-4"
+                    >
+                        <h2 class="text-2xl font-bold text-secondary">
+                            Daftar Tugas
+                        </h2>
+                        <div class="flex gap-2">
+                            <button
+                                onclick="filterAssignments('all')"
+                                class="px-3 py-1 rounded-full text-xs font-bold bg-slate-200 text-slate-600 hover:bg-slate-300 transition"
+                            >
+                                Semua
+                            </button>
+                            <button
+                                onclick="filterAssignments('pending')"
+                                class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-600 hover:bg-amber-200 transition"
+                            >
+                                Pending
+                            </button>
+                            <button
+                                onclick="filterAssignments('submitted')"
+                                class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-600 hover:bg-blue-200 transition"
+                            >
+                                Terkirim
+                            </button>
+                        </div>
+                    </div>
+                    <div id="assignments-container" class="space-y-4"></div>
+                </section>
+
+                <section
+                    id="view-grades"
+                    class="view-section hidden fade-in max-w-7xl mx-auto"
+                >
+                    <div
+                        class="flex justify-between items-center mb-6 pb-3 border-b"
+                    >
+                        <h2 class="text-2xl font-bold text-secondary">
+                            Transkrip Nilai
+                        </h2>
+                    </div>
+                    <div class="dashboard-card overflow-hidden p-0">
+                        <table class="w-full text-sm text-left text-slate-600">
+                            <thead
+                                class="text-xs text-slate-700 uppercase bg-slate-50 border-b"
+                            >
+                                <tr>
+                                    <th class="px-6 py-3">Mata Pelajaran</th>
+                                    <th class="px-6 py-3">Tugas / Komponen</th>
+                                    <th class="px-6 py-3 text-center">Nilai</th>
+                                    <th class="px-6 py-3 text-center">
+                                        Status
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="grades-table-body"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section
+                    id="view-attendance"
+                    class="view-section hidden fade-in max-w-7xl mx-auto"
+                >
+                    <div
+                        class="flex justify-between items-center mb-6 pb-3 border-b"
+                    >
+                        <h2 class="text-2xl font-bold text-secondary">
+                            Riwayat Rekap Kehadiran
+                        </h2>
+                    </div>
+                    <div
+                        id="attendance-history-container"
+                        class="space-y-4"
+                    ></div>
+                </section>
+
+                <section
+                    id="view-certificates"
+                    class="view-section hidden fade-in max-w-7xl mx-auto"
+                >
+                    <div
+                        class="flex justify-between items-center mb-6 pb-3 border-b"
+                    >
+                        <h2 class="text-2xl font-bold text-secondary">
+                            Sertifikat Saya
+                        </h2>
+                    </div>
+                    <div
+                        id="certificates-container"
+                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                    ></div>
+                </section>
+
+                <!-- Profile Section -->
+                <section
+                    id="view-profile"
+                    class="view-section hidden fade-in max-w-6xl mx-auto"
+                >
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800">
+                                Profil Saya
+                            </h2>
+                            <p class="text-slate-500 text-sm">
+                                Informasi lengkap akun siswa
+                            </p>
+                        </div>
+                        <button
+                            onclick="openEditProfileModal()"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 shadow-lg shadow-blue-500/30"
+                        >
+                            <i class="bi bi-pencil-square"></i> Edit Profil
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Left Column - Profile Card -->
+                        <div class="lg:col-span-1 space-y-6">
+                            <div
+                                class="dashboard-card text-center relative overflow-hidden"
+                            >
+                                <div
+                                    class="absolute top-0 left-0 w-full h-24 bg-gradient-to-br from-blue-600 to-blue-800"
+                                ></div>
+                                <div class="relative z-10 pt-6">
+                                    <div
+                                        id="profile-avatar"
+                                        class="w-24 h-24 rounded-full bg-white border-4 border-white text-blue-600 flex items-center justify-center text-4xl font-bold mx-auto mb-4 shadow-md"
+                                    >
+                                        S
+                                    </div>
+                                    <h3
+                                        id="profile-name-display"
+                                        class="text-xl font-bold text-slate-800 mb-1"
+                                    >
+                                        Nama Siswa
+                                    </h3>
+                                    <p
+                                        id="profile-student-number"
+                                        class="text-sm font-mono text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded mb-4"
+                                    >
+                                        STD000000
+                                    </p>
+                                    <div
+                                        class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4 text-left"
+                                    >
+                                        <div>
+                                            <p
+                                                class="text-xs text-slate-400 uppercase font-bold mb-1"
+                                            >
+                                                Kelas
+                                            </p>
+                                            <p
+                                                id="profile-grade"
+                                                class="text-sm font-medium text-slate-700"
+                                            >
+                                                -
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p
+                                                class="text-xs text-slate-400 uppercase font-bold mb-1"
+                                            >
+                                                Status
+                                            </p>
+                                            <span
+                                                id="profile-status"
+                                                class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800"
+                                                >Active</span
+                                            >
+                                        </div>
+                                        <div>
+                                            <p
+                                                class="text-xs text-slate-400 uppercase font-bold mb-1"
+                                            >
+                                                Tahun Masuk
+                                            </p>
+                                            <p
+                                                id="profile-enrollment"
+                                                class="text-sm font-medium text-slate-700"
+                                            >
+                                                -
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p
+                                                class="text-xs text-slate-400 uppercase font-bold mb-1"
+                                            >
+                                                Jenis Kelamin
+                                            </p>
+                                            <p
+                                                id="profile-gender"
+                                                class="text-sm font-medium text-slate-700"
+                                            >
+                                                -
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="dashboard-card">
+                                <h4
+                                    class="font-bold text-slate-800 mb-4 flex items-center gap-2"
+                                >
+                                    <i
+                                        class="bi bi-envelope-fill text-blue-600"
+                                    ></i>
+                                    Kontak
+                                </h4>
+                                <div class="space-y-3 text-sm">
+                                    <div>
+                                        <p
+                                            class="text-xs text-slate-400 uppercase font-bold mb-1"
+                                        >
+                                            Email
+                                        </p>
+                                        <p
+                                            id="profile-email-display"
+                                            class="text-slate-700"
+                                        >
+                                            -
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="text-xs text-slate-400 uppercase font-bold mb-1"
+                                        >
+                                            Telepon
+                                        </p>
+                                        <p
+                                            id="profile-phone"
+                                            class="text-slate-700"
+                                        >
+                                            -
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="text-xs text-slate-400 uppercase font-bold mb-1"
+                                        >
+                                            Tanggal Lahir
+                                        </p>
+                                        <p
+                                            id="profile-dob"
+                                            class="text-slate-700"
+                                        >
+                                            -
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column - Details -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <div class="dashboard-card">
+                                <h4
+                                    class="font-bold text-slate-800 mb-4 flex items-center gap-2"
+                                >
+                                    <i
+                                        class="bi bi-geo-alt-fill text-red-600"
+                                    ></i>
+                                    Alamat
+                                </h4>
+                                <p
+                                    id="profile-address"
+                                    class="text-sm text-slate-600"
+                                >
+                                    -
+                                </p>
+                            </div>
+
+                            <div class="dashboard-card">
+                                <h4
+                                    class="font-bold text-slate-800 mb-4 flex items-center gap-2"
+                                >
+                                    <i
+                                        class="bi bi-people-fill text-green-600"
+                                    ></i>
+                                    Kontak Darurat
+                                </h4>
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <p
+                                            class="text-xs text-slate-400 uppercase font-bold mb-1"
+                                        >
+                                            Nama
+                                        </p>
+                                        <p
+                                            id="profile-emergency-name"
+                                            class="text-slate-700"
+                                        >
+                                            -
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="text-xs text-slate-400 uppercase font-bold mb-1"
+                                        >
+                                            Telepon
+                                        </p>
+                                        <p
+                                            id="profile-emergency-phone"
+                                            class="text-slate-700"
+                                        >
+                                            -
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="dashboard-card">
+                                <h4
+                                    class="font-bold text-slate-800 mb-4 flex items-center gap-2"
+                                >
+                                    <i
+                                        class="bi bi-person-heart text-purple-600"
+                                    ></i>
+                                    Informasi Orang Tua
+                                </h4>
+                                <div
+                                    id="profile-parent-info"
+                                    class="grid grid-cols-2 gap-4 text-sm"
+                                >
+                                    <div>
+                                        <p
+                                            class="text-xs text-slate-400 uppercase font-bold mb-1"
+                                        >
+                                            Nama
+                                        </p>
+                                        <p
+                                            id="profile-parent-name"
+                                            class="text-slate-700"
+                                        >
+                                            -
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="text-xs text-slate-400 uppercase font-bold mb-1"
+                                        >
+                                            Hubungan
+                                        </p>
+                                        <p
+                                            id="profile-parent-relation"
+                                            class="text-slate-700"
+                                        >
+                                            -
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="text-xs text-slate-400 uppercase font-bold mb-1"
+                                        >
+                                            Email
+                                        </p>
+                                        <p
+                                            id="profile-parent-email"
+                                            class="text-slate-700"
+                                        >
+                                            -
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="text-xs text-slate-400 uppercase font-bold mb-1"
+                                        >
+                                            Telepon
+                                        </p>
+                                        <p
+                                            id="profile-parent-phone"
+                                            class="text-slate-700"
+                                        >
+                                            -
+                                        </p>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <p
+                                            class="text-xs text-slate-400 uppercase font-bold mb-1"
+                                        >
+                                            Pekerjaan
+                                        </p>
+                                        <p
+                                            id="profile-parent-occupation"
+                                            class="text-slate-700"
+                                        >
+                                            -
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <script>
+            // --- CONFIGURATION ---
+            // Gunakan URL ini untuk server online (Hosting)
+            const API_BASE_URL = "https://portohansgunawan.my.id/api";
+
+            // Gunakan URL ini untuk server lokal (php artisan serve)
+            // const API_BASE_URL = 'http://127.0.0.1:8000/api';
+
+            const API_V1 = API_BASE_URL + "/v1";
+
+            // --- STATE ---
+            let currentUser = null;
+            let myCourses = [];
+            let myAssignments = [];
+            let myGrades = [];
+            let myAttendanceHistory = [];
+            let myCertificates = [];
+
+            let currentCourseId = null;
+
+            // --- UTILS ---
+            document.getElementById("current-date").innerText =
+                new Date().toLocaleDateString("id-ID", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                });
+
+            // --- INIT ---
+            document.addEventListener("DOMContentLoaded", initApp);
+
+            async function initApp() {
+                const token = localStorage.getItem("auth_token");
+
+                // 1. Cek Keberadaan Token Awal
+                if (!token) {
+                    await handleTokenInput(
+                        "Token belum tersedia. Silakan masukkan Bearer Token Anda:",
+                    );
+                    return;
+                }
+
+                document.getElementById("loading-overlay").style.display =
+                    "flex";
+
+                try {
+                    // 2. Fetch User Profile
+                    currentUser = await fetchApi("/user");
+
+                    // 3. VALIDASI ROLE (Fitur Baru)
+                    // Jika role user bukan 'student', tolak akses dan minta token ulang
+                    if (currentUser.role !== "student") {
+                        throw new Error(
+                            `Akun terdeteksi sebagai '${currentUser.role}'. Halaman ini khusus untuk Student.`,
+                        );
+                    }
+
+                    // Pastikan relasi student ada (fallback safety)
+                    if (!currentUser.student) {
+                        currentUser.student = { id: currentUser.id };
+                    }
+
+                    updateProfileUI();
+
+                    // 4. Load Data Aplikasi
+                    await loadCourses();
+
+                    await Promise.all([
+                        loadAssignments(),
+                        loadGrades(),
+                        loadGlobalAttendance(),
+                        loadCertificates(),
+                    ]);
+
+                    renderDashboard();
+                } catch (error) {
+                    console.error("Init Error:", error);
+
+                    // Handler Otomatis untuk Error Token & Role
+                    if (
+                        error.message.includes("Token") ||
+                        error.message.includes("Unauthorized") ||
+                        error.message.includes("Akun terdeteksi")
+                    ) {
+                        await handleTokenInput(
+                            error.message +
+                                "\n\nSilakan masukkan Token valid untuk Student:",
+                        );
+                    } else {
+                        // Error lain (misal koneksi)
+                        alert("Terjadi kesalahan sistem: " + error.message);
+                    }
+                } finally {
+                    document.getElementById("loading-overlay").style.display =
+                        "none";
+                }
+            }
+
+            // --- TOKEN MANAGEMENT SYSTEM ---
+
+            async function handleTokenInput(msg) {
+                // Hapus token bermasalah agar bersih
+                localStorage.removeItem("auth_token");
+
+                // Tampilkan Prompt
+                const newToken = prompt(msg);
+
+                if (newToken) {
+                    // Simpan dan Refresh
+                    localStorage.setItem("auth_token", newToken);
+                    location.reload();
+                } else {
+                    // Jika user klik Cancel
+                    alert(
+                        "Token diperlukan untuk mengakses aplikasi. Silakan refresh halaman untuk mencoba lagi.",
+                    );
+                    document.body.innerHTML =
+                        '<div class="flex h-screen justify-center items-center text-slate-500">Akses Ditolak. Token tidak diberikan.</div>';
+                }
+            }
+
+            function manualTokenInput() {
+                handleTokenInput("Masukkan Bearer Token baru:");
+            }
+
+            // --- API CLIENT ---
+
+            async function fetchApi(endpoint, options = {}) {
+                const token = localStorage.getItem("auth_token");
+
+                // Construct URL
+                let url = endpoint.startsWith("http")
+                    ? endpoint
+                    : endpoint.startsWith("/user")
+                      ? API_BASE_URL + endpoint
+                      : API_V1 + endpoint;
+
+                const headers = {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
+                    ...options.headers,
+                };
+
+                try {
+                    const res = await fetch(url, { ...options, headers });
+
+                    // DETEKSI 401 UNAUTHORIZED
+                    if (res.status === 401) {
+                        throw new Error(
+                            "Sesi kedaluwarsa atau Token tidak valid (Unauthorized).",
+                        );
+                    }
+
+                    if (!res.ok) {
+                        const errData = await res.json().catch(() => ({}));
+                        throw new Error(
+                            errData.message || `API Error: ${res.status}`,
+                        );
+                    }
+
+                    return await res.json();
+                } catch (err) {
+                    console.error(`Fetch Error (${endpoint}):`, err);
+                    throw err;
+                }
+            }
+
+            // --- DATA LOADERS ---
+
+            async function loadCourses() {
+                try {
+                    const enrollments = await fetchApi("/enrollments");
+                    const list = Array.isArray(enrollments)
+                        ? enrollments
+                        : enrollments.data || [];
+
+                    myCourses = list
+                        .map((e) => e.course)
+                        .filter((c) => c !== null);
+                    renderCourses();
+                } catch (e) {
+                    console.error("Load Courses Failed:", e);
+                    await Swal.fire({
+                        icon: "error",
+                        title: "Gagal Memuat Kursus",
+                        text: "Terjadi kesalahan saat memuat data kursus.",
+                        toast: true,
+                        position: "top-end",
+                        showConfirmButton: false,
+                        timer: 3000,
+                    });
+                }
+            }
+
+            async function loadAssignments() {
+                try {
+                    const res = await fetchApi("/assignments");
+                    const all = Array.isArray(res) ? res : res.data || [];
+                    // Filter tugas yang sesuai dengan course yang diikuti student
+                    const myCourseIds = myCourses.map((c) => c.id);
+                    myAssignments = all.filter((a) =>
+                        myCourseIds.includes(a.course_id),
+                    );
+                    renderAssignments(myAssignments);
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+
+            async function loadGrades() {
+                try {
+                    const studentId = currentUser.profile?.id || currentUser.id;
+
+                    if (myCourses.length === 0) {
+                        myGrades = [];
+                        renderGrades();
+                        return;
+                    }
+
+                    const promises = myCourses.map(async (course) => {
+                        try {
+                            const res = await fetchApi(
+                                `/grades/student?student_id=${studentId}&course_id=${course.id}`,
+                            );
+                            const grades = (res.data?.grades || []).map(
+                                (g) => ({
+                                    ...g,
+                                    course_name: course.course_name,
+                                }),
+                            );
+                            return grades;
+                        } catch (err) {
+                            console.error(
+                                `Failed to load grades for course ${course.id}`,
+                                err,
+                            );
+                            return [];
+                        }
+                    });
+
+                    const results = await Promise.all(promises);
+                    myGrades = results.flat();
+                    renderGrades();
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+
+            async function loadGlobalAttendance() {
+                try {
+                    const studentId = currentUser.profile?.id || currentUser.id;
+                    myAttendanceHistory = [];
+
+                    if (myCourses.length > 0) {
+                        const history = await fetchApi(
+                            `/attendance-records/student/${studentId}/course/${myCourses[0].id}/history`,
+                        );
+                        myAttendanceHistory = Array.isArray(history)
+                            ? history
+                            : history.data || [];
+                    }
+                    renderAttendanceHistory();
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+
+            async function loadCertificates() {
+                try {
+                    const res = await fetchApi("/certificates");
+                    // Filter certificate milik student ini (jika backend return semua)
+                    // Asumsi backend sudah filter by user
+                    myCertificates = Array.isArray(res) ? res : res.data || [];
+                    renderCertificates();
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+
+            // --- RENDERERS ---
+
+            function renderDashboard() {
+                // Stats
+                document.getElementById("stat-courses").innerText =
+                    myCourses.length;
+
+                const pending = myAssignments.filter(
+                    (a) => a.status !== "submitted" && a.status !== "graded",
+                ).length;
+                document.getElementById("stat-pending").innerText = pending;
+
+                // Recent Assignments
+                const recent = myAssignments.slice(0, 3);
+                document.getElementById(
+                    "dashboard-assignments-list",
+                ).innerHTML =
+                    recent
+                        .map(
+                            (a) => `
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-indigo-100 p-2 rounded text-primary"><i class="bi bi-journal-text"></i></div>
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-800 line-clamp-1">${a.title}</h4>
+                            <p class="text-xs text-slate-500">${a.course?.course_name || "Course " + a.course_id}</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold ${getStatusClass(a.status)}">${a.status}</span>
+                </div>
+            `,
+                        )
+                        .join("") ||
+                    '<p class="text-center text-slate-400 text-sm py-2">Belum ada tugas.</p>';
+            }
+
+            function renderCourses() {
+                const container = document.getElementById("courses-container");
+                container.innerHTML =
+                    myCourses
+                        .map(
+                            (c) => `
+                <div class="dashboard-card group hover:shadow-lg transition-all duration-300 cursor-pointer" onclick="showCourseDetail(${c.id})">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-50 text-primary flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                            <i class="bi bi-book"></i>
+                        </div>
+                        <span class="px-2 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded">${c.course_code}</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 mb-2 group-hover:text-primary transition-colors">${c.course_name}</h3>
+                    <p class="text-sm text-slate-500 mb-4 line-clamp-2">${c.description || "Tidak ada deskripsi."}</p>
+                    <div class="flex items-center gap-2 text-xs text-slate-400 border-t pt-3">
+                        <i class="bi bi-person-circle"></i>
+                        <span>${c.instructor?.user?.name || "Instructor"}</span>
+                    </div>
+                </div>
+            `,
+                        )
+                        .join("") ||
+                    '<p class="col-span-full text-center text-slate-500 py-8">Belum ada kursus.</p>';
+            }
+
+            function renderAssignments(list) {
+                const container = document.getElementById(
+                    "assignments-container",
+                );
+                container.innerHTML =
+                    list
+                        .map(
+                            (a) => `
+                <div class="dashboard-card flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-indigo-100 p-3 rounded-xl text-primary text-xl hidden md:block"><i class="bi bi-journal-text"></i></div>
+                        <div>
+                            <h4 class="font-bold text-lg text-slate-800">${a.title}</h4>
+                            <p class="text-sm text-slate-500 mb-1">${a.course?.course_name || "Course " + a.course_id}</p>
+                            <div class="flex gap-3 text-xs text-slate-400">
+                                <span><i class="bi bi-calendar"></i> Due: ${formatDate(a.due_date)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 self-end md:self-center">
+                        <span class="badge ${getStatusClass(a.status)}">${a.status}</span>
+                        <button onclick="showAssignmentDetail(${a.id})" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            `,
+                        )
+                        .join("") ||
+                    '<p class="text-center text-slate-500 py-8">Tidak ada tugas.</p>';
+            }
+
+            function renderGrades() {
+                const tbody = document.getElementById("grades-table-body");
+                tbody.innerHTML =
+                    myGrades
+                        .map(
+                            (g) => `
+                <tr class="bg-white border-b hover:bg-slate-50">
+                    <td class="px-6 py-4 font-medium text-slate-900">${g.course_name}</td>
+                    <td class="px-6 py-4">${g.grade_component?.name || "Komponen"}</td>
+                    <td class="px-6 py-4 text-center font-bold text-primary">${g.score}</td>
+                    <td class="px-6 py-4 text-center"><span class="badge badge-graded">Final</span></td>
+                </tr>
+            `,
+                        )
+                        .join("") ||
+                    '<tr><td colspan="4" class="text-center py-4 text-slate-500">Belum ada nilai.</td></tr>';
+            }
+
+            function renderAttendanceHistory() {
+                const container = document.getElementById(
+                    "attendance-history-container",
+                );
+                const sorted = myAttendanceHistory.sort(
+                    (a, b) =>
+                        new Date(b.attendance_time || b.created_at) -
+                        new Date(a.attendance_time || a.created_at),
+                );
+
+                container.innerHTML =
+                    sorted
+                        .map(
+                            (a) => `
+                <div class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-lg hover:shadow-sm transition-all">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-indigo-50 p-2 rounded text-center min-w-[50px]">
+                            <span class="block text-xl font-bold text-indigo-700">${new Date(a.attendance_time || a.created_at).getDate()}</span>
+                            <span class="block text-xs font-bold text-indigo-400 uppercase">${new Date(a.attendance_time || a.created_at).toLocaleString("default", { month: "short" })}</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-800">${a.course_name}</h4>
+                            <p class="text-xs text-slate-500">${a.attendance_session?.session_name || "Sesi"}</p>
+                        </div>
+                    </div>
+                    <span class="badge ${getAttClass(a.status)}">${a.status}</span>
+                </div>
+            `,
+                        )
+                        .join("") ||
+                    '<p class="text-center text-slate-500 py-8">Belum ada riwayat kehadiran.</p>';
+            }
+
+            function renderCertificates() {
+                const container = document.getElementById(
+                    "certificates-container",
+                );
+                container.innerHTML =
+                    myCertificates
+                        .map(
+                            (c) => `
+                <div class="dashboard-card relative overflow-hidden group">
+                    <div class="relative z-10">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-primary text-2xl mb-4">
+                            <i class="bi bi-award"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">${c.course?.course_name || "Certificate"}</h3>
+                        <p class="text-xs text-slate-500 mb-4">${c.certificate_code}</p>
+                        <button onclick="window.open('${API_BASE_URL}/certificates/verify/${c.certificate_code}', '_blank')" class="w-full py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-bold hover:bg-primary hover:text-white transition-colors">
+                            Lihat Validitas
+                        </button>
+                    </div>
+                </div>
+            `,
+                        )
+                        .join("") ||
+                    '<p class="col-span-full text-center text-slate-500 py-8">Belum ada sertifikat.</p>';
+            }
+
+            // --- COURSE DETAIL LOGIC ---
+
+            async function showCourseDetail(courseId) {
+                currentCourseId = courseId;
+                document.getElementById("loading-overlay").style.display =
+                    "flex";
+
+                try {
+                    const course = await fetchApi(`/courses/${courseId}`);
+                    renderCourseDetailHeader(course);
+
+                    // Fetch Modules (Using /my-modules for full content)
+                    const allMyModules = await fetchApi(
+                        "/course-modules/my-modules",
+                    );
+                    const courseModules = allMyModules.filter(
+                        (m) => m.course_id == courseId,
+                    );
+                    renderCourseModules(courseModules);
+
+                    const assigns = await fetchApi(`/assignments`);
+                    const courseAssigns = assigns.filter(
+                        (a) => a.course_id == courseId,
+                    );
+                    renderCourseAssignments(courseAssigns);
+
+                    await loadCourseAttendance(courseId);
+
+                    const peopleRes = await fetchApi(
+                        `/enrollments?course_id=${courseId}`,
+                    );
+                    const people = Array.isArray(peopleRes)
+                        ? peopleRes
+                        : peopleRes.data || [];
+                    const coursePeople = people.filter(
+                        (p) => p.course_id == courseId,
+                    );
+                    renderCoursePeople(coursePeople);
+
+                    switchView("course-detail");
+                } catch (e) {
+                    console.error(e);
+                    alert("Gagal memuat detail: " + e.message);
+                } finally {
+                    document.getElementById("loading-overlay").style.display =
+                        "none";
+                }
+            }
+
+            function renderCourseDetailHeader(course) {
+                document.getElementById("detail-course-name").innerText =
+                    course.course_name;
+                document.getElementById("detail-course-code").innerText =
+                    course.course_code;
+                document.getElementById("detail-course-instructor").innerText =
+                    course.instructor?.user?.name || "-";
+                document.getElementById("detail-course-desc").innerText =
+                    course.description;
+            }
+
+            function renderCourseModules(modules) {
+                const container = document.getElementById(
+                    "course-content-modules",
+                );
+                container.innerHTML =
+                    modules
+                        .map((m) => {
+                            const materials = m.materials || [];
+                            return `
+                <div class="border border-slate-200 rounded-xl overflow-hidden bg-white mb-4">
+                    <div class="p-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center cursor-pointer" onclick="this.parentElement.classList.toggle('h-auto');">
+                        <h4 class="font-bold text-slate-800">${m.title || m.module_name}</h4>
+                    </div>
+                    <div class="p-4 space-y-3">
+                        <p class="text-sm text-slate-600">${m.description || ""}</p>
+                        <div class="space-y-2 border-t pt-2">
+                            ${
+                                materials
+                                    .map(
+                                        (mat) => `
+                                <div class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg">
+                                    <i class="bi bi-file-earmark-text text-primary text-lg"></i>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium">${mat.title}</p>
+                                        <p class="text-xs text-slate-400 uppercase">${mat.type}</p>
+                                    </div>
+                                    <a href="${mat.file_path}" target="_blank" class="px-3 py-1 text-xs font-bold text-primary bg-indigo-50 rounded">Buka</a>
+                                </div>
+                            `,
+                                    )
+                                    .join("") ||
+                                '<p class="text-xs text-slate-400 italic">Tidak ada materi.</p>'
+                            }
+                        </div>
+                    </div>
+                </div>`;
+                        })
+                        .join("") ||
+                    '<p class="text-center py-8 text-slate-500">Belum ada modul.</p>';
+            }
+
+            function renderCourseAssignments(list) {
+                const container = document.getElementById(
+                    "course-content-assignments",
+                );
+                container.innerHTML =
+                    list
+                        .map(
+                            (a) => `
+                <div class="dashboard-card p-4 mb-3 flex justify-between items-center">
+                    <div><h4 class="font-bold">${a.title}</h4><p class="text-xs">Due: ${formatDate(a.due_date)}</p></div>
+                    <span class="badge ${getStatusClass(a.status)}">${a.status}</span>
+                </div>
+            `,
+                        )
+                        .join("") ||
+                    '<p class="text-center py-4">Tidak ada tugas.</p>';
+            }
+
+            function renderCoursePeople(people) {
+                const container = document.getElementById(
+                    "course-content-people",
+                );
+                const unique = [
+                    ...new Map(
+                        people.map((item) => [item.student_id, item]),
+                    ).values(),
+                ];
+                container.innerHTML = unique
+                    .map(
+                        (p) => `
+                <div class="flex items-center gap-3 p-3 border rounded bg-white">
+                    <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center"><i class="bi bi-person"></i></div>
+                    <div><p class="font-bold text-sm">${p.student?.user?.name || "Student"}</p></div>
+                </div>
+            `,
+                    )
+                    .join("");
+            }
+
+            async function loadCourseAttendance(courseId) {
+                const container = document.getElementById(
+                    "course-attendance-list",
+                );
+                const sessions = await fetchApi(
+                    `/attendance-sessions?course_id=${courseId}`,
+                );
+                const studentId = currentUser.profile?.id || currentUser.id;
+                const history = await fetchApi(
+                    `/attendance-records/student/${studentId}/course/${courseId}/history`,
+                );
+
+                let html = "";
+
+                if (sessions.length > 0) {
+                    html += `<div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6">
+                    <h4 class="font-bold text-indigo-800 mb-3">Sesi Aktif</h4>
+                    ${sessions
+                        .map(
+                            (s) => `
+                        <div class="bg-white p-3 rounded shadow-sm flex justify-between items-center mb-2">
+                            <span>${s.session_name}</span>
+                            <button onclick="submitAttendance(${s.id}, 'check-in')" class="px-3 py-1 bg-emerald-500 text-white rounded text-xs font-bold">Hadir</button>
+                        </div>
+                    `,
+                        )
+                        .join("")}
+                </div>`;
+                }
+
+                html += `<h4 class="font-bold text-slate-800 mb-3">Riwayat</h4>
+            <table class="w-full text-sm text-left text-slate-600">
+                <thead class="bg-slate-50"><tr><th class="p-2">Sesi</th><th class="p-2">Status</th><th class="p-2">Waktu</th></tr></thead>
+                <tbody>
+                    ${history
+                        .map(
+                            (h) => `
+                        <tr class="border-b">
+                            <td class="p-2">${h.attendance_session?.session_name}</td>
+                            <td class="p-2"><span class="badge ${getAttClass(h.status)}">${h.status}</span></td>
+                            <td class="p-2">${formatDate(h.attendance_time, true)}</td>
+                        </tr>
+                    `,
+                        )
+                        .join("")}
+                </tbody>
+            </table>`;
+
+                container.innerHTML = html;
+            }
+
+            async function submitAttendance(sessionId, type) {
+                try {
+                    await fetchApi(
+                        `/attendance-records/check-in/${sessionId}`,
+                        { method: "POST" },
+                    );
+                    alert("Berhasil Check-in!");
+                    loadCourseAttendance(currentCourseId);
+                } catch (e) {
+                    alert(e.message);
+                }
+            }
+
+            // --- HELPERS & UTILS ---
+
+            function showAssignmentDetail(id) {
+                const a = myAssignments.find((x) => x.id == id);
+                if (!a) return;
+                Swal.fire({
+                    title: a.title,
+                    html: `<p class="text-sm text-slate-600 mb-4">${a.description}</p>
+                       <p class="text-xs text-slate-500">Due: ${formatDate(a.due_date)}</p>`,
+                    confirmButtonText: "Tutup",
+                });
+            }
+
+            function switchView(viewId) {
+                document
+                    .querySelectorAll(".view-section")
+                    .forEach((el) => el.classList.add("hidden"));
+                document
+                    .getElementById("view-" + viewId)
+                    .classList.remove("hidden");
+                document
+                    .querySelectorAll(".nav-link-custom")
+                    .forEach((el) => el.classList.remove("active"));
+                const navEl = document.getElementById("nav-" + viewId);
+                if (navEl) navEl.classList.add("active");
+            }
+
+            function switchCourseTab(tabName) {
+                document
+                    .querySelectorAll(".course-tab-content")
+                    .forEach((c) => c.classList.add("hidden"));
+                document
+                    .getElementById("course-content-" + tabName)
+                    .classList.remove("hidden");
+                document.querySelectorAll(".course-tab-btn").forEach((b) => {
+                    b.classList.remove("text-primary", "border-primary");
+                    b.classList.add("text-slate-500", "border-transparent");
+                });
+                document
+                    .getElementById("tab-course-" + tabName)
+                    .classList.remove("text-slate-500", "border-transparent");
+                document
+                    .getElementById("tab-course-" + tabName)
+                    .classList.add("text-primary", "border-primary");
+            }
+
+            function updateProfileUI() {
+                if (!currentUser) return;
+
+                const profile = currentUser.profile || {};
+                const name = profile.full_name || currentUser.name;
+
+                // Sidebar
+                document.getElementById("sidebar-username").innerText = name;
+
+                // Profile page
+                document.getElementById("profile-name-display").innerText =
+                    name;
+                document.getElementById("profile-avatar").innerText = name
+                    .charAt(0)
+                    .toUpperCase();
+                document.getElementById("profile-student-number").innerText =
+                    profile.student_number || "N/A";
+                document.getElementById("profile-email-display").innerText =
+                    profile.email || currentUser.email;
+                document.getElementById("profile-phone").innerText =
+                    profile.phone || "-";
+                document.getElementById("profile-grade").innerText =
+                    profile.current_grade
+                        ? `Kelas ${profile.current_grade}`
+                        : "-";
+                document.getElementById("profile-enrollment").innerText =
+                    profile.enrollment_year || "-";
+                document.getElementById("profile-dob").innerText =
+                    profile.date_of_birth
+                        ? new Date(profile.date_of_birth).toLocaleDateString(
+                              "id-ID",
+                          )
+                        : "-";
+                document.getElementById("profile-gender").innerText =
+                    profile.gender === "male"
+                        ? "Laki-laki"
+                        : profile.gender === "female"
+                          ? "Perempuan"
+                          : "-";
+                document.getElementById("profile-address").innerText =
+                    profile.address || "-";
+                document.getElementById("profile-emergency-name").innerText =
+                    profile.emergency_contact_name || "-";
+                document.getElementById("profile-emergency-phone").innerText =
+                    profile.emergency_contact_phone || "-";
+
+                // Status badge
+                const statusBadge = document.getElementById("profile-status");
+                if (profile.status === "active") {
+                    statusBadge.className =
+                        "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800";
+                    statusBadge.innerText = "Aktif";
+                } else {
+                    statusBadge.className =
+                        "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800";
+                    statusBadge.innerText = profile.status || "N/A";
+                }
+
+                // Parent info
+                const parent = profile.parent || {};
+                document.getElementById("profile-parent-name").innerText =
+                    parent.full_name || "-";
+                document.getElementById("profile-parent-relation").innerText =
+                    parent.relationship || "-";
+                document.getElementById("profile-parent-email").innerText =
+                    parent.email || "-";
+                document.getElementById("profile-parent-phone").innerText =
+                    parent.phone || "-";
+                document.getElementById("profile-parent-occupation").innerText =
+                    parent.occupation || "-";
+            }
+
+            function openEditProfileModal() {
+                if (!currentUser || !currentUser.profile) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: "Data profil belum dimuat",
+                    });
+                    return;
+                }
+
+                const profile = currentUser.profile;
+
+                // Fill form
+                document.getElementById("edit-profile-name").value =
+                    profile.full_name || "";
+                document.getElementById("edit-profile-email").value =
+                    profile.email || "";
+                document.getElementById("edit-profile-phone").value =
+                    profile.phone || "";
+                document.getElementById("edit-profile-dob").value =
+                    profile.date_of_birth
+                        ? profile.date_of_birth.split("T")[0]
+                        : "";
+                document.getElementById("edit-profile-address").value =
+                    profile.address || "";
+                document.getElementById("edit-profile-emergency-name").value =
+                    profile.emergency_contact_name || "";
+                document.getElementById("edit-profile-emergency-phone").value =
+                    profile.emergency_contact_phone || "";
+
+                openModal("modal-edit-profile");
+            }
+
+            async function submitProfileUpdate() {
+                try {
+                    const payload = {
+                        full_name:
+                            document.getElementById("edit-profile-name").value,
+                        phone: document.getElementById("edit-profile-phone")
+                            .value,
+                        date_of_birth:
+                            document.getElementById("edit-profile-dob").value,
+                        address: document.getElementById("edit-profile-address")
+                            .value,
+                        emergency_contact_name: document.getElementById(
+                            "edit-profile-emergency-name",
+                        ).value,
+                        emergency_contact_phone: document.getElementById(
+                            "edit-profile-emergency-phone",
+                        ).value,
+                    };
+
+                    const studentId = currentUser.profile.id;
+
+                    const res = await fetchApi(`/students/${studentId}`, {
+                        method: "PUT",
+                        body: JSON.stringify(payload),
+                    });
+
+                    if (res) {
+                        closeModal("modal-edit-profile");
+
+                        await Swal.fire({
+                            icon: "success",
+                            title: "Berhasil",
+                            text: "Profil berhasil diperbarui",
+                            confirmButtonText: "OK",
+                        });
+
+                        // Update currentUser dengan data baru
+                        currentUser.profile = {
+                            ...currentUser.profile,
+                            ...payload,
+                        };
+
+                        // Update localStorage
+                        const userData = JSON.parse(
+                            localStorage.getItem("userData") || "{}",
+                        );
+                        userData.profile = currentUser.profile;
+                        localStorage.setItem(
+                            "userData",
+                            JSON.stringify(userData),
+                        );
+
+                        // Reload profile display
+                        updateProfileUI();
+                    }
+                } catch (error) {
+                    console.error("Error updating profile:", error);
+                    await Swal.fire({
+                        icon: "error",
+                        title: "Gagal",
+                        text: "Gagal memperbarui profil",
+                        confirmButtonText: "OK",
+                    });
+                }
+            }
+
+            function openModal(modalId) {
+                document.getElementById(modalId).classList.remove("hidden");
+            }
+
+            function closeModal(modalId) {
+                document.getElementById(modalId).classList.add("hidden");
+            }
+
+            function formatDate(d, time = false) {
+                if (!d) return "-";
+                return new Date(d).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                    ...(time && { hour: "2-digit", minute: "2-digit" }),
+                });
+            }
+
+            function getStatusClass(s) {
+                return s === "submitted"
+                    ? "badge-submitted"
+                    : s === "graded"
+                      ? "badge-graded"
+                      : "badge-pending";
+            }
+
+            function getAttClass(s) {
+                return s === "present"
+                    ? "bg-emerald-100 text-emerald-700"
+                    : "bg-red-100 text-red-700";
+            }
+
+            function filterAssignments(status) {
+                if (status === "all") renderAssignments(myAssignments);
+                else
+                    renderAssignments(
+                        myAssignments.filter((a) => a.status === status),
+                    );
+            }
+
+            async function logout() {
+                const result = await Swal.fire({
+                    title: "Keluar?",
+                    text: "Apakah Anda yakin ingin keluar?",
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Ya, Keluar",
+                    cancelButtonText: "Batal",
+                });
+
+                if (result.isConfirmed) {
+                    localStorage.removeItem("authToken");
+                    localStorage.removeItem("userData");
+
+                    await Swal.fire({
+                        icon: "success",
+                        title: "Berhasil Keluar",
+                        text: "Anda telah keluar dari sistem",
+                        timer: 2000,
+                        showConfirmButton: false,
+                    });
+
+                    // window.location.href = 'login.html';
+                    location.reload();
+                }
+            }
+        </script>
+    </body>
+</html>

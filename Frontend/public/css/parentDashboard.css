@@ -1,0 +1,54 @@
+    /* Sidebar Styles */
+    .nav-link-custom {
+        color: #cbd5e1;
+        padding: 0.8rem 1.5rem;
+        font-size: 0.95rem;
+        border-left: 3px solid transparent;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        text-align: left;
+    }
+
+    .nav-link-custom:hover, 
+    .nav-link-custom.active {
+        color: white;
+        background: rgba(255, 255, 255, 0.08);
+        border-left-color: #4f46e5;
+    }
+
+    /* Animations */
+    .fade-in { animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* Card Styles */
+    .dashboard-card { 
+        @apply bg-white p-6 rounded-xl shadow-sm border border-slate-200 transition-all duration-300; 
+    }
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Grade Card Specific */
+    .grade-card {
+        background: linear-gradient(145deg, #ffffff, #f8fafc);
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+
+    /* Loading Overlay */
+    #loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        z-index: 2000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(3px);
+    }

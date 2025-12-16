@@ -1,0 +1,206 @@
+
+  Dropping all tables [90m.[39m[90m.[39m[90m 3s[39m [32;1mDONE[39;22m
+
+  [37;44m INFO [39;49m Preparing database.  
+
+  Creating migration table [90m 994.23ms[39m [32;1mDONE[39;22m
+
+  [37;44m INFO [39;49m Running migrations.  
+
+  2025_09_09_161329_users [90m 1s[39m [32;1mDONE[39;22m
+  2025_09_09_161346_courses [90m 2s[39m [32;1mDONE[39;22m
+  2025_09_09_161358_enrollments [90m 6s[39m [32;1mDONE[39;22m
+  2025_09_09_161411_course_modules [90m 246.08ms[39m [32;1mDONE[39;22m
+  2025_09_09_161420_materials [90m 865.95ms[39m [32;1mDONE[39;22m
+  2025_09_09_161607_assignments [90m 456.21ms[39m [32;1mDONE[39;22m
+  2025_09_09_161619_submissions [90m 5s[39m [32;1mDONE[39;22m
+  2025_09_10_082347_create_sessions_table [90m 2s[39m [32;1mDONE[39;22m
+  2025_09_10_103513_create_personal_access_tokens_table [90m 4s[39m [32;1mDONE[39;22m
+  2025_09_10_130000_create_parents_table [90m 1s[39m [32;1mDONE[39;22m
+  2025_10_01_081716_create_password_reset_tokens_table [90m 1s[39m [32;1mDONE[39;22m
+  2025_10_01_093824_add_profile_photo_path_to_users_table [90m 55.90ms[39m [32;1mDONE[39;22m
+  2025_10_01_111700_create_grade_components_table [90m 28.29ms[39m [32;1mDONE[39;22m
+  2025_10_01_111734_create_grades_table [90m 6s[39m [32;1mDONE[39;22m
+  2025_10_03_102034_add_columns_to_grade_components_table [90m 4s[39m [32;1mDONE[39;22m
+  2025_10_22_143007_add_registration_documents_to_users [90m 2s[39m [32;1mDONE[39;22m
+  2025_10_22_145751_add_basic_fields_to_users_table [90m 5s[39m [32;1mDONE[39;22m
+  2025_10_23_045224_create_student_registrations_table [90m 4s[39m [32;1mDONE[39;22m
+  2025_10_23_054502_migrate_registration_data_to_student_registations Successfully migrated 0 calon siswa registration records.
+[90m 12.55ms[39m [32;1mDONE[39;22m
+  2025_10_23_092110_remove_registration_fields_from_users_table Successfully removed 15 registration fields from users table.
+Users table is now clean with only core authentication fields.
+[90m 2s[39m [32;1mDONE[39;22m
+  2025_11_02_070456_create_students_table [90m 2s[39m [32;1mDONE[39;22m
+  2025_11_02_070719_create_instructors_table [90m 2s[39m [32;1mDONE[39;22m
+  2025_11_02_070836_create_parents_table [90m 2s[39m [32;1mDONE[39;22m
+  2025_11_02_071941_modify_courses_table_change_instructor_fk [90m 3s[39m [32;1mDONE[39;22m
+  2025_11_02_072022_modify_enrollments_table_change_to_student_id [90m 8.44ms[39m [32;1mDONE[39;22m
+  2025_11_02_072246_modify_submissions_table_change_to_student_id [90m 11.61ms[39m [32;1mDONE[39;22m
+  2025_11_02_131934_add_parent_fk_to_students_table [90m 927.06ms[39m [32;1mDONE[39;22m
+  2025_11_14_121030_attendence_sessions [90m 165.67ms[39m [32;1mDONE[39;22m
+  2025_11_14_121630_attendence_records [90m 662.34ms[39m [32;1mDONE[39;22m
+  2025_11_14_122111_announcements [90m 165.18ms[39m [32;1mDONE[39;22m
+  2025_11_14_130000_create_notifications_table [90m 994.39ms[39m [32;1mDONE[39;22m
+  2025_11_14_130500_create_certificates_table [90m 10s[39m [32;1mDONE[39;22m
+  2025_11_14_131000_enhance_enrollments_table [90m 2s[39m [32;1mDONE[39;22m
+  2025_11_14_131500_enhance_courses_table [90m 4s[39m [32;1mDONE[39;22m
+  2025_11_14_132000_enhance_materials_table [90m 72.04ms[39m [32;1mDONE[39;22m
+  2025_11_14_132500_enhance_assignments_table [90m 2s[39m [32;1mDONE[39;22m
+  2025_11_14_133000_add_enrollment_id_to_submissions_table [90m 4s[39m [32;1mDONE[39;22m
+  2025_11_14_133500_migrate_submissions_student_to_enrollment [90m 8.46ms[39m [32;1mDONE[39;22m
+  2025_11_14_134000_drop_student_id_from_submissions_table [90m 7s[39m [32;1mDONE[39;22m
+  2025_11_14_134500_add_enrollment_id_to_grades_table [90m 1s[39m [32;1mDONE[39;22m
+  2025_11_14_135000_migrate_grades_student_to_enrollment [90m 6.04ms[39m [32;1mDONE[39;22m
+  2025_11_14_135500_drop_student_id_from_grades_table [90m 5s[39m [32;1mDONE[39;22m
+
+
+  [37;44m INFO [39;49m Seeding database.  
+
+[32m🌱 Starting database seeding...[39m
+
+[32m1️⃣  Checking admin user...[39m
+[32m✅ Admin user created successfully![39m
+
+[32m2️⃣  Seeding parents...[39m
+  Database\Seeders\ParentSeeder  [33;1mRUNNING[39;22m  
+[32m👨‍👩‍👧‍👦 Creating Parent profiles...[39m
+[32m✅ Created: Bambang Suryanto (Father - Businessman)[39m
+[32m✅ Created: Sri Handayani (Mother - Teacher)[39m
+[32m✅ Created: Darmawan Wijaya (Father - Engineer)[39m
+[32m✅ Created: Nurul Azizah (Mother - Doctor)[39m
+[32m✅ Created: Hendra Gunawan (Father - Lawyer)[39m
+[32m✅ Created: Ratna Sari (Mother - Accountant)[39m
+[32m✅ Created: Agung Prabowo (Father - Government Officer)[39m
+[32m✅ Created: Lina Kusuma (Mother - Entrepreneur)[39m
+[32m✅ Created: Dedi Susanto (Father - Architect)[39m
+[32m✅ Created: Wati Rahayu (Mother - Nurse)[39m
+[32m✅ Created: Andi Saputra (Father - IT Manager)[39m
+[32m✅ Created: Rina Permata (Mother - Pharmacist)[39m
+[32m✅ Created: Budi Hartanto (Father - Bank Manager)[39m
+[32m✅ Created: Sari Dewi (Mother - Designer)[39m
+[32m✅ Created: Yanto Prasetyo (Father - Consultant)[39m
+[32m✅ Created: Maya Anggraini (Mother - Marketing Manager)[39m
+[32m✅ Created: Rizki Firmansyah (Father - Sales Director)[39m
+[32m✅ Created: Dwi Lestari (Mother - HR Manager)[39m
+[32m✅ Created: Fajar Ramadhan (Father - Professor)[39m
+[32m✅ Created: Indah Permatasari (Mother - Journalist)[39m
+[32m🎉 Successfully created 20 parents![39m
+  Database\Seeders\ParentSeeder  [90m35,843 ms[39m [32;1mDONE[39;22m  
+
+
+[32m3️⃣  Seeding instructors...[39m
+  Database\Seeders\InstructorSeeder  [33;1mRUNNING[39;22m  
+[32m🎓 Creating Instructor profiles...[39m
+[32m✅ Created: Dr. Ahmad Hidayat (INS20250001)[39m
+[32m✅ Created: Siti Nurhaliza, M.Pd (INS20250002)[39m
+[32m✅ Created: Budi Santoso, S.Si (INS20250003)[39m
+[32m✅ Created: Dewi Lestari, M.Pd (INS20250004)[39m
+[32m✅ Created: Rudi Hartono, S.Pd (INS20250005)[39m
+[32m✅ Created: Maya Puspita, M.A (INS20250006)[39m
+[32m✅ Created: Eko Prasetyo, S.Kom (INS20250007)[39m
+[32m✅ Created: Linda Wijaya, M.Pd (INS20250008)[39m
+[32m✅ Created: Agus Setiawan, S.Sos (INS20250009)[39m
+[32m✅ Created: Rina Marlina, M.Sn (INS20250010)[39m
+[32m🎉 Successfully created 10 instructors![39m
+  Database\Seeders\InstructorSeeder  [90m19,188 ms[39m [32;1mDONE[39;22m  
+
+
+[32m4️⃣  Seeding students...[39m
+  Database\Seeders\StudentSeeder  [33;1mRUNNING[39;22m  
+[32m👨‍🎓 Creating Student profiles...[39m
+[32m✅ Created: Ahmad Fauzi (STD202500001) - Grade 10[39m
+[32m✅ Created: Siti Aminah (STD202500002) - Grade 10[39m
+[32m✅ Created: Rizki Ramadhan (STD202500003) - Grade 10[39m
+[32m✅ Created: Dewi Putri (STD202500004) - Grade 11[39m
+[32m✅ Created: Andi Pratama (STD202500005) - Grade 11[39m
+[32m✅ Created: Lina Marlina (STD202500006) - Grade 11[39m
+[32m✅ Created: Budi Santoso (STD202500007) - Grade 12[39m
+[32m✅ Created: Maya Kusuma (STD202500008) - Grade 12[39m
+[32m✅ Created: Dimas Aditya (STD202500009) - Grade 10[39m
+[32m✅ Created: Rina Wulandari (STD202500010) - Grade 10[39m
+[32m✅ Created: Fajar Maulana (STD202500011) - Grade 11[39m
+[32m✅ Created: Ayu Lestari (STD202500012) - Grade 11[39m
+[32m✅ Created: Eko Prasetyo (STD202500013) - Grade 12[39m
+[32m✅ Created: Wulan Sari (STD202500014) - Grade 12[39m
+[32m✅ Created: Rafi Ahmad (STD202500015) - Grade 10[39m
+[32m✅ Created: Putri Rahayu (STD202500016) - Grade 10[39m
+[32m✅ Created: Yoga Pratama (STD202500017) - Grade 11[39m
+[32m✅ Created: Sari Indah (STD202500018) - Grade 11[39m
+[32m✅ Created: Arif Hidayat (STD202500019) - Grade 12[39m
+[32m✅ Created: Dian Permata (STD202500020) - Grade 12[39m
+[32m✅ Created: Galih Nugroho (STD202500021) - Grade 10[39m
+[32m✅ Created: Intan Permatasari (STD202500022) - Grade 10[39m
+[32m✅ Created: Hendra Setiawan (STD202500023) - Grade 11[39m
+[32m✅ Created: Nisa Aulia (STD202500024) - Grade 11[39m
+[32m✅ Created: Irfan Maulana (STD202500025) - Grade 12[39m
+[32m✅ Created: Laila Nur (STD202500026) - Grade 12[39m
+[32m✅ Created: Joko Susilo (STD202500027) - Grade 10[39m
+[32m✅ Created: Kartika Dewi (STD202500028) - Grade 10[39m
+[32m✅ Created: Kevin Saputra (STD202500029) - Grade 11[39m
+[32m✅ Created: Linda Wijaya (STD202500030) - Grade 11[39m
+[32m✅ Created: Malik Ibrahim (STD202500031) - Grade 12[39m
+[32m✅ Created: Mira Anggita (STD202500032) - Grade 12[39m
+[32m✅ Created: Nanda Pratama (STD202500033) - Grade 10[39m
+[32m✅ Created: Olivia Marsha (STD202500034) - Grade 10[39m
+[32m✅ Created: Pradana Putra (STD202500035) - Grade 11[39m
+[32m✅ Created: Qorina Salsabila (STD202500036) - Grade 11[39m
+[32m✅ Created: Rama Wijaya (STD202500037) - Grade 12[39m
+[32m✅ Created: Safira Maharani (STD202500038) - Grade 12[39m
+[32m✅ Created: Taufik Hidayat (STD202500039) - Grade 10[39m
+[32m✅ Created: Ulfah Zahra (STD202500040) - Grade 10[39m
+[32m✅ Created: Vino Bastian (STD202500041) - Grade 11[39m
+[32m✅ Created: Widya Ningrum (STD202500042) - Grade 11[39m
+[32m✅ Created: Xavier Anggara (STD202500043) - Grade 12[39m
+[32m✅ Created: Yuni Shara (STD202500044) - Grade 12[39m
+[32m✅ Created: Zaki Rahman (STD202500045) - Grade 10[39m
+[32m✅ Created: Alya Putri (STD202500046) - Grade 10[39m
+[32m✅ Created: Bagas Prasetyo (STD202500047) - Grade 11[39m
+[32m✅ Created: Citra Kirana (STD202500048) - Grade 11[39m
+[32m✅ Created: Daniel Sahrul (STD202500049) - Grade 12[39m
+[32m✅ Created: Elsa Pitaloka (STD202500050) - Grade 12[39m
+[32m🎉 Successfully created 50 students![39m
+  Database\Seeders\StudentSeeder  [90m100,514 ms[39m [32;1mDONE[39;22m  
+
+
+[32m5️⃣  Seeding student registrations (calon siswa)...[39m
+  Database\Seeders\StudentRegistrationSeeder  [33;1mRUNNING[39;22m  
+[32mStudent registrations seeded successfully![39m
+[32mTotal registrations: 10[39m
+[32mStatistics:[39m
+[32m  - Pending Documents: 2[39m
+[32m  - Pending Approval: 4[39m
+[32m  - Approved: 3[39m
+[32m  - Rejected: 1[39m
+  Database\Seeders\StudentRegistrationSeeder  [90m18,391 ms[39m [32;1mDONE[39;22m  
+
+
+[32m6️⃣  Seeding courses...[39m
+  Database\Seeders\CourseSeeder  [33;1mRUNNING[39;22m  
+[32mCourses seeded successfully![39m
+  Database\Seeders\CourseSeeder  [90m153 ms[39m [32;1mDONE[39;22m  
+
+
+[32m7️⃣  Seeding course modules...[39m
+  Database\Seeders\CourseModuleSeeder  [33;1mRUNNING[39;22m  
+
+  [41;1m Illuminate\Database\QueryException [49;22m
+
+[39;1m  SQLSTATE[42S22]: Column not found: 1054 Unknown column 'module_title' in 'field list' (Connection: mysql, SQL: insert into `course_modules` (`course_id`, `module_title`, `description`, `order`, `duration_minutes`, `is_published`, `updated_at`, `created_at`) values (1, Modul Pengenalan, Pengenalan materi dan overview course, 1, 123, 1, 2025-11-18 00:37:00, 2025-11-18 00:37:00))[39;22m
+
+  at [32mvendor\laravel\framework\src\Illuminate\Database\Connection.php[39m:[32m824[39m
+    820▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    821▕                 );
+    822▕             }
+    823▕ 
+  ➜ 824▕             throw new QueryException(
+    825▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕             );
+    827▕         }
+    828▕     }
+
+  [33m1   [39m[39;1mvendor\laravel\framework\src\Illuminate\Database\MySqlConnection.php[39;22m:[39;1m47[39;22m
+  [90m    PDOException::("SQLSTATE[42S22]: Column not found: 1054 Unknown column 'module_title' in 'field list'")[39m
+
+  [33m2   [39m[39;1mvendor\laravel\framework\src\Illuminate\Database\MySqlConnection.php[39;22m:[39;1m47[39;22m
+  [90m    PDO::prepare("insert into `course_modules` (`course_id`, `module_title`, `description`, `order`, `duration_minutes`, `is_published`, `updated_at`, `created_at`) values (?, ?, ?, ?, ?, ?, ?, ?)")[39m
+

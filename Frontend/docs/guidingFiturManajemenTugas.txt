@@ -1,0 +1,2292 @@
+================================================================================
+    📚 DOKUMENTASI LENGKAP FITUR MANAJEMEN TUGAS & PENGUMPULAN TUGAS
+    Learning Management System (LMS) - RPL 3
+================================================================================
+
+📅 Dibuat: 13 Desember 2025
+🔄 Update Terakhir: 13 Desember 2025
+👨‍💻 Oleh: AI Assistant
+
+================================================================================
+📋 DAFTAR ISI
+================================================================================
+
+1. OVERVIEW
+2. DATABASE SCHEMA
+3. STATUS SUBMISSION
+4. LATE SUBMISSION LOGIC
+5. ENDPOINT API - ASSIGNMENTS (TUGAS)
+6. ENDPOINT API - SUBMISSIONS (PENGUMPULAN)
+7. FLOW PENGGUNAAN
+8. AUTHORIZATION & SECURITY
+9. VALIDASI & ERROR HANDLING
+10. CONTOH IMPLEMENTASI FRONTEND
+
+================================================================================
+1. OVERVIEW
+================================================================================
+
+Sistem Manajemen Tugas ini memungkinkan:
+
+✅ INSTRUCTOR/ADMIN:
+   - Membuat, edit, dan hapus tugas (assignments)
+   - Melihat semua submission dari student
+   - Memberikan nilai (grade) dan feedback
+   - Melihat statistik pengumpulan tugas
+   - Tracking late submission
+
+✅ STUDENT:
+   - Melihat daftar tugas dari course yang diikuti
+   - Menyimpan draft submission
+   - Submit tugas (dengan deteksi late submission)
+   - Update submission sebelum deadline
+   - Melihat nilai dan feedback
+
+================================================================================
+2. DATABASE SCHEMA
+================================================================================
+
+📌 TABEL: assignments
+┌─────────────────┬──────────────┬────────────────────────────┐
+│ Field           │ Type         │ Description                │
+├─────────────────┼──────────────┼────────────────────────────┤
+│ id              │ BIGINT       │ Primary Key                │
+│ course_id       │ BIGINT       │ FK ke courses              │
+│ title           │ VARCHAR(255) │ Judul tugas                │
+│ description     │ TEXT         │ Deskripsi tugas            │
+│ due_date        │ DATETIME     │ Batas waktu pengumpulan    │
+│ max_score       │ INTEGER      │ Nilai maksimal (0-100)     │
+│ status          │ ENUM         │ draft/published/closed     │
+│ created_at      │ TIMESTAMP    │                            │
+│ updated_at      │ TIMESTAMP    │                            │
+└─────────────────┴──────────────┴────────────────────────────┘
+
+📌 TABEL: submissions
+┌─────────────────┬──────────────┬────────────────────────────┐
+│ Field           │ Type         │ Description                │
+├─────────────────┼──────────────┼────────────────────────────┤
+│ id              │ BIGINT       │ Primary Key                │
+│ assignment_id   │ BIGINT       │ FK ke assignments          │
+│ enrollment_id   │ BIGINT       │ FK ke enrollments          │
+│ status          │ ENUM         │ draft/submitted/graded/    │
+│                 │              │ returned                   │
+│ submitted_at    │ TIMESTAMP    │ Waktu submit (null=draft)  │
+│ is_late         │ BOOLEAN      │ Apakah terlambat           │
+│ late_days       │ INTEGER      │ Berapa hari terlambat      │
+│ file_path       │ VARCHAR(255) │ Path file yang diupload    │
+│ grade           │ DECIMAL(5,2) │ Nilai yang diberikan       │
+│ feedback        │ TEXT         │ Feedback dari instructor   │
+│ created_at      │ TIMESTAMP    │                            │
+│ updated_at      │ TIMESTAMP    │                            │
+└─────────────────┴──────────────┴────────────────────────────┘
+
+📌 RELASI:
+- Assignment belongsTo Course
+- Assignment hasMany Submissions
+- Submission belongsTo Assignment
+- Submission belongsTo Enrollment
+- Enrollment belongsTo Student & Course
+
+================================================================================
+3. STATUS SUBMISSION
+================================================================================
+
+📍 DRAFT (default)
+   - Submission baru dibuat
+   - Student bisa edit file
+   - Belum dihitung sebagai "dikumpulkan"
+   - submitted_at = NULL
+
+📍 SUBMITTED
+   - Student sudah submit
+   - submitted_at = waktu submit
+   - is_late & late_days dihitung otomatis
+   - Student tidak bisa edit lagi (kecuali instructor return)
+
+📍 GRADED
+   - Instructor sudah memberi nilai
+   - grade & feedback sudah terisi
+   - Final status
+
+📍 RETURNED
+   - Instructor mengembalikan untuk revisi
+   - Student bisa edit dan submit ulang
+
+================================================================================
+4. LATE SUBMISSION LOGIC
+================================================================================
+
+🔄 Automatic Late Detection:
+
+1. Saat student klik "Submit", sistem otomatis:
+   - Set submitted_at = current timestamp
+   - Bandingkan submitted_at dengan assignment.due_date
+
+2. Jika submitted_at > due_date:
+   - is_late = true
+   - late_days = selisih hari antara submitted_at dan due_date
+
+3. Contoh:
+   Due date: 2025-12-10 23:59:59
+   Submit at: 2025-12-13 10:30:00
+   Result: is_late = true, late_days = 3
+
+================================================================================
+5. ENDPOINT API - ASSIGNMENTS (TUGAS)
+================================================================================
+
+================================================================================
+5.1 GET /api/v1/assignments
+================================================================================
+📖 Deskripsi: Melihat daftar tugas
+🔐 Auth: Required (Bearer Token)
+👥 Akses: Student, Instructor, Admin
+
+🎯 Logic:
+   - Student: Hanya tugas dari course yang diikuti
+   - Instructor: Hanya tugas dari course yang diajar
+   - Admin: Semua tugas
+
+📥 Request:
+   GET /api/v1/assignments
+   Headers:
+   {
+     "Authorization": "Bearer {token}",
+     "Accept": "application/json"
+   }
+
+📤 Response Success (200):
+{
+  "data": [
+    {
+      "id": 1,
+      "course_id": 5,
+      "title": "Quiz Mingguan 1 - Algoritma Dasar",
+      "description": "Kerjakan soal-soal tentang algoritma sorting dan searching",
+      "due_date": "2025-12-20T23:59:59.000000Z",
+      "max_score": 100,
+      "status": "published",
+      "created_at": "2025-12-01T08:00:00.000000Z",
+      "updated_at": "2025-12-01T08:00:00.000000Z",
+      "course": {
+        "id": 5,
+        "name": "Algoritma dan Pemrograman",
+        "code": "CS101",
+        "instructor_id": 3
+      }
+    },
+    {
+      "id": 2,
+      "course_id": 5,
+      "title": "Tugas Akhir - Implementasi Binary Tree",
+      "description": "Implementasikan struktur data binary tree dengan operasi insert, delete, search",
+      "due_date": "2025-12-25T23:59:59.000000Z",
+      "max_score": 100,
+      "status": "published",
+      "created_at": "2025-12-05T10:00:00.000000Z",
+      "updated_at": "2025-12-05T10:00:00.000000Z",
+      "course": {
+        "id": 5,
+        "name": "Algoritma dan Pemrograman",
+        "code": "CS101",
+        "instructor_id": 3
+      }
+    }
+  ]
+}
+
+📤 Response Error (401):
+{
+  "message": "Unauthenticated."
+}
+
+================================================================================
+5.2 GET /api/v1/assignments/{id}
+================================================================================
+📖 Deskripsi: Melihat detail tugas
+🔐 Auth: Required
+👥 Akses: Student (enrolled), Instructor (owns course), Admin
+
+📥 Request:
+   GET /api/v1/assignments/1
+   Headers:
+   {
+     "Authorization": "Bearer {token}",
+     "Accept": "application/json"
+   }
+
+📤 Response Success (200):
+{
+  "id": 1,
+  "course_id": 5,
+  "title": "Quiz Mingguan 1 - Algoritma Dasar",
+  "description": "Kerjakan soal-soal tentang algoritma sorting dan searching. Gunakan bahasa pemrograman Python atau Java.",
+  "due_date": "2025-12-20T23:59:59.000000Z",
+  "max_score": 100,
+  "status": "published",
+  "created_at": "2025-12-01T08:00:00.000000Z",
+  "updated_at": "2025-12-01T08:00:00.000000Z",
+  "course": {
+    "id": 5,
+    "name": "Algoritma dan Pemrograman",
+    "code": "CS101",
+    "description": "Mata kuliah dasar algoritma",
+    "instructor_id": 3,
+    "instructor": {
+      "id": 3,
+      "user_id": 10,
+      "nip": "197001011995031001",
+      "department": "Computer Science",
+      "user": {
+        "id": 10,
+        "name": "Dr. Budi Santoso",
+        "email": "budi.santoso@university.ac.id"
+      }
+    }
+  },
+  "submissions": [
+    {
+      "id": 15,
+      "assignment_id": 1,
+      "enrollment_id": 25,
+      "status": "submitted",
+      "submitted_at": "2025-12-15T14:30:00.000000Z",
+      "is_late": false,
+      "late_days": 0,
+      "file_path": "/uploads/submissions/student_12345_assignment_1.pdf",
+      "grade": null,
+      "feedback": null,
+      "enrollment": {
+        "id": 25,
+        "student_id": 8,
+        "student": {
+          "id": 8,
+          "user_id": 20,
+          "nim": "20210001",
+          "user": {
+            "id": 20,
+            "name": "Ahmad Fadli",
+            "email": "ahmad.fadli@student.ac.id"
+          }
+        }
+      }
+    }
+  ]
+}
+
+📤 Response Error (403):
+{
+  "message": "You are not enrolled in the course for this assignment.",
+  "error": "ENROLLMENT_REQUIRED"
+}
+
+📤 Response Error (404):
+{
+  "message": "Assignment not found"
+}
+
+================================================================================
+5.3 POST /api/v1/assignments
+================================================================================
+📖 Deskripsi: Membuat tugas baru
+🔐 Auth: Required
+👥 Akses: Instructor (owns course), Admin
+
+📥 Request:
+   POST /api/v1/assignments
+   Headers:
+   {
+     "Authorization": "Bearer {token}",
+     "Accept": "application/json",
+     "Content-Type": "application/json"
+   }
+   Body:
+   {
+     "course_id": 5,
+     "title": "Quiz Mingguan 2 - Struktur Data",
+     "description": "Kerjakan soal tentang Stack dan Queue",
+     "due_date": "2025-12-30T23:59:59",
+     "max_score": 100,
+     "status": "published"
+   }
+
+📋 Validasi:
+   - course_id: required, exists di tabel courses
+   - title: required, string, max 255 karakter
+   - description: required, string
+   - due_date: nullable, format datetime
+   - max_score: required, integer, min 0, max 100
+   - status: nullable, enum (draft/published/closed), default "published"
+
+📤 Response Success (201):
+{
+  "id": 3,
+  "course_id": 5,
+  "title": "Quiz Mingguan 2 - Struktur Data",
+  "description": "Kerjakan soal tentang Stack dan Queue",
+  "due_date": "2025-12-30T23:59:59.000000Z",
+  "max_score": 100,
+  "status": "published",
+  "created_at": "2025-12-13T13:45:00.000000Z",
+  "updated_at": "2025-12-13T13:45:00.000000Z"
+}
+
+📤 Response Error (403):
+{
+  "message": "You are not authorized to create assignments for this course."
+}
+
+📤 Response Error (422):
+{
+  "message": "The given data was invalid.",
+  "errors": {
+    "course_id": ["The course id field is required."],
+    "title": ["The title field is required."],
+    "max_score": ["The max score must be between 0 and 100."]
+  }
+}
+
+================================================================================
+5.4 PUT /api/v1/assignments/{id}
+================================================================================
+📖 Deskripsi: Update tugas
+🔐 Auth: Required
+👥 Akses: Instructor (owns course), Admin
+
+📥 Request:
+   PUT /api/v1/assignments/1
+   Headers:
+   {
+     "Authorization": "Bearer {token}",
+     "Accept": "application/json",
+     "Content-Type": "application/json"
+   }
+   Body:
+   {
+     "title": "Quiz Mingguan 1 - Algoritma Dasar (Updated)",
+     "description": "Updated description dengan instruksi lebih detail",
+     "due_date": "2025-12-22T23:59:59",
+     "max_score": 100
+   }
+
+📤 Response Success (200):
+{
+  "id": 1,
+  "course_id": 5,
+  "title": "Quiz Mingguan 1 - Algoritma Dasar (Updated)",
+  "description": "Updated description dengan instruksi lebih detail",
+  "due_date": "2025-12-22T23:59:59.000000Z",
+  "max_score": 100,
+  "status": "published",
+  "created_at": "2025-12-01T08:00:00.000000Z",
+  "updated_at": "2025-12-13T14:00:00.000000Z"
+}
+
+📤 Response Error (403):
+{
+  "message": "Unauthorized"
+}
+
+================================================================================
+5.5 DELETE /api/v1/assignments/{id}
+================================================================================
+📖 Deskripsi: Hapus tugas
+🔐 Auth: Required
+👥 Akses: Instructor (owns course), Admin
+
+⚠️  WARNING: Akan menghapus semua submissions terkait (cascade delete)
+
+📥 Request:
+   DELETE /api/v1/assignments/1
+   Headers:
+   {
+     "Authorization": "Bearer {token}",
+     "Accept": "application/json"
+   }
+
+📤 Response Success (204):
+   No Content
+
+📤 Response Error (403):
+{
+  "message": "Unauthorized"
+}
+
+📤 Response Error (404):
+{
+  "message": "Assignment not found"
+}
+
+================================================================================
+6. ENDPOINT API - SUBMISSIONS (PENGUMPULAN)
+================================================================================
+
+================================================================================
+6.1 GET /api/v1/submissions
+================================================================================
+📖 Deskripsi: Melihat semua submission
+🔐 Auth: Required
+👥 Akses: Admin, Instructor, Student
+
+🎯 Logic:
+   - Student: Hanya submission sendiri
+   - Instructor: Submission dari course yang diajar
+   - Admin: Semua submission
+
+📥 Request:
+   GET /api/v1/submissions
+   Headers:
+   {
+     "Authorization": "Bearer {token}",
+     "Accept": "application/json"
+   }
+
+📤 Response Success (200):
+{
+  "data": [
+    {
+      "id": 15,
+      "assignment_id": 1,
+      "enrollment_id": 25,
+      "status": "submitted",
+      "submitted_at": "2025-12-15T14:30:00.000000Z",
+      "is_late": false,
+      "late_days": 0,
+      "file_path": "/uploads/submissions/student_12345_assignment_1.pdf",
+      "grade": null,
+      "feedback": null,
+      "created_at": "2025-12-15T10:00:00.000000Z",
+      "updated_at": "2025-12-15T14:30:00.000000Z",
+      "assignment": {
+        "id": 1,
+        "title": "Quiz Mingguan 1 - Algoritma Dasar",
+        "due_date": "2025-12-20T23:59:59.000000Z",
+        "max_score": 100
+      },
+      "enrollment": {
+        "id": 25,
+        "student_id": 8,
+        "course_id": 5,
+        "student": {
+          "id": 8,
+          "user_id": 20,
+          "nim": "20210001",
+          "user": {
+            "id": 20,
+            "name": "Ahmad Fadli",
+            "email": "ahmad.fadli@student.ac.id"
+          }
+        }
+      }
+    },
+    {
+      "id": 16,
+      "assignment_id": 1,
+      "enrollment_id": 26,
+      "status": "graded",
+      "submitted_at": "2025-12-18T09:15:00.000000Z",
+      "is_late": false,
+      "late_days": 0,
+      "file_path": "/uploads/submissions/student_67890_assignment_1.pdf",
+      "grade": 92.50,
+      "feedback": "Excellent work! Your algorithm implementation is very efficient.",
+      "created_at": "2025-12-17T15:00:00.000000Z",
+      "updated_at": "2025-12-19T11:00:00.000000Z",
+      "assignment": {
+        "id": 1,
+        "title": "Quiz Mingguan 1 - Algoritma Dasar",
+        "due_date": "2025-12-20T23:59:59.000000Z",
+        "max_score": 100
+      },
+      "enrollment": {
+        "id": 26,
+        "student_id": 9,
+        "course_id": 5,
+        "student": {
+          "id": 9,
+          "user_id": 21,
+          "nim": "20210002",
+          "user": {
+            "id": 21,
+            "name": "Siti Nurhaliza",
+            "email": "siti.nurhaliza@student.ac.id"
+          }
+        }
+      }
+    }
+  ]
+}
+
+================================================================================
+6.2 GET /api/v1/submissions/{id}
+================================================================================
+📖 Deskripsi: Melihat detail submission
+🔐 Auth: Required
+👥 Akses: Student (owner), Instructor (course owner), Admin
+
+📥 Request:
+   GET /api/v1/submissions/15
+   Headers:
+   {
+     "Authorization": "Bearer {token}",
+     "Accept": "application/json"
+   }
+
+📤 Response Success (200):
+{
+  "id": 15,
+  "assignment_id": 1,
+  "enrollment_id": 25,
+  "status": "graded",
+  "submitted_at": "2025-12-15T14:30:00.000000Z",
+  "is_late": false,
+  "late_days": 0,
+  "file_path": "/uploads/submissions/student_12345_assignment_1.pdf",
+  "grade": 88.50,
+  "feedback": "Good work! However, you need to optimize the time complexity of your sorting algorithm. Consider using merge sort instead of bubble sort for better performance.",
+  "created_at": "2025-12-15T10:00:00.000000Z",
+  "updated_at": "2025-12-16T09:20:00.000000Z",
+  "assignment": {
+    "id": 1,
+    "course_id": 5,
+    "title": "Quiz Mingguan 1 - Algoritma Dasar",
+    "description": "Kerjakan soal-soal tentang algoritma sorting dan searching",
+    "due_date": "2025-12-20T23:59:59.000000Z",
+    "max_score": 100,
+    "status": "published"
+  },
+  "enrollment": {
+    "id": 25,
+    "student_id": 8,
+    "course_id": 5,
+    "status": "active",
+    "student": {
+      "id": 8,
+      "user_id": 20,
+      "nim": "20210001",
+      "major": "Computer Science",
+      "user": {
+        "id": 20,
+        "name": "Ahmad Fadli",
+        "email": "ahmad.fadli@student.ac.id",
+        "role": "student"
+      }
+    }
+  }
+}
+
+📤 Response Error (403):
+{
+  "message": "Unauthorized to view this submission"
+}
+
+📤 Response Error (404):
+{
+  "message": "Submission not found"
+}
+
+================================================================================
+6.3 POST /api/v1/submissions
+================================================================================
+📖 Deskripsi: Buat submission baru (draft atau submit langsung)
+🔐 Auth: Required
+👥 Akses: Student (enrolled in course)
+
+📥 Request (Save as Draft):
+   POST /api/v1/submissions
+   Headers:
+   {
+     "Authorization": "Bearer {token}",
+     "Accept": "application/json",
+     "Content-Type": "application/json"
+   }
+   Body:
+   {
+     "assignment_id": 1,
+     "file_path": "/uploads/submissions/draft_file.pdf",
+     "submit_now": false
+   }
+
+📥 Request (Submit Immediately):
+   POST /api/v1/submissions
+   Headers:
+   {
+     "Authorization": "Bearer {token}",
+     "Accept": "application/json",
+     "Content-Type": "application/json"
+   }
+   Body:
+   {
+     "assignment_id": 1,
+     "file_path": "/uploads/submissions/final_submission.pdf",
+     "submit_now": true
+   }
+
+📋 Validasi:
+   - assignment_id: required, exists di tabel assignments
+   - file_path: nullable, string
+   - status: nullable, enum (draft/submitted)
+   - submit_now: boolean (false = save as draft, true = submit)
+   - Student harus enrolled di course
+   - Student tidak bisa submit 2x untuk assignment yang sama
+
+📤 Response Success - Draft (201):
+{
+  "message": "Draft saved successfully",
+  "submission": {
+    "id": 20,
+    "assignment_id": 1,
+    "enrollment_id": 25,
+    "status": "draft",
+    "submitted_at": null,
+    "is_late": false,
+    "late_days": 0,
+    "file_path": "/uploads/submissions/draft_file.pdf",
+    "grade": null,
+    "feedback": null,
+    "created_at": "2025-12-13T15:30:00.000000Z",
+    "updated_at": "2025-12-13T15:30:00.000000Z",
+    "assignment": {
+      "id": 1,
+      "title": "Quiz Mingguan 1 - Algoritma Dasar",
+      "due_date": "2025-12-20T23:59:59.000000Z",
+      "max_score": 100
+    },
+    "enrollment": {
+      "id": 25,
+      "student_id": 8,
+      "course_id": 5,
+      "student": {
+        "id": 8,
+        "nim": "20210001",
+        "user": {
+          "id": 20,
+          "name": "Ahmad Fadli",
+          "email": "ahmad.fadli@student.ac.id"
+        }
+      }
+    }
+  }
+}
+
+📤 Response Success - Submitted On Time (201):
+{
+  "message": "Assignment submitted successfully",
+  "submission": {
+    "id": 21,
+    "assignment_id": 1,
+    "enrollment_id": 25,
+    "status": "submitted",
+    "submitted_at": "2025-12-13T15:45:00.000000Z",
+    "is_late": false,
+    "late_days": 0,
+    "file_path": "/uploads/submissions/final_submission.pdf",
+    "grade": null,
+    "feedback": null,
+    "created_at": "2025-12-13T15:45:00.000000Z",
+    "updated_at": "2025-12-13T15:45:00.000000Z",
+    "assignment": {
+      "id": 1,
+      "title": "Quiz Mingguan 1 - Algoritma Dasar",
+      "due_date": "2025-12-20T23:59:59.000000Z",
+      "max_score": 100
+    },
+    "enrollment": {
+      "id": 25,
+      "student_id": 8,
+      "course_id": 5,
+      "student": {
+        "id": 8,
+        "nim": "20210001",
+        "user": {
+          "id": 20,
+          "name": "Ahmad Fadli",
+          "email": "ahmad.fadli@student.ac.id"
+        }
+      }
+    }
+  }
+}
+
+📤 Response Success - Late Submission (201):
+{
+  "message": "Assignment submitted successfully",
+  "submission": {
+    "id": 22,
+    "assignment_id": 2,
+    "enrollment_id": 25,
+    "status": "submitted",
+    "submitted_at": "2025-12-28T10:30:00.000000Z",
+    "is_late": true,
+    "late_days": 3,
+    "file_path": "/uploads/submissions/late_submission.pdf",
+    "grade": null,
+    "feedback": null,
+    "created_at": "2025-12-28T10:30:00.000000Z",
+    "updated_at": "2025-12-28T10:30:00.000000Z",
+    "assignment": {
+      "id": 2,
+      "title": "Tugas Akhir - Implementasi Binary Tree",
+      "due_date": "2025-12-25T23:59:59.000000Z",
+      "max_score": 100
+    },
+    "enrollment": {
+      "id": 25,
+      "student_id": 8,
+      "course_id": 5,
+      "student": {
+        "id": 8,
+        "nim": "20210001",
+        "user": {
+          "id": 20,
+          "name": "Ahmad Fadli",
+          "email": "ahmad.fadli@student.ac.id"
+        }
+      }
+    }
+  }
+}
+
+📤 Response Error (403):
+{
+  "message": "You are not enrolled in the course for this assignment.",
+  "error": "ENROLLMENT_REQUIRED"
+}
+
+📤 Response Error (422):
+{
+  "message": "You have already submitted this assignment. Please update your existing submission.",
+  "submission_id": 15
+}
+
+================================================================================
+6.4 PUT /api/v1/submissions/{id}
+================================================================================
+📖 Deskripsi: Update submission
+🔐 Auth: Required
+👥 Akses:
+   - Student: Update file_path (hanya jika status = draft/returned)
+   - Instructor/Admin: Update grade, feedback, status
+
+📥 Request (Student - Update File):
+   PUT /api/v1/submissions/20
+   Headers:
+   {
+     "Authorization": "Bearer {token}",
+     "Accept": "application/json",
+     "Content-Type": "application/json"
+   }
+   Body:
+   {
+     "file_path": "/uploads/submissions/updated_file.pdf",
+     "submit_now": false
+   }
+
+📥 Request (Student - Submit Draft):
+   PUT /api/v1/submissions/20
+   Headers:
+   {
+     "Authorization": "Bearer {token}",
+     "Accept": "application/json",
+     "Content-Type": "application/json"
+   }
+   Body:
+   {
+     "file_path": "/uploads/submissions/final_file.pdf",
+     "submit_now": true
+   }
+
+📥 Request (Instructor - Give Grade):
+   PUT /api/v1/submissions/15
+   Headers:
+   {
+     "Authorization": "Bearer {token}",
+     "Accept": "application/json",
+     "Content-Type": "application/json"
+   }
+   Body:
+   {
+     "grade": 88.50,
+     "feedback": "Good work! However, you need to optimize the algorithm.",
+     "status": "graded"
+   }
+
+📥 Request (Instructor - Return for Revision):
+   PUT /api/v1/submissions/15
+   Headers:
+   {
+     "Authorization": "Bearer {token}",
+     "Accept": "application/json",
+     "Content-Type": "application/json"
+   }
+   Body:
+   {
+     "status": "returned",
+     "feedback": "Please revise your work. The implementation is incorrect."
+   }
+
+📋 Validasi (Student):
+   - file_path: nullable, string
+   - submit_now: boolean
+   - Hanya bisa update jika status = draft atau returned
+
+📋 Validasi (Instructor):
+   - grade: nullable, numeric, min 0
+   - feedback: nullable, string
+   - status: nullable, enum (draft/submitted/graded/returned)
+
+📤 Response Success (200):
+{
+  "message": "Submission updated successfully",
+  "submission": {
+    "id": 15,
+    "assignment_id": 1,
+    "enrollment_id": 25,
+    "status": "graded",
+    "submitted_at": "2025-12-15T14:30:00.000000Z",
+    "is_late": false,
+    "late_days": 0,
+    "file_path": "/uploads/submissions/student_12345_assignment_1.pdf",
+    "grade": 88.50,
+    "feedback": "Good work! However, you need to optimize the algorithm.",
+    "created_at": "2025-12-15T10:00:00.000000Z",
+    "updated_at": "2025-12-16T09:20:00.000000Z",
+    "assignment": {
+      "id": 1,
+      "title": "Quiz Mingguan 1 - Algoritma Dasar",
+      "due_date": "2025-12-20T23:59:59.000000Z",
+      "max_score": 100
+    },
+    "enrollment": {
+      "id": 25,
+      "student_id": 8,
+      "course_id": 5,
+      "student": {
+        "id": 8,
+        "nim": "20210001",
+        "user": {
+          "id": 20,
+          "name": "Ahmad Fadli",
+          "email": "ahmad.fadli@student.ac.id"
+        }
+      }
+    }
+  }
+}
+
+📤 Response Error (403) - Student Update Submitted Work:
+{
+  "message": "You cannot update a submission that has been submitted or graded."
+}
+
+📤 Response Error (403):
+{
+  "message": "Unauthorized to update this submission"
+}
+
+================================================================================
+6.5 DELETE /api/v1/submissions/{id}
+================================================================================
+📖 Deskripsi: Hapus submission
+🔐 Auth: Required
+👥 Akses:
+   - Student: Hanya bisa delete draft (status = draft)
+   - Instructor/Admin: Bisa delete semua submission
+
+📥 Request:
+   DELETE /api/v1/submissions/20
+   Headers:
+   {
+     "Authorization": "Bearer {token}",
+     "Accept": "application/json"
+   }
+
+📤 Response Success (200):
+{
+  "message": "Submission deleted successfully"
+}
+
+📤 Response Error (403) - Student Delete Submitted Work:
+{
+  "message": "You can only delete draft submissions. Cannot delete submitted or graded work."
+}
+
+📤 Response Error (403):
+{
+  "message": "Unauthorized to delete this submission"
+}
+
+📤 Response Error (404):
+{
+  "message": "Submission not found"
+}
+
+================================================================================
+6.6 POST /api/v1/submissions/{id}/submit
+================================================================================
+📖 Deskripsi: Submit draft submission (mengubah draft menjadi submitted)
+🔐 Auth: Required
+👥 Akses: Student (owner)
+
+📥 Request:
+   POST /api/v1/submissions/20/submit
+   Headers:
+   {
+     "Authorization": "Bearer {token}",
+     "Accept": "application/json"
+   }
+
+📤 Response Success - On Time (200):
+{
+  "message": "Assignment submitted successfully",
+  "submission": {
+    "id": 20,
+    "assignment_id": 1,
+    "enrollment_id": 25,
+    "status": "submitted",
+    "submitted_at": "2025-12-16T10:15:00.000000Z",
+    "is_late": false,
+    "late_days": 0,
+    "file_path": "/uploads/submissions/final_file.pdf",
+    "grade": null,
+    "feedback": null,
+    "created_at": "2025-12-15T10:00:00.000000Z",
+    "updated_at": "2025-12-16T10:15:00.000000Z",
+    "assignment": {
+      "id": 1,
+      "title": "Quiz Mingguan 1 - Algoritma Dasar",
+      "due_date": "2025-12-20T23:59:59.000000Z",
+      "max_score": 100
+    },
+    "enrollment": {
+      "id": 25,
+      "student_id": 8,
+      "course_id": 5,
+      "student": {
+        "id": 8,
+        "nim": "20210001",
+        "user": {
+          "id": 20,
+          "name": "Ahmad Fadli",
+          "email": "ahmad.fadli@student.ac.id"
+        }
+      }
+    }
+  },
+  "is_late": false,
+  "late_days": 0
+}
+
+📤 Response Success - Late (200):
+{
+  "message": "Assignment submitted successfully",
+  "submission": {
+    "id": 21,
+    "assignment_id": 2,
+    "enrollment_id": 25,
+    "status": "submitted",
+    "submitted_at": "2025-12-27T16:30:00.000000Z",
+    "is_late": true,
+    "late_days": 2,
+    "file_path": "/uploads/submissions/late_file.pdf",
+    "grade": null,
+    "feedback": null,
+    "created_at": "2025-12-26T09:00:00.000000Z",
+    "updated_at": "2025-12-27T16:30:00.000000Z",
+    "assignment": {
+      "id": 2,
+      "title": "Tugas Akhir - Implementasi Binary Tree",
+      "due_date": "2025-12-25T23:59:59.000000Z",
+      "max_score": 100
+    },
+    "enrollment": {
+      "id": 25,
+      "student_id": 8,
+      "course_id": 5,
+      "student": {
+        "id": 8,
+        "nim": "20210001",
+        "user": {
+          "id": 20,
+          "name": "Ahmad Fadli",
+          "email": "ahmad.fadli@student.ac.id"
+        }
+      }
+    }
+  },
+  "is_late": true,
+  "late_days": 2
+}
+
+📤 Response Error (422):
+{
+  "message": "This submission has already been submitted."
+}
+
+📤 Response Error (403):
+{
+  "message": "Unauthorized to submit this submission"
+}
+
+================================================================================
+6.7 GET /api/v1/assignments/{assignmentId}/submissions
+================================================================================
+📖 Deskripsi: Lihat semua submission untuk assignment tertentu + statistik
+🔐 Auth: Required
+👥 Akses: Instructor (course owner), Admin
+
+📥 Request:
+   GET /api/v1/assignments/1/submissions
+   Headers:
+   {
+     "Authorization": "Bearer {token}",
+     "Accept": "application/json"
+   }
+
+📤 Response Success (200):
+{
+  "assignment": {
+    "id": 1,
+    "course_id": 5,
+    "title": "Quiz Mingguan 1 - Algoritma Dasar",
+    "description": "Kerjakan soal-soal tentang algoritma sorting dan searching",
+    "due_date": "2025-12-20T23:59:59.000000Z",
+    "max_score": 100,
+    "status": "published",
+    "created_at": "2025-12-01T08:00:00.000000Z",
+    "updated_at": "2025-12-01T08:00:00.000000Z"
+  },
+  "submissions": [
+    {
+      "id": 15,
+      "assignment_id": 1,
+      "enrollment_id": 25,
+      "status": "submitted",
+      "submitted_at": "2025-12-15T14:30:00.000000Z",
+      "is_late": false,
+      "late_days": 0,
+      "file_path": "/uploads/submissions/student_12345_assignment_1.pdf",
+      "grade": null,
+      "feedback": null,
+      "created_at": "2025-12-15T10:00:00.000000Z",
+      "updated_at": "2025-12-15T14:30:00.000000Z",
+      "enrollment": {
+        "id": 25,
+        "student_id": 8,
+        "student": {
+          "id": 8,
+          "nim": "20210001",
+          "user": {
+            "id": 20,
+            "name": "Ahmad Fadli",
+            "email": "ahmad.fadli@student.ac.id"
+          }
+        }
+      }
+    },
+    {
+      "id": 16,
+      "assignment_id": 1,
+      "enrollment_id": 26,
+      "status": "graded",
+      "submitted_at": "2025-12-18T09:15:00.000000Z",
+      "is_late": false,
+      "late_days": 0,
+      "file_path": "/uploads/submissions/student_67890_assignment_1.pdf",
+      "grade": 92.50,
+      "feedback": "Excellent work!",
+      "created_at": "2025-12-17T15:00:00.000000Z",
+      "updated_at": "2025-12-19T11:00:00.000000Z",
+      "enrollment": {
+        "id": 26,
+        "student_id": 9,
+        "student": {
+          "id": 9,
+          "nim": "20210002",
+          "user": {
+            "id": 21,
+            "name": "Siti Nurhaliza",
+            "email": "siti.nurhaliza@student.ac.id"
+          }
+        }
+      }
+    },
+    {
+      "id": 17,
+      "assignment_id": 1,
+      "enrollment_id": 27,
+      "status": "submitted",
+      "submitted_at": "2025-12-21T08:00:00.000000Z",
+      "is_late": true,
+      "late_days": 1,
+      "file_path": "/uploads/submissions/student_11111_assignment_1.pdf",
+      "grade": null,
+      "feedback": null,
+      "created_at": "2025-12-20T10:00:00.000000Z",
+      "updated_at": "2025-12-21T08:00:00.000000Z",
+      "enrollment": {
+        "id": 27,
+        "student_id": 10,
+        "student": {
+          "id": 10,
+          "nim": "20210003",
+          "user": {
+            "id": 22,
+            "name": "Budi Setiawan",
+            "email": "budi.setiawan@student.ac.id"
+          }
+        }
+      }
+    },
+    {
+      "id": 18,
+      "assignment_id": 1,
+      "enrollment_id": 28,
+      "status": "draft",
+      "submitted_at": null,
+      "is_late": false,
+      "late_days": 0,
+      "file_path": "/uploads/submissions/draft_22222.pdf",
+      "grade": null,
+      "feedback": null,
+      "created_at": "2025-12-19T14:00:00.000000Z",
+      "updated_at": "2025-12-19T14:00:00.000000Z",
+      "enrollment": {
+        "id": 28,
+        "student_id": 11,
+        "student": {
+          "id": 11,
+          "nim": "20210004",
+          "user": {
+            "id": 23,
+            "name": "Dewi Lestari",
+            "email": "dewi.lestari@student.ac.id"
+          }
+        }
+      }
+    }
+  ],
+  "statistics": {
+    "total": 4,
+    "submitted": 3,
+    "graded": 1,
+    "late": 1,
+    "draft": 1
+  }
+}
+
+📤 Response Error (403):
+{
+  "message": "You are not authorized to view submissions for this assignment."
+}
+
+📤 Response Error (404):
+{
+  "message": "Assignment not found"
+}
+
+================================================================================
+6.8 GET /api/v1/students/{student}/submissions
+================================================================================
+📖 Deskripsi: Lihat semua submission dari student tertentu
+🔐 Auth: Required
+👥 Akses: Student (own), Instructor, Admin
+
+📥 Request:
+   GET /api/v1/students/8/submissions
+   Headers:
+   {
+     "Authorization": "Bearer {token}",
+     "Accept": "application/json"
+   }
+
+📤 Response Success (200):
+{
+  "student": {
+    "id": 8,
+    "user_id": 20,
+    "nim": "20210001",
+    "major": "Computer Science",
+    "user": {
+      "id": 20,
+      "name": "Ahmad Fadli",
+      "email": "ahmad.fadli@student.ac.id"
+    }
+  },
+  "submissions": [
+    {
+      "id": 15,
+      "assignment_id": 1,
+      "enrollment_id": 25,
+      "status": "submitted",
+      "submitted_at": "2025-12-15T14:30:00.000000Z",
+      "is_late": false,
+      "late_days": 0,
+      "grade": null,
+      "assignment": {
+        "id": 1,
+        "title": "Quiz Mingguan 1 - Algoritma Dasar",
+        "due_date": "2025-12-20T23:59:59.000000Z",
+        "course": {
+          "id": 5,
+          "name": "Algoritma dan Pemrograman",
+          "code": "CS101"
+        }
+      }
+    },
+    {
+      "id": 22,
+      "assignment_id": 2,
+      "enrollment_id": 25,
+      "status": "submitted",
+      "submitted_at": "2025-12-28T10:30:00.000000Z",
+      "is_late": true,
+      "late_days": 3,
+      "grade": null,
+      "assignment": {
+        "id": 2,
+        "title": "Tugas Akhir - Implementasi Binary Tree",
+        "due_date": "2025-12-25T23:59:59.000000Z",
+        "course": {
+          "id": 5,
+          "name": "Algoritma dan Pemrograman",
+          "code": "CS101"
+        }
+      }
+    }
+  ]
+}
+
+================================================================================
+7. FLOW PENGGUNAAN
+================================================================================
+
+================================================================================
+7.1 FLOW STUDENT - Mengerjakan dan Mengumpulkan Tugas
+================================================================================
+
+STEP 1: Lihat Daftar Tugas
+┌─────────────────────────────────────────────────────────────────┐
+│ GET /api/v1/assignments                                         │
+│ Response: List tugas dari course yang diikuti                   │
+└─────────────────────────────────────────────────────────────────┘
+
+STEP 2: Lihat Detail Tugas
+┌─────────────────────────────────────────────────────────────────┐
+│ GET /api/v1/assignments/{id}                                    │
+│ Response: Detail tugas, deadline, max_score, deskripsi          │
+└─────────────────────────────────────────────────────────────────┘
+
+STEP 3A: Save as Draft (Optional)
+┌─────────────────────────────────────────────────────────────────┐
+│ POST /api/v1/submissions                                        │
+│ Body: {                                                         │
+│   "assignment_id": 1,                                           │
+│   "file_path": "/uploads/draft.pdf",                            │
+│   "submit_now": false                                           │
+│ }                                                               │
+│ Response: Draft saved, status = "draft"                         │
+└─────────────────────────────────────────────────────────────────┘
+
+STEP 3B: Update Draft (Optional)
+┌─────────────────────────────────────────────────────────────────┐
+│ PUT /api/v1/submissions/{id}                                    │
+│ Body: {                                                         │
+│   "file_path": "/uploads/updated_draft.pdf"                     │
+│ }                                                               │
+│ Response: Draft updated                                         │
+└─────────────────────────────────────────────────────────────────┘
+
+STEP 4: Submit Tugas
+┌─────────────────────────────────────────────────────────────────┐
+│ OPTION A: Submit from existing draft                            │
+│ POST /api/v1/submissions/{id}/submit                            │
+│                                                                 │
+│ OPTION B: Update draft with submit_now = true                   │
+│ PUT /api/v1/submissions/{id}                                    │
+│ Body: { "submit_now": true }                                    │
+│                                                                 │
+│ OPTION C: Create and submit immediately                         │
+│ POST /api/v1/submissions                                        │
+│ Body: {                                                         │
+│   "assignment_id": 1,                                           │
+│   "file_path": "/uploads/final.pdf",                            │
+│   "submit_now": true                                            │
+│ }                                                               │
+│                                                                 │
+│ Response: Submission berhasil, cek is_late & late_days          │
+└─────────────────────────────────────────────────────────────────┘
+
+STEP 5: Lihat Submission & Nilai
+┌─────────────────────────────────────────────────────────────────┐
+│ GET /api/v1/submissions/{id}                                    │
+│ Response: Detail submission, grade (jika sudah dinilai),        │
+│           feedback, is_late, late_days                          │
+└─────────────────────────────────────────────────────────────────┘
+
+STEP 6: Revisi (jika instructor return submission)
+┌─────────────────────────────────────────────────────────────────┐
+│ IF status = "returned":                                         │
+│   PUT /api/v1/submissions/{id}                                  │
+│   Body: {                                                       │
+│     "file_path": "/uploads/revised.pdf",                        │
+│     "submit_now": true                                          │
+│   }                                                             │
+└─────────────────────────────────────────────────────────────────┘
+
+================================================================================
+7.2 FLOW INSTRUCTOR - Membuat Tugas dan Memberi Nilai
+================================================================================
+
+STEP 1: Buat Tugas Baru
+┌─────────────────────────────────────────────────────────────────┐
+│ POST /api/v1/assignments                                        │
+│ Body: {                                                         │
+│   "course_id": 5,                                               │
+│   "title": "Quiz Mingguan 1",                                   │
+│   "description": "...",                                         │
+│   "due_date": "2025-12-20T23:59:59",                            │
+│   "max_score": 100,                                             │
+│   "status": "published"                                         │
+│ }                                                               │
+│ Response: Assignment created                                    │
+└─────────────────────────────────────────────────────────────────┘
+
+STEP 2: Lihat Daftar Tugas yang Dibuat
+┌─────────────────────────────────────────────────────────────────┐
+│ GET /api/v1/assignments                                         │
+│ Response: List tugas dari course yang diajar                    │
+└─────────────────────────────────────────────────────────────────┘
+
+STEP 3: Lihat Submissions untuk Assignment
+┌─────────────────────────────────────────────────────────────────┐
+│ GET /api/v1/assignments/{assignmentId}/submissions             │
+│ Response: List submissions + statistics                         │
+│   - Total submissions                                           │
+│   - Submitted count                                             │
+│   - Graded count                                                │
+│   - Late submissions count                                      │
+│   - Draft count                                                 │
+└─────────────────────────────────────────────────────────────────┘
+
+STEP 4: Lihat Detail Submission
+┌─────────────────────────────────────────────────────────────────┐
+│ GET /api/v1/submissions/{id}                                    │
+│ Response: Detail submission, student info, file                 │
+└─────────────────────────────────────────────────────────────────┘
+
+STEP 5: Beri Nilai & Feedback
+┌─────────────────────────────────────────────────────────────────┐
+│ PUT /api/v1/submissions/{id}                                    │
+│ Body: {                                                         │
+│   "grade": 88.50,                                               │
+│   "feedback": "Good work! But needs improvement...",            │
+│   "status": "graded"                                            │
+│ }                                                               │
+│ Response: Submission updated, status = "graded"                 │
+└─────────────────────────────────────────────────────────────────┘
+
+STEP 6: Return untuk Revisi (Optional)
+┌─────────────────────────────────────────────────────────────────┐
+│ PUT /api/v1/submissions/{id}                                    │
+│ Body: {                                                         │
+│   "status": "returned",                                         │
+│   "feedback": "Please revise..."                                │
+│ }                                                               │
+│ Response: Status changed to "returned", student can edit        │
+└─────────────────────────────────────────────────────────────────┘
+
+STEP 7: Update atau Hapus Assignment
+┌─────────────────────────────────────────────────────────────────┐
+│ PUT /api/v1/assignments/{id}                                    │
+│ Body: { "title": "Updated title", ... }                         │
+│                                                                 │
+│ DELETE /api/v1/assignments/{id}                                 │
+│ (Warning: Akan hapus semua submissions)                         │
+└─────────────────────────────────────────────────────────────────┘
+
+================================================================================
+8. AUTHORIZATION & SECURITY
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────┐
+│ ASSIGNMENTS AUTHORIZATION                                       │
+└─────────────────────────────────────────────────────────────────┘
+
+CREATE (POST):
+  ✓ Admin: Yes
+  ✓ Instructor: Only for courses they teach
+  ✗ Student: No
+
+READ (GET):
+  ✓ Admin: All assignments
+  ✓ Instructor: Only assignments from courses they teach
+  ✓ Student: Only assignments from courses they enrolled
+
+UPDATE (PUT):
+  ✓ Admin: Yes
+  ✓ Instructor: Only for courses they teach
+  ✗ Student: No
+
+DELETE (DELETE):
+  ✓ Admin: Yes
+  ✓ Instructor: Only for courses they teach
+  ✗ Student: No
+
+┌─────────────────────────────────────────────────────────────────┐
+│ SUBMISSIONS AUTHORIZATION                                       │
+└─────────────────────────────────────────────────────────────────┘
+
+CREATE (POST):
+  ✗ Admin: No (use instructor account)
+  ✗ Instructor: No
+  ✓ Student: Only if enrolled in course
+
+READ (GET):
+  ✓ Admin: All submissions
+  ✓ Instructor: Only submissions from their courses
+  ✓ Student: Only their own submissions
+
+UPDATE (PUT):
+  ✓ Admin: Yes (grade & feedback)
+  ✓ Instructor: Yes (grade & feedback)
+  ✓ Student: Only file_path, only if status = draft/returned
+
+DELETE (DELETE):
+  ✓ Admin: Yes
+  ✓ Instructor: Yes
+  ✓ Student: Only draft submissions
+
+┌─────────────────────────────────────────────────────────────────┐
+│ ENROLLMENT CHECK                                                │
+└─────────────────────────────────────────────────────────────────┘
+
+Student HARUS enrolled di course untuk:
+  - Melihat assignment
+  - Membuat submission
+  - Submit tugas
+
+Enrollment status harus "active"
+
+┌─────────────────────────────────────────────────────────────────┐
+│ SUBMISSION STATUS RULES                                         │
+└─────────────────────────────────────────────────────────────────┘
+
+DRAFT → SUBMITTED:
+  - Student can submit
+  - System auto-check late submission
+
+SUBMITTED → GRADED:
+  - Only instructor/admin
+  - Must provide grade
+
+SUBMITTED → RETURNED:
+  - Only instructor/admin
+  - Should provide feedback
+
+RETURNED → SUBMITTED:
+  - Student can resubmit
+
+GRADED → (FINAL):
+  - Cannot be changed by student
+  - Only instructor can modify
+
+================================================================================
+9. VALIDASI & ERROR HANDLING
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────┐
+│ ASSIGNMENT VALIDATION                                           │
+└─────────────────────────────────────────────────────────────────┘
+
+CREATE/UPDATE:
+  course_id:
+    - required (on create)
+    - must exist in courses table
+    - instructor must own the course
+
+  title:
+    - required
+    - string
+    - max 255 characters
+
+  description:
+    - required
+    - string (no max length)
+
+  due_date:
+    - nullable
+    - valid datetime format
+    - recommendation: should be future date
+
+  max_score:
+    - required
+    - integer
+    - min: 0
+    - max: 100
+
+  status:
+    - nullable
+    - enum: draft, published, closed
+    - default: published
+
+┌─────────────────────────────────────────────────────────────────┐
+│ SUBMISSION VALIDATION                                           │
+└─────────────────────────────────────────────────────────────────┘
+
+CREATE:
+  assignment_id:
+    - required
+    - must exist in assignments table
+    - student must be enrolled in course
+
+  enrollment_id:
+    - auto-filled from authenticated student
+    - must be active enrollment
+
+  file_path:
+    - nullable
+    - string
+
+  status:
+    - auto-set to "draft" by default
+    - can be set to "submitted" if submit_now = true
+
+  submit_now:
+    - boolean
+    - if true: mark as submitted and check late
+
+  Unique Check:
+    - One student (enrollment) can only submit once per assignment
+    - Error if duplicate submission attempt
+
+UPDATE (Student):
+  - Only allowed if status = draft or returned
+  - Can update: file_path
+  - Can submit: submit_now = true
+
+UPDATE (Instructor):
+  - Can update: grade, feedback, status
+  - grade: numeric, min 0
+  - feedback: string
+  - status: enum (draft/submitted/graded/returned)
+
+┌─────────────────────────────────────────────────────────────────┐
+│ COMMON ERRORS                                                   │
+└─────────────────────────────────────────────────────────────────┘
+
+401 Unauthenticated:
+  - Missing or invalid Bearer token
+  - Token expired
+
+403 Forbidden:
+  - Not enrolled in course (student)
+  - Not course owner (instructor)
+  - Attempting unauthorized action
+
+404 Not Found:
+  - Assignment not found
+  - Submission not found
+
+422 Validation Error:
+  - Invalid input data
+  - Duplicate submission
+  - Required fields missing
+
+500 Server Error:
+  - Database error
+  - Unexpected exception
+
+┌─────────────────────────────────────────────────────────────────┐
+│ LATE SUBMISSION DETECTION                                       │
+└─────────────────────────────────────────────────────────────────┘
+
+Trigger:
+  - When submission status changes from draft to submitted
+  - When submit_now = true in POST/PUT request
+  - When POST /api/v1/submissions/{id}/submit is called
+
+Logic:
+  1. Get current timestamp as submitted_at
+  2. Get assignment.due_date
+  3. If due_date is NULL: no late detection
+  4. If submitted_at > due_date:
+     - is_late = true
+     - late_days = difference in days
+  5. Else:
+     - is_late = false
+     - late_days = 0
+
+Example Code (Model Method):
+  public function markAsSubmitted(): void
+  {
+      $this->status = 'submitted';
+      $this->submitted_at = now();
+
+      if ($this->assignment->due_date &&
+          $this->submitted_at->isAfter($this->assignment->due_date)) {
+          $this->is_late = true;
+          $this->late_days = $this->submitted_at
+              ->diffInDays($this->assignment->due_date);
+      }
+
+      $this->save();
+  }
+
+================================================================================
+10. CONTOH IMPLEMENTASI FRONTEND
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 10.1 STUDENT - Assignment List Page                            │
+└─────────────────────────────────────────────────────────────────┘
+
+// Fetch assignments
+async function fetchAssignments() {
+  const response = await fetch('/api/v1/assignments', {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json'
+    }
+  });
+
+  const data = await response.json();
+
+  // Display assignments
+  data.forEach(assignment => {
+    const dueDate = new Date(assignment.due_date);
+    const now = new Date();
+    const isOverdue = now > dueDate;
+
+    displayAssignment({
+      title: assignment.title,
+      course: assignment.course.name,
+      dueDate: dueDate.toLocaleDateString(),
+      maxScore: assignment.max_score,
+      status: isOverdue ? 'OVERDUE' : 'OPEN',
+      statusColor: isOverdue ? 'red' : 'green'
+    });
+  });
+}
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 10.2 STUDENT - Submit Assignment (Save Draft)                  │
+└─────────────────────────────────────────────────────────────────┘
+
+async function saveDraft(assignmentId, filePath) {
+  const response = await fetch('/api/v1/submissions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      assignment_id: assignmentId,
+      file_path: filePath,
+      submit_now: false
+    })
+  });
+
+  const result = await response.json();
+
+  if (response.ok) {
+    showMessage('Draft saved successfully', 'success');
+    return result.submission.id;
+  } else {
+    showMessage(result.message, 'error');
+  }
+}
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 10.3 STUDENT - Submit Assignment (Final Submit)                │
+└─────────────────────────────────────────────────────────────────┐
+
+async function submitAssignment(submissionId) {
+  // Show confirmation dialog
+  const confirmed = await confirm(
+    'Are you sure you want to submit? You cannot edit after submission.'
+  );
+
+  if (!confirmed) return;
+
+  const response = await fetch(`/api/v1/submissions/${submissionId}/submit`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json'
+    }
+  });
+
+  const result = await response.json();
+
+  if (response.ok) {
+    // Check if late
+    if (result.is_late) {
+      showMessage(
+        `Assignment submitted ${result.late_days} day(s) late`,
+        'warning'
+      );
+    } else {
+      showMessage('Assignment submitted successfully', 'success');
+    }
+
+    // Redirect to submission detail
+    window.location.href = `/submissions/${result.submission.id}`;
+  } else {
+    showMessage(result.message, 'error');
+  }
+}
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 10.4 STUDENT - View Submission Status                          │
+└─────────────────────────────────────────────────────────────────┘
+
+async function viewSubmissionStatus(submissionId) {
+  const response = await fetch(`/api/v1/submissions/${submissionId}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json'
+    }
+  });
+
+  const submission = await response.json();
+
+  // Display submission info
+  displaySubmissionInfo({
+    assignmentTitle: submission.assignment.title,
+    status: submission.status,
+    submittedAt: submission.submitted_at,
+    isLate: submission.is_late,
+    lateDays: submission.late_days,
+    grade: submission.grade,
+    feedback: submission.feedback,
+    filePath: submission.file_path
+  });
+
+  // Show status badge
+  const statusBadge = {
+    'draft': { text: 'DRAFT', color: 'gray' },
+    'submitted': { text: 'SUBMITTED', color: 'blue' },
+    'graded': { text: 'GRADED', color: 'green' },
+    'returned': { text: 'RETURNED FOR REVISION', color: 'yellow' }
+  }[submission.status];
+
+  displayStatusBadge(statusBadge);
+
+  // Show late warning if applicable
+  if (submission.is_late) {
+    showLateWarning(`Submitted ${submission.late_days} day(s) late`);
+  }
+}
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 10.5 INSTRUCTOR - Create Assignment                            │
+└─────────────────────────────────────────────────────────────────┘
+
+async function createAssignment(formData) {
+  const response = await fetch('/api/v1/assignments', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      course_id: formData.courseId,
+      title: formData.title,
+      description: formData.description,
+      due_date: formData.dueDate, // Format: "2025-12-20T23:59:59"
+      max_score: formData.maxScore,
+      status: formData.status || 'published'
+    })
+  });
+
+  const result = await response.json();
+
+  if (response.ok) {
+    showMessage('Assignment created successfully', 'success');
+    window.location.href = `/assignments/${result.id}`;
+  } else if (response.status === 422) {
+    // Show validation errors
+    displayValidationErrors(result.errors);
+  } else {
+    showMessage(result.message, 'error');
+  }
+}
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 10.6 INSTRUCTOR - View Assignment Submissions                  │
+└─────────────────────────────────────────────────────────────────┘
+
+async function viewAssignmentSubmissions(assignmentId) {
+  const response = await fetch(
+    `/api/v1/assignments/${assignmentId}/submissions`,
+    {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json'
+      }
+    }
+  );
+
+  const data = await response.json();
+
+  // Display assignment info
+  displayAssignmentInfo({
+    title: data.assignment.title,
+    dueDate: data.assignment.due_date,
+    maxScore: data.assignment.max_score
+  });
+
+  // Display statistics
+  displayStatistics({
+    total: data.statistics.total,
+    submitted: data.statistics.submitted,
+    graded: data.statistics.graded,
+    late: data.statistics.late,
+    draft: data.statistics.draft,
+    submissionRate: (data.statistics.submitted / data.statistics.total * 100).toFixed(1)
+  });
+
+  // Display submissions table
+  const tableData = data.submissions.map(sub => ({
+    studentName: sub.enrollment.student.user.name,
+    nim: sub.enrollment.student.nim,
+    status: sub.status,
+    submittedAt: sub.submitted_at ? formatDate(sub.submitted_at) : 'Not yet',
+    isLate: sub.is_late,
+    lateDays: sub.late_days,
+    grade: sub.grade || 'Not graded',
+    actions: [
+      { label: 'View', action: () => viewSubmission(sub.id) },
+      { label: 'Grade', action: () => gradeSubmission(sub.id) }
+    ]
+  }));
+
+  displaySubmissionsTable(tableData);
+}
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 10.7 INSTRUCTOR - Grade Submission                             │
+└─────────────────────────────────────────────────────────────────┘
+
+async function gradeSubmission(submissionId, gradeData) {
+  const response = await fetch(`/api/v1/submissions/${submissionId}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      grade: gradeData.grade,
+      feedback: gradeData.feedback,
+      status: 'graded'
+    })
+  });
+
+  const result = await response.json();
+
+  if (response.ok) {
+    showMessage('Grade submitted successfully', 'success');
+    // Refresh submission list or detail view
+    refreshSubmissionView();
+  } else {
+    showMessage(result.message, 'error');
+  }
+}
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 10.8 INSTRUCTOR - Return Submission for Revision               │
+└─────────────────────────────────────────────────────────────────┘
+
+async function returnForRevision(submissionId, feedback) {
+  const confirmed = await confirm(
+    'This will allow the student to resubmit. Continue?'
+  );
+
+  if (!confirmed) return;
+
+  const response = await fetch(`/api/v1/submissions/${submissionId}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      status: 'returned',
+      feedback: feedback
+    })
+  });
+
+  const result = await response.json();
+
+  if (response.ok) {
+    showMessage('Submission returned for revision', 'success');
+    refreshSubmissionView();
+  } else {
+    showMessage(result.message, 'error');
+  }
+}
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 10.9 UI COMPONENTS EXAMPLES                                    │
+└─────────────────────────────────────────────────────────────────┘
+
+// Status Badge Component
+function StatusBadge({ status }) {
+  const styles = {
+    'draft': 'bg-gray-200 text-gray-800',
+    'submitted': 'bg-blue-200 text-blue-800',
+    'graded': 'bg-green-200 text-green-800',
+    'returned': 'bg-yellow-200 text-yellow-800'
+  };
+
+  const labels = {
+    'draft': 'Draft',
+    'submitted': 'Submitted',
+    'graded': 'Graded',
+    'returned': 'Returned'
+  };
+
+  return `
+    <span class="badge ${styles[status]}">
+      ${labels[status]}
+    </span>
+  `;
+}
+
+// Late Indicator Component
+function LateIndicator({ isLate, lateDays }) {
+  if (!isLate) return '';
+
+  return `
+    <div class="alert alert-warning">
+      <i class="icon-warning"></i>
+      Submitted ${lateDays} day(s) late
+    </div>
+  `;
+}
+
+// Deadline Countdown Component
+function DeadlineCountdown({ dueDate }) {
+  const now = new Date();
+  const due = new Date(dueDate);
+  const diffMs = due - now;
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) {
+    return `<span class="text-red-600">Overdue</span>`;
+  } else if (diffDays === 0) {
+    return `<span class="text-orange-600">Due today</span>`;
+  } else if (diffDays <= 3) {
+    return `<span class="text-yellow-600">Due in ${diffDays} days</span>`;
+  } else {
+    return `<span class="text-green-600">Due in ${diffDays} days</span>`;
+  }
+}
+
+// Assignment Card Component
+function AssignmentCard({ assignment }) {
+  return `
+    <div class="card assignment-card">
+      <div class="card-header">
+        <h3>${assignment.title}</h3>
+        <span class="course-tag">${assignment.course.name}</span>
+      </div>
+      <div class="card-body">
+        <p>${assignment.description}</p>
+        <div class="assignment-meta">
+          <div class="meta-item">
+            <i class="icon-calendar"></i>
+            <span>Due: ${formatDate(assignment.due_date)}</span>
+          </div>
+          <div class="meta-item">
+            <i class="icon-star"></i>
+            <span>Max Score: ${assignment.max_score}</span>
+          </div>
+          ${DeadlineCountdown({ dueDate: assignment.due_date })}
+        </div>
+      </div>
+      <div class="card-footer">
+        <button onclick="viewAssignment(${assignment.id})">
+          View Details
+        </button>
+        <button onclick="startSubmission(${assignment.id})">
+          Submit Assignment
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+================================================================================
+11. TIPS & BEST PRACTICES
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────┐
+│ FOR STUDENTS                                                    │
+└─────────────────────────────────────────────────────────────────┘
+
+✅ DO:
+  - Save draft regularly while working on assignment
+  - Submit before deadline to avoid late penalty
+  - Check submission status after submitting
+  - Read feedback from instructor carefully
+  - Download/backup your submitted file
+
+❌ DON'T:
+  - Wait until last minute to submit
+  - Submit without reviewing your work
+  - Ignore returned submissions (revise promptly)
+  - Submit wrong file (double-check before submit)
+
+┌─────────────────────────────────────────────────────────────────┐
+│ FOR INSTRUCTORS                                                 │
+└─────────────────────────────────────────────────────────────────┘
+
+✅ DO:
+  - Set clear deadlines and descriptions
+  - Grade submissions promptly
+  - Provide constructive feedback
+  - Use "returned" status for revisions
+  - Monitor late submissions statistics
+
+❌ DON'T:
+  - Delete assignments with submissions (data loss)
+  - Change assignment after many submissions
+  - Forget to provide feedback with grades
+  - Leave submissions ungraded for too long
+
+┌─────────────────────────────────────────────────────────────────┐
+│ FRONTEND DEVELOPMENT                                            │
+└─────────────────────────────────────────────────────────────────┘
+
+✅ DO:
+  - Show clear status indicators (badges)
+  - Display late submission warnings prominently
+  - Implement confirmation dialogs for submit actions
+  - Cache authentication token securely
+  - Handle all error responses gracefully
+  - Show loading states during API calls
+  - Implement proper file upload validation
+
+❌ DON'T:
+  - Store token in localStorage (use httpOnly cookies if possible)
+  - Allow submission without confirmation
+  - Ignore error messages from API
+  - Submit forms without validation
+  - Make API calls without proper error handling
+
+┌─────────────────────────────────────────────────────────────────┐
+│ BACKEND DEVELOPMENT                                             │
+└─────────────────────────────────────────────────────────────────┘
+
+✅ DO:
+  - Always validate enrollment before submission
+  - Use database transactions for critical operations
+  - Log important actions (submit, grade, delete)
+  - Implement proper authorization checks
+  - Return consistent error response format
+  - Use eager loading to prevent N+1 queries
+
+❌ DON'T:
+  - Skip enrollment validation
+  - Allow duplicate submissions
+  - Expose sensitive student data
+  - Return different error formats
+  - Forget to handle edge cases
+
+================================================================================
+12. TROUBLESHOOTING
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────┐
+│ PROBLEM: "You are not enrolled in the course"                  │
+└─────────────────────────────────────────────────────────────────┘
+
+CAUSE:
+  - Student not enrolled in course
+  - Enrollment status is not "active"
+  - Wrong course_id in assignment
+
+SOLUTION:
+  1. Check enrollment table for student_id + course_id
+  2. Verify enrollment.status = "active"
+  3. Ensure assignment.course_id matches enrollment.course_id
+
+┌─────────────────────────────────────────────────────────────────┐
+│ PROBLEM: "You have already submitted this assignment"          │
+└─────────────────────────────────────────────────────────────────┘
+
+CAUSE:
+  - Duplicate submission attempt
+  - Unique constraint on (assignment_id, enrollment_id)
+
+SOLUTION:
+  1. Use PUT /api/v1/submissions/{id} to update
+  2. Or use POST /api/v1/submissions/{id}/submit for draft
+
+┌─────────────────────────────────────────────────────────────────┐
+│ PROBLEM: "Cannot update submitted submission"                  │
+└─────────────────────────────────────────────────────────────────┘
+
+CAUSE:
+  - Student trying to edit after submission
+  - Status is "submitted" or "graded"
+
+SOLUTION:
+  - Wait for instructor to return submission
+  - Or contact instructor to change status to "returned"
+
+┌─────────────────────────────────────────────────────────────────┐
+│ PROBLEM: Late days not calculating correctly                   │
+└─────────────────────────────────────────────────────────────────┘
+
+CAUSE:
+  - Timezone issues
+  - due_date is NULL
+  - submitted_at not set properly
+
+SOLUTION:
+  1. Ensure due_date is set in assignment
+  2. Use proper timezone handling (UTC recommended)
+  3. Call markAsSubmitted() method when submitting
+
+┌─────────────────────────────────────────────────────────────────┐
+│ PROBLEM: 401 Unauthenticated error                             │
+└─────────────────────────────────────────────────────────────────┘
+
+CAUSE:
+  - Missing Authorization header
+  - Invalid or expired token
+
+SOLUTION:
+  1. Check Bearer token in request header
+  2. Verify token format: "Bearer {token}"
+  3. Refresh token if expired
+
+================================================================================
+13. MIGRATION INSTRUCTIONS
+================================================================================
+
+Untuk menerapkan fitur ini ke database yang sudah ada:
+
+STEP 1: Run Migration
+┌─────────────────────────────────────────────────────────────────┐
+│ php artisan migrate                                             │
+│                                                                 │
+│ This will add:                                                  │
+│   - status column (enum)                                        │
+│   - submitted_at column (timestamp)                             │
+│   - is_late column (boolean)                                    │
+│   - late_days column (integer)                                  │
+└─────────────────────────────────────────────────────────────────┘
+
+STEP 2: Update Existing Submissions (Optional)
+┌─────────────────────────────────────────────────────────────────┐
+│ UPDATE submissions                                              │
+│ SET status = 'submitted',                                       │
+│     submitted_at = created_at,                                  │
+│     is_late = false,                                            │
+│     late_days = 0                                               │
+│ WHERE status IS NULL;                                           │
+└─────────────────────────────────────────────────────────────────┘
+
+STEP 3: Clear Cache
+┌─────────────────────────────────────────────────────────────────┐
+│ php artisan cache:clear                                         │
+│ php artisan config:clear                                        │
+│ php artisan route:clear                                         │
+└─────────────────────────────────────────────────────────────────┘
+
+================================================================================
+14. API TESTING EXAMPLES
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────┐
+│ POSTMAN / CURL EXAMPLES                                         │
+└─────────────────────────────────────────────────────────────────┘
+
+# 1. Create Assignment (Instructor)
+curl -X POST http://localhost:8000/api/v1/assignments \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "course_id": 5,
+    "title": "Quiz 1",
+    "description": "Test your knowledge",
+    "due_date": "2025-12-31T23:59:59",
+    "max_score": 100
+  }'
+
+# 2. Submit Assignment (Student)
+curl -X POST http://localhost:8000/api/v1/submissions \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "assignment_id": 1,
+    "file_path": "/uploads/my_work.pdf",
+    "submit_now": true
+  }'
+
+# 3. Grade Submission (Instructor)
+curl -X PUT http://localhost:8000/api/v1/submissions/15 \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "grade": 88.5,
+    "feedback": "Good work!",
+    "status": "graded"
+  }'
+
+# 4. Get Assignment Submissions (Instructor)
+curl -X GET http://localhost:8000/api/v1/assignments/1/submissions \
+  -H "Authorization: Bearer YOUR_TOKEN"
+
+# 5. Submit Draft (Student)
+curl -X POST http://localhost:8000/api/v1/submissions/20/submit \
+  -H "Authorization: Bearer YOUR_TOKEN"
+
+================================================================================
+15. CHANGELOG
+================================================================================
+
+VERSION 1.0 - 13 Desember 2025
+┌─────────────────────────────────────────────────────────────────┐
+│ ✨ NEW FEATURES                                                 │
+│   - Status submission (draft, submitted, graded, returned)      │
+│   - Late submission detection & tracking                        │
+│   - Draft save & submit workflow                                │
+│   - Return for revision feature                                 │
+│   - Submission statistics for instructors                       │
+│                                                                 │
+│ 🔧 IMPROVEMENTS                                                 │
+│   - Better authorization checks                                 │
+│   - Enhanced validation                                         │
+│   - Comprehensive error handling                                │
+│   - Auto-calculation of late days                               │
+│                                                                 │
+│ 📚 DOCUMENTATION                                                │
+│   - Complete API documentation with JSON examples               │
+│   - Frontend implementation guide                               │
+│   - Flow diagrams for both student & instructor                 │
+│   - Troubleshooting guide                                       │
+└─────────────────────────────────────────────────────────────────┘
+
+================================================================================
+16. SUPPORT & CONTACT
+================================================================================
+
+Untuk pertanyaan atau bantuan terkait fitur ini:
+
+📧 Email: support@lms-rpl3.ac.id
+📝 Documentation: https://docs.lms-rpl3.ac.id
+🐛 Bug Report: https://github.com/lms-rpl3/issues
+💬 Discussion: https://github.com/lms-rpl3/discussions
+
+================================================================================
+END OF DOCUMENTATION
+================================================================================

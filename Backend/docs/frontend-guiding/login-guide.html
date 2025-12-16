@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panduan Implementasi: Login System LMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Mendefinisikan Color Palette */
+        :root {
+            --primary-blue: #4285F4;
+            --accent-green: #20C997;
+            --white: #FFFFFF;
+            --light-gray: #F8F9FA;
+            --gray-100: #E9ECEF;
+            --text-primary: #212529;
+            --text-secondary: #6C757D;
+            --success: #20C997;
+            --warning: #FFC107;
+            --error: #DC3545;
+            --primary-hover: #3367D6;
+            --accent-hover: #1AA87D;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-gray);
+            color: var(--text-primary);
+        }
+
+        /* Helper class untuk code block header */
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #374151; /* gray-700 */
+            padding: 8px 16px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .code-header span {
+            font-family: 'monospace';
+            font-size: 14px;
+            color: #D1D5DB; /* gray-300 */
+        }
+
+        .copy-btn {
+            background-color: #4B5563; /* gray-600 */
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .copy-btn:hover {
+            background-color: #6B7280; /* gray-500 */
+        }
+        
+        pre {
+            background-color: #1F2937; /* gray-800 */
+            color: #F9FAFB; /* gray-50 */
+            padding: 16px;
+            border-radius: 0 0 8px 8px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-10">
+
+    <div class="max-w-5xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden">
+        <!-- Header Halaman Guide -->
+        <header class="p-8 md:p-12 bg-gradient-to-r from-[--primary-blue] to-[--primary-hover]">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">🔐 Panduan Lengkap: Login System</h1>
+            <p class="text-xl text-blue-100">Penjelasan endpoint, controller, dan view untuk SmartDev LMS.</p>
+        </header>
+
+        <main class="p-8 md:p-12 space-y-12">
+
+            <!-- Overview -->
+            <section>
+                <h2 class="text-3xl font-bold mb-4 text-[--primary-blue]">📋 Overview</h2>
+                <p class="text-lg text-[--text-secondary]">
+                    Login system ini menggunakan <strong>1 endpoint untuk SEMUA role</strong> (Student, Instructor, Parent, Admin, Calon Siswa). Backend akan otomatis mendeteksi role dari database dan me-load profile yang sesuai.
+                </p>
+            </section>
+
+            <!-- Endpoint yang Digunakan -->
+            <section>
+                <h2 class="text-3xl font-bold mb-6 text-[--primary-blue]">🎯 Endpoint yang Digunakan</h2>
+                
+                <div class="code-block mb-6">
+                    <div class="code-header">
+                        <span>HTTP</span>
+                        <button class="copy-btn" data-clipboard-target="code-endpoint">
+                            Copy
+                        </button>
+                    </div>
+                    <pre id="code-endpoint"><code class="language-bash">POST /api/login</code></pre>
+                </div>
+                
+                <p class="text-base text-[--text-secondary] mb-4">Berlaku untuk semua role:</p>
+                <ul class="list-disc list-inside space-y-2 text-lg">
+                    <li class="flex items-center"><span class="inline-block w-3 h-3 rounded-full bg-[--success] mr-3"></span>Student (role: 'student')</li>
+                    <li class="flex items-center"><span class="inline-block w-3 h-3 rounded-full bg-[--success] mr-3"></span>Instructor (role: 'instructor')</li>
+                    <li class="flex items-center"><span class="inline-block w-3 h-3 rounded-full bg-[--success] mr-3"></span>Parent (role: 'parent')</li>
+                    <li class="flex items-center"><span class="inline-block w-3 h-3 rounded-full bg-[--success] mr-3"></span>Admin (role: 'admin')</li>
+                    <li class="flex items-center"><span class="inline-block w-3 h-3 rounded-full bg-[--success] mr-3"></span>Calon Siswa (role: 'calon_siswa')</li>
+                </ul>
+            </section>
+            
+            <!-- Step 1: Login Page Blade -->
+            <section>
+                <h2 class="text-3xl font-bold mb-6 text-[--primary-blue]">🎨 Step 1: Buat Login Page (Blade + JS)</h2>
+                <p class="text-lg text-[--text-secondary] mb-6">
+                    Buat file untuk halaman login, lengkap dengan JavaScript untuk memanggil API.
+                </p>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>resources/views/auth/login.blade.php</span>
+                        <button class="copy-btn" data-clipboard-target="code-loginblade">
+                            Copy
+                        </button>
+                    </div>
+                    <pre id="code-loginblade"><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="id"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;meta name="csrf-token" content="{{ csrf_token() }}"&gt;
+    &lt;title&gt;Login - SmartDev LMS&lt;/title&gt;
+    &lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;
+    &lt;style&gt;
+        /* Tambahkan style untuk loading spinner */
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body class="bg-[--light-gray] flex items-center justify-center min-h-screen"&gt;
+
+    &lt;div class="bg-white p-8 md:p-12 rounded-2xl shadow-xl max-w-md w-full" 
+         style="box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);"&gt;
+        
+        &lt;!-- Header Form --&gt;
+        &lt;div class="text-center mb-8"&gt;
+            &lt;h1 class="text-3xl font-bold text-[--text-primary]"&gt;🎓 SmartDev LMS&lt;/h1&gt;
+            &lt;p class="text-base text-[--text-secondary] mt-2"&gt;Selamat datang kembali! Silakan masuk.&lt;/p&gt;
+        &lt;/div&gt;
+
+        &lt;!-- Form Login --&gt;
+        &lt;form id="loginForm" class="space-y-6"&gt;
+            
+            &lt;!-- Email --&gt;
+            &lt;div&gt;
+                &lt;label for="email" class="block text-sm font-semibold text-[--text-primary] mb-2"&gt;Email&lt;/label&gt;
+                &lt;input type="email" id="email" name="email" required
+                       class="w-full h-12 px-4 py-3 border-2 border-[--gray-100] rounded-lg transition-all duration-300"
+                       style="border-color: var(--gray-100); font-size: 16px;"
+                       onfocus="this.style.borderColor = 'var(--primary-blue)'; this.style.boxShadow = '0 0 0 4px rgba(66, 133, 244, 0.1)';"
+                       onblur="this.style.borderColor = 'var(--gray-100)'; this.style.boxShadow = 'none';"&gt;
+            &lt;/div&gt;
+            
+            &lt;!-- Password --&gt;
+            &lt;div&gt;
+                &lt;label for="password" class="block text-sm font-semibold text-[--text-primary] mb-2"&gt;Password&lt;/label&gt;
+                &lt;input type="password" id="password" name="password" required
+                       class="w-full h-12 px-4 py-3 border-2 border-[--gray-100] rounded-lg transition-all duration-300"
+                       style="border-color: var(--gray-100); font-size: 16px;"
+                       onfocus="this.style.borderColor = 'var(--primary-blue)'; this.style.boxShadow = '0 0 0 4px rgba(66, 133, 244, 0.1)';"
+                       onblur="this.style.borderColor = 'var(--gray-100)'; this.style.boxShadow = 'none';"&gt;
+            &lt;/div&gt;
+            
+            &lt;!-- Error Message --&gt;
+            &lt;div id="errorMessage" class="hidden text-sm text-[--error] p-3 bg-red-50 rounded-lg"&gt;&lt;/div&gt;
+
+            &lt;!-- Tombol Submit --&gt;
+            &lt;div&gt;
+                &lt;button type="submit" id="submitButton"
+                        class="w-full text-white font-semibold py-3.5 px-8 rounded-lg cursor-pointer transition-all duration-300 flex items-center justify-center"
+                        style="background-color: var(--primary-blue); box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);"
+                        onmouseover="this.style.backgroundColor = 'var(--primary-hover)'; this.style.transform = 'translateY(-2px)';"
+                        onmouseout="this.style.backgroundColor = 'var(--primary-blue)'; this.style.transform = 'none';"&gt;
+                    <span id="buttonText">Login</span>
+                    <div id="buttonSpinner" class="spinner hidden ml-2"></div>
+                &lt;/button&gt;
+            &lt;/div&gt;
+
+        &lt;/form&gt;
+    &lt;/div&gt;
+    
+    &lt;script&gt;
+        document.addEventListener('DOMContentLoaded', function () {
+            const loginForm = document.getElementById('loginForm');
+            const submitButton = document.getElementById('submitButton');
+            const buttonText = document.getElementById('buttonText');
+            const buttonSpinner = document.getElementById('buttonSpinner');
+            const errorMessage = document.getElementById('errorMessage');
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            loginForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // Tampilkan loading
+                submitButton.disabled = true;
+                buttonText.textContent = 'Memproses...';
+                buttonSpinner.classList.remove('hidden');
+                errorMessage.classList.add('hidden');
+                errorMessage.textContent = '';
+
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                try {
+                    const response = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken // Meskipun API, ini baik untuk web route
+                        },
+                        body: JSON.stringify({
+                            email: email,
+                            password: password
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        // Gagal login (misal: email/password salah)
+                        throw new Error(data.message || 'Email atau password salah.');
+                    }
+
+                    // --- BERHASIL LOGIN ---
+                    
+                    // 1. Simpan token dan data user ke localStorage
+                    localStorage.setItem('authToken', data.access_token);
+                    localStorage.setItem('userData', JSON.stringify(data.user));
+                    localStorage.setItem('userProfile', JSON.stringify(data.profile));
+
+                    // 2. Ubah tombol jadi sukses
+                    submitButton.style.backgroundColor = 'var(--success)';
+                    submitButton.style.boxShadow = 'none';
+                    buttonText.textContent = 'Login Berhasil!';
+                    buttonSpinner.classList.add('hidden');
+
+                    // 3. Redirect ke dashboard setelah 1 detik
+                    // (Anda bisa ubah /dashboard sesuai role jika perlu)
+                    setTimeout(() => {
+                        window.location.href = '/dashboard'; // Ganti ke halaman tujuan
+                    }, 1000);
+
+                } catch (error) {
+                    // --- GAGAL LOGIN ---
+                    errorMessage.textContent = error.message;
+                    errorMessage.classList.remove('hidden');
+
+                    // Kembalikan tombol ke state semula
+                    submitButton.disabled = false;
+                    buttonText.textContent = 'Login';
+                    buttonSpinner.classList.add('hidden');
+                    submitButton.style.backgroundColor = 'var(--primary-blue)';
+                }
+            });
+        });
+    &lt;/script&gt;
+
+&lt;/html&gt;
+</code></pre>
+                </div>
+            </section>
+            
+            <!-- Step 2: Web Routes -->
+            <section>
+                <h2 class="text-3xl font-bold mb-6 text-[--primary-blue]">🛣️ Step 2: Tambahkan Web Routes</h2>
+                <p class="text-lg text-[--text-secondary] mb-6">
+                    Buat route di `routes/web.php` untuk menampilkan halaman login Blade.
+                </p>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>routes/web.php</span>
+                        <button class="copy-btn" data-clipboard-target="code-webroutes">
+                            Copy
+                        </button>
+                    </div>
+                    <pre id="code-webroutes"><code class="language-php">&lt;?php
+use Illuminate\Support\Facades\Route;
+
+// Login page
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login'); // Beri nama 'login' agar bisa dicegat oleh middleware
+</code></pre>
+                </div>
+            </section>
+
+            <!-- Step 3: Testing & Response -->
+            <section>
+                <h2 class="text-3xl font-bold mb-6 text-[--primary-blue]">📊 Step 3: Testing & Response Examples</h2>
+                
+                <h3 class="text-xl font-semibold text-[--text-primary] mb-4">Request Example:</h3>
+                <div class="code-block mb-8">
+                    <div class="code-header">
+                        <span>JSON (Request)</span>
+                        <button class="copy-btn" data-clipboard-target="code-json-req">
+                            Copy
+                        </button>
+                    </div>
+                    <pre id="code-json-req"><code class="language-json">{
+  "email": "student@smartdev.com",
+  "password": "password123"
+}</code></pre>
+                </div>
+
+                <h3 class="text-xl font-semibold text-[--text-primary] mb-4">Response Example (Student):</h3>
+                <div class="code-block mb-8">
+                    <div class="code-header">
+                        <span>JSON (Response Student)</span>
+                        <button class="copy-btn" data-clipboard-target="code-json-res-student">
+                            Copy
+                        </button>
+                    </div>
+                    <pre id="code-json-res-student"><code class="language-json">{
+  "success": true,
+  "message": "Login berhasil",
+  "user": {
+    "id": 2,
+    "name": "John Doe",
+    "email": "student@smartdev.com",
+    "phone": "081234567890",
+    "role": "student",
+    "level": "10",
+    "parent_id": 5,
+    "profile_photo_url": "http://localhost/storage/photos/john.jpg"
+  },
+  "profile": {
+    "type": "student",
+    "level": "10",
+    "parent": { ... },
+    "enrollments": [ ... ],
+    "total_courses": 3,
+    "recent_grades": [ ... ]
+  },
+  "access_token": "2|xyz789...",
+  "token_type": "Bearer"
+}</code></pre>
+                </div>
+
+                <h3 class="text-xl font-semibold text-[--text-primary] mb-4">Response Example (Admin):</h3>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>JSON (Response Admin)</span>
+                        <button class="copy-btn" data-clipboard-target="code-json-res-admin">
+                            Copy
+                        </button>
+                    </div>
+                    <pre id="code-json-res-admin"><code class="language-json">{
+  "success": true,
+  "message": "Login berhasil",
+  "user": {
+    "id": 1,
+    "name": "Super Admin",
+    "email": "admin@smartdev.com",
+    "role": "admin"
+  },
+  "profile": {
+    "type": "admin",
+    "statistics": {
+      "total_users": 150,
+      "total_students": 100,
+      "total_instructors": 25,
+      "total_parents": 20,
+      "pending_registrations": 5
+    }
+  },
+  "access_token": "1|abc123...",
+  "token_type": "Bearer"
+}</code></pre>
+                </div>
+            </section>
+            
+            <!-- Checklist & Key Features -->
+            <section>
+                <h2 class="text-3xl font-bold mb-6 text-[--primary-blue]">✅ Checklist & Fitur Kunci 🎯</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Checklist -->
+                    <div class="bg-[--light-gray] p-6 rounded-lg">
+                        <h3 class="text-2xl font-semibold text-[--text-primary] mb-4">Checklist Implementasi</h3>
+                        <ul class="list-disc list-inside space-y-3 text-[--text-secondary]">
+                            <li class="text-[--text-primary]"><strong class="font-semibold">Buat view</strong> `resources/views/auth/login.blade.php` (dengan JS)</li>
+                            <li class="text-[--text-primary]"><strong class="font-semibold">Tambahkan routes</strong> di `routes/web.php`</li>
+                            <li class="text-[--text-primary]">Pastikan backend di `/api/login` sudah siap</li>
+                            <li class="text-[--text-primary]">Test login untuk setiap role</li>
+                            <li class="text-[--text-primary]">Pastikan redirect berfungsi dengan baik</li>
+                            <li class="text-[--text-primary]">Test token disimpan di `localStorage`</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Key Features -->
+                    <div class="bg-[--light-gray] p-6 rounded-lg">
+                        <h3 class="text-2xl font-semibold text-[--text-primary] mb-4">Key Features</h3>
+                        <ul class="list-disc list-inside space-y-3 text-[--text-secondary]">
+                            <li class="text-[--text-primary]"><strong class="font-semibold">Single Endpoint:</strong> Satu endpoint untuk semua role</li>
+                            <li class="text-[--text-primary]"><strong class="font-semibold">Auto Profile Loading:</strong> Backend otomatis load profile sesuai role</li>
+                            <li class="text-[--text-primary]"><strong class="font-semibold">Smart Redirect:</strong> Frontend redirect otomatis ke dashboard yang sesuai</li>
+                            <li class="text-[--text-primary]"><strong class="font-semibold">Secure:</strong> Token-based authentication (Laravel Sanctum)</li>
+                            <li class="text-[--text-primary]"><strong class="font-semibold">Modern UI:</strong> Desain minimalis (Tech Cerdas)</li>
+                            <li class="text-[--text-primary]"><strong class="font-semibold">Responsive:</strong> Mobile-friendly design</li>
+                            <li class="text-[--text-primary]"><strong class="font-semibold">User Friendly:</strong> Pesan error dan loading state yang jelas</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const copyButtons = document.querySelectorAll('.copy-btn');
+            
+            copyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetId = button.dataset.clipboardTarget;
+                    const targetElement = document.getElementById(targetId);
+                    
+                    if (!targetElement) return;
+                    
+                    const textToCopy = targetElement.textContent;
+                    
+                    // Gunakan document.execCommand untuk kompatibilitas iframe
+                    const textarea = document.createElement('textarea');
+                    textarea.value = textToCopy;
+                    textarea.style.position = 'fixed';
+                    textarea.style.left = '-9999px';
+                    document.body.appendChild(textarea);
+                    
+                    textarea.select();
+                    
+                    try {
+                        document.execCommand('copy');
+                        
+                        const originalText = button.innerHTML;
+                        button.innerHTML = `
+                            <svg class="w-4 h-4 inline-block" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            Copied!
+                        `;
+                        
+                        setTimeout(() => {
+                            button.innerHTML = originalText;
+                        }, 2000);
+                        
+                    } catch (err) {
+                        console.error('Failed to copy text: ', err);
+                        button.innerHTML = 'Error';
+                        setTimeout(() => {
+                            button.innerHTML = originalText;
+                        }, 2000);
+                    }
+                    
+                    document.body.removeChild(textarea);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

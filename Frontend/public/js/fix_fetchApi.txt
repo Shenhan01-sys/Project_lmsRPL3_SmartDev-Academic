@@ -1,0 +1,46 @@
+// --- API CLIENT --- (FIXED VERSION)
+async function fetchApi(endpoint, options = {}) {
+    const token = localStorage.getItem("auth_token");
+
+    // Construct URL
+    let url = endpoint.startsWith("http")
+        ? endpoint
+        : endpoint.startsWith("/user")
+          ? API_BASE_URL + endpoint
+          : API_V1 + endpoint;
+
+    // PERBAIKAN: Jangan set Content-Type jika body adalah FormData
+    const isFormData = options.body instanceof FormData;
+    
+    const headers = {
+        Authorization: `Bearer ${token}`,
+        "ngrok-skip-browser-warning": "true",
+        ...options.headers,
+    };
+    
+    // Hanya set Content-Type jika BUKAN FormData
+    if (!isFormData) {
+        headers["Content-Type"] = "application/json";
+    }
+
+    try {
+        const res = await fetch(url, { ...options, headers });
+
+        // DETEKSI 401 UNAUTHORIZED
+        if (res.status === 401) {
+            throw new Error(
+                "Sesi kedaluwarsa atau Token tidak valid (Unauthorized).",
+            );
+        }
+
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.message || `API Error: ${res.status}`);
+        }
+
+        return await res.json();
+    } catch (err) {
+        console.error(`Fetch Error (${endpoint}):`, err);
+        throw err;
+    }
+}

@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartDev Instructor - Ultimate Dashboard</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #64748b;
+            --bg-light: #f8fafc;
+            --sidebar-width: 260px;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        #sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: #1e293b;
+            color: white;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        #sidebar .nav-link {
+            color: #cbd5e1;
+            padding: 0.8rem 1.5rem;
+            font-size: 0.95rem;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        #sidebar .nav-link:hover, #sidebar .nav-link.active {
+            color: white;
+            background: rgba(255,255,255,0.08);
+            border-left-color: var(--primary);
+        }
+
+        #sidebar .brand {
+            padding: 1.5rem;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+
+        /* Main Content */
+        #content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            transition: margin-left 0.3s;
+        }
+
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        /* HOVER EFFECTS */
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+
+        /* NEW: Hover Effect for Certificates & Progress Cards */
+        .progress-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .progress-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+        }
+
+        .page-section {
+            display: none;
+            animation: fadein 0.4s ease-out;
+        }
+        .page-section.active {
+            display: block;
+        }
+
+        @keyframes fadein {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.8);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+        
+        /* Helpers */
+        .badge-soft-primary { background-color: rgba(79, 70, 229, 0.1); color: #4f46e5; }
+        .badge-soft-success { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .badge-soft-warning { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        .badge-soft-danger { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
+    </style>
+</head>
+<body>
+
+    <div id="loading-overlay">
+        <div class="text-center">
+            <div class="spinner-border text-primary mb-2" role="status"></div>
+            <div class="text-muted fw-bold">Processing...</div>
+        </div>
+    </div>
+
+    <nav id="sidebar">
+        <div class="brand">
+            <i class="bi bi-mortarboard-fill me-2 text-primary"></i> SmartDev
+        </div>
+        <div class="p-3 mb-3 border-bottom border-secondary border-opacity-25 text-center">
+            <div class="avatar bg-primary text-white rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width:50px; height:50px; font-size:1.2rem;">
+                <i class="bi bi-person"></i>
+            </div>
+            <strong id="sidebarUserName" class="d-block">Instructor</strong>
+            <small class="text-muted">Instructor Panel</small>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" onclick="navTo('dashboard', this)">
+                    <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="navTo('courses', this)">
+                    <i class="bi bi-book me-2"></i> My Courses
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="navTo('announcements', this)">
+                    <i class="bi bi-megaphone me-2"></i> Announcements
+                </a>
+            </li>
+            <li class="nav-item mt-5 pt-5 border-top border-secondary border-opacity-25">
+                <a class="nav-link text-danger" href="#" onclick="logout()">
+                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div id="content">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+            <h4 class="mb-0 fw-bold text-secondary" id="pageTitle">Overview</h4>
+            <div class="input-group input-group-sm w-auto">
+                <span class="input-group-text bg-white"><i class="bi bi-link-45deg"></i></span>
+                <input type="text" id="portohansgunawan" class="form-control" value="https://portohansgunawan.my.id" style="width: 250px;">
+                <button class="btn btn-primary" onclick="initApp()">Refresh Connection</button>
+            </div>
+        </div>
+
+        <section id="dashboard" class="page-section active">
+            <div class="row g-4 mb-5">
+                <div class="col-md-4">
+                    <div class="card p-4 h-100 bg-primary text-white position-relative overflow-hidden">
+                        <div class="position-relative z-1">
+                            <h3><i class="bi bi-book"></i> <span id="statCourses">0</span></h3>
+                            <p class="mb-0 opacity-75">Active Courses</p>
+                        </div>
+                        <i class="bi bi-book position-absolute top-50 end-0 translate-middle-y opacity-25 me-3" style="font-size: 5rem;"></i>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-4 h-100 border-start border-4 border-success">
+                        <h3 class="text-success"><i class="bi bi-people"></i> <span id="statStudents">0</span></h3>
+                        <p class="text-muted mb-0">Enrolled Students</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-4 h-100 border-start border-4 border-warning">
+                        <h3 class="text-warning"><i class="bi bi-journal-text"></i> <span id="statAssignments">0</span></h3>
+                        <p class="text-muted mb-0">Total Assignments</p>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="text-muted mb-3">Recent Courses</h5>
+            <div id="dashboardCoursesList" class="row g-4">
+                </div>
+        </section>
+
+        <section id="courses" class="page-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold">Manage Courses</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCourseModal">
+                    <i class="bi bi-plus-lg"></i> Create New Course
+                </button>
+            </div>
+            <div id="coursesList" class="row g-4">
+                </div>
+        </section>
+
+        <section id="courseDetail" class="page-section">
+            <button class="btn btn-sm btn-outline-secondary mb-4" onclick="navTo('courses')">
+                <i class="bi bi-arrow-left"></i> Back to Course List
+            </button>
+            
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span id="detailCode" class="badge bg-dark">CODE</span>
+                                <span class="badge bg-success bg-opacity-10 text-success">Active</span>
+                            </div>
+                            <h2 id="detailTitle" class="fw-bold text-primary mb-2">Course Title</h2>
+                            <p id="detailDesc" class="text-muted mb-0">Description...</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-danger btn-sm" id="btnDeleteCourse">
+                                <i class="bi bi-trash"></i> Delete Course
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-white">
+                    <ul class="nav nav-tabs card-header-tabs" id="courseTabs">
+                        <li class="nav-item">
+                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabAssignments">Assignments</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabAttendance" onclick="loadAttendanceTab()">Attendance</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabStudents">Students</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabCertificates" onclick="loadCertificatesTab()">Certificates</button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body p-4">
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="tabAssignments">
+                            <div class="d-flex justify-content-between mb-4 align-items-center">
+                                <h5 class="mb-0">Course Assignments</h5>
+                                <button class="btn btn-sm btn-primary" onclick="openAssignmentModal()">
+                                    <i class="bi bi-plus-circle"></i> Create Assignment
+                                </button>
+                            </div>
+                            <div id="assignmentListContainer">Loading...</div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tabAttendance">
+                            <div class="d-flex justify-content-between mb-4">
+                                <h5 class="mb-0">Attendance Sessions</h5>
+                                <button class="btn btn-sm btn-primary" onclick="openCreateSessionModal()">
+                                    <i class="bi bi-calendar-plus"></i> Create Session
+                                </button>
+                            </div>
+                            <div class="row g-4">
+                                <div class="col-md-4">
+                                    <div class="list-group shadow-sm" id="sessionListGroup" style="max-height: 400px; overflow-y: auto;">
+                                        </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card border h-100">
+                                        <div class="card-header bg-light fw-bold" id="sessionDetailHeader">
+                                            Select a session to manage
+                                        </div>
+                                        <div class="card-body p-0 table-responsive">
+                                            <table class="table table-hover mb-0 align-middle" id="attendanceTable">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th class="ps-4">Student</th>
+                                                        <th class="text-center">Status</th>
+                                                        <th class="text-end pe-4">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="attendanceTableBody">
+                                                    <tr><td colspan="3" class="text-center p-5 text-muted">Select a session from the left list</td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tabStudents">
+                            <table class="table align-middle">
+                                <thead class="table-light"><tr><th>Name</th><th>Email</th><th>Status</th></tr></thead>
+                                <tbody id="studentListBody"></tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="tabCertificates">
+                            <div class="text-center p-5">
+                                <div class="spinner-border text-primary"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="submissionView" class="page-section">
+            <button class="btn btn-sm btn-outline-secondary mb-3" onclick="backToCourseDetail()">
+                <i class="bi bi-arrow-left"></i> Back to Course
+            </button>
+            <h3 id="submissionTitle">Submissions</h3>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <table class="table align-middle table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Student</th>
+                                <th>Submitted At</th>
+                                <th>File</th>
+                                <th>Current Grade</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="submissionTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="announcements" class="page-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1 fw-bold">Announcements</h2>
+                    <p class="text-muted small mb-0">Manage global and course-specific updates</p>
+                </div>
+                <button class="btn btn-primary" onclick="openAnnouncementModal()">
+                    <i class="bi bi-megaphone"></i> Post New
+                </button>
+            </div>
+            
+            <div class="d-flex gap-2 mb-4 border-bottom pb-3">
+                <button class="btn btn-sm btn-light active fw-bold" onclick="loadAnnouncements()">All</button>
+                <button class="btn btn-sm btn-light text-muted" onclick="loadAnnouncements({status: 'published'})">Published Only</button>
+            </div>
+
+            <div id="announcementList" class="row g-3">
+                </div>
+        </section>
+
+    </div>
+
+    <div class="modal fade" id="createCourseModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Course</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formCreateCourse">
+                        <div class="mb-3"><label>Code</label><input type="text" name="course_code" class="form-control" placeholder="e.g. MTK101" required></div>
+                        <div class="mb-3"><label>Name</label><input type="text" name="course_name" class="form-control" placeholder="e.g. Matematika Dasar" required></div>
+                        <div class="mb-3"><label>Description</label><textarea name="description" class="form-control" rows="3"></textarea></div>
+                        <div class="mb-3"><label>Credits</label><input type="number" name="credits" class="form-control" value="3"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitCreateCourse()">Save Course</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="createAssignmentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">New Assignment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formCreateAssignment">
+                        <div class="mb-3"><label>Title</label><input type="text" id="assignTitle" class="form-control" required></div>
+                        <div class="mb-3"><label>Description</label><textarea id="assignDesc" class="form-control" rows="3"></textarea></div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3"><label>Due Date</label><input type="datetime-local" id="assignDate" class="form-control"></div>
+                            <div class="col-md-6 mb-3"><label>Max Score</label><input type="number" id="assignScore" class="form-control" value="100"></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitAssignment()">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="createSessionModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">New Attendance Session</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formCreateSession">
+                        <div class="mb-3">
+                            <label>Session Name</label>
+                            <input type="text" id="sessionName" class="form-control" placeholder="e.g. Week 1 Attendance" required>
+                        </div>
+                        <div class="row g-3">
+                             <div class="col-12">
+                                <label>Date & Start Time</label>
+                                <input type="datetime-local" id="sessionStartTime" class="form-control" required>
+                            </div>
+                             <div class="col-12">
+                                <label>End Time</label>
+                                <input type="datetime-local" id="sessionEndTime" class="form-control" required>
+                            </div>
+                            <div class="col-12">
+                                <label>Deadline</label>
+                                <input type="datetime-local" id="sessionDeadline" class="form-control" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitSession()">Create Session</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="gradingModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Input Grade</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="gradeSubmissionId">
+                    <input type="hidden" id="gradeEnrollmentId">
+                    <div class="mb-3">
+                        <label>Score (0-100)</label>
+                        <input type="number" id="gradeValue" class="form-control" min="0" max="100">
+                    </div>
+                    <div class="mb-3">
+                        <label>Feedback</label>
+                        <textarea id="gradeFeedback" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitGrade()">Save Grade</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="announcementModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Post Announcement</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formAnnouncement">
+                        <div class="mb-3">
+                            <label>Title <span class="text-danger">*</span></label>
+                            <input type="text" id="annTitle" class="form-control" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label>Content <span class="text-danger">*</span></label>
+                            <textarea id="annContent" class="form-control" rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label>Target Course</label>
+                                <select id="annCourseId" class="form-select">
+                                    <option value="">Global (All)</option>
+                                    </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Priority <span class="text-danger">*</span></label>
+                                <select id="annPriority" class="form-select">
+                                    <option value="normal" selected>Normal</option>
+                                    <option value="high">High</option>
+                                    <option value="urgent">Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label>Status <span class="text-danger">*</span></label>
+                                <select id="annStatus" class="form-select">
+                                    <option value="published" selected>Published</option>
+                                    <option value="draft">Draft</option>
+                                    <option value="archived">Archived</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label>Publish At</label>
+                                <input type="datetime-local" id="annPublishedAt" class="form-control">
+                            </div>
+                            <div class="col-md-4">
+                                <label>Expires At</label>
+                                <input type="datetime-local" id="annExpiresAt" class="form-control">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitAnnouncement()">Post Announcement</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        /**
+         * SMARTDEV LMS INSTRUCTOR LOGIC
+         * UPDATED VERSION: Certificates Feature (Grid View + Progress Cards with Hover)
+         */
+
+        let BASE_API = document.getElementById('portohansgunawan').value + '/api/v1';
+        let currentUser = null;
+        let currentCourseId = null;
+        let globalCourses = [];
+        let currentEnrollments = []; 
+
+        // --- HTTP CLIENT ---
+        
+        function getHeaders() {
+            const token = localStorage.getItem('auth_token');
+            return {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+        }
+
+        async function fetchApi(endpoint, options = {}) {
+            document.getElementById('loading-overlay').style.display = 'flex';
+            
+            console.log(`%c[API] ${options.method || 'GET'} ${endpoint}`, 'color: blue; font-weight: bold;', options.body ? JSON.parse(options.body) : '');
+
+            try {
+                BASE_API = document.getElementById('portohansgunawan').value + '/api/v1';
+                const res = await fetch(BASE_API + endpoint, { ...options, headers: getHeaders() });
+
+                if(res.status === 401) {
+                    console.warn("Unauthorized access (401)");
+                    logout();
+                    return null;
+                }
+                
+                if(res.status === 204) return true;
+
+                const jsonResponse = await res.json().catch(() => null);
+
+                if(!res.ok) {
+                    console.error("API Error Response:", jsonResponse);
+                    let errorMsg = `HTTP Error ${res.status}`;
+                    if (jsonResponse) {
+                         if (jsonResponse.message) errorMsg = jsonResponse.message;
+                         if (jsonResponse.errors) {
+                            const details = Object.values(jsonResponse.errors).flat().join('\n- ');
+                            errorMsg += `\nDetails:\n- ${details}`;
+                         }
+                    }
+                    throw new Error(errorMsg);
+                }
+
+                return jsonResponse;
+
+            } catch (e) {
+                console.error("Fetch Failed:", e);
+                alert(e.message);
+                return null;
+            } finally {
+                document.getElementById('loading-overlay').style.display = 'none';
+            }
+        }
+
+        // --- AUTH & INIT ---
+
+        async function initApp() {
+            const token = localStorage.getItem('auth_token');
+            if(!token) {
+                const input = prompt("Enter Bearer Token (from login):");
+                if(input) { localStorage.setItem('auth_token', input); initApp(); }
+                return;
+            }
+
+            try {
+                const url = document.getElementById('portohansgunawan').value + '/api/user';
+                const res = await fetch(url, { headers: getHeaders() });
+                if(res.ok) {
+                    currentUser = await res.json();
+                    document.getElementById('sidebarUserName').innerText = currentUser.full_name || currentUser.name;
+                    loadDashboard();
+                } else {
+                    throw new Error("Auth Failed");
+                }
+            } catch(e) {
+                console.warn("Auth Check Failed:", e);
+            }
+        }
+
+        // --- DASHBOARD ---
+
+        async function loadDashboard() {
+            const res = await fetchApi('/courses');
+            if(!res) return;
+
+            let allCourses = Array.isArray(res) ? res : (res.data || []);
+
+            const myCourses = allCourses.filter(c => {
+                if(currentUser?.role === 'admin') return true;
+                if(!c.instructor) return false; 
+                return (currentUser.instructor && c.instructor.id === currentUser.instructor.id) || 
+                       (c.instructor.user_id === currentUser.id);
+            });
+
+            globalCourses = myCourses;
+            document.getElementById('statCourses').innerText = myCourses.length;
+            renderCourseList(myCourses);
+        }
+
+        function renderCourseList(courses) {
+            const container = document.getElementById('coursesList');
+            if(courses.length === 0) {
+                container.innerHTML = '<div class="col-12 text-center text-muted py-5">No courses found.</div>';
+                return;
+            }
+            container.innerHTML = courses.map(c => `
+                <div class="col-md-6 col-xl-4">
+                    <div class="card course-card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="badge bg-primary">${c.course_code}</span>
+                                <span class="badge bg-light text-dark border">${c.status}</span>
+                            </div>
+                            <h5 class="card-title fw-bold mb-1">${c.course_name}</h5>
+                            <p class="text-muted small mb-3 flex-grow-1">${c.description ? c.description.substring(0,80)+'...' : ''}</p>
+                            <button onclick="openCourseDetail(${c.id})" class="btn btn-outline-primary w-100 mt-auto">Manage Course</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            const dashList = document.getElementById('dashboardCoursesList');
+            if(dashList) dashList.innerHTML = container.innerHTML;
+        }
+
+        // --- ANNOUNCEMENTS ---
+
+        async function loadAnnouncements(filters = {}) {
+            const container = document.getElementById('announcementList');
+            container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+
+            try {
+                let endpoint = '/announcements';
+                const params = new URLSearchParams();
+                if (filters.status) params.append('status', filters.status);
+                if (filters.course_id) params.append('course_id', filters.course_id);
+                if (params.toString()) endpoint += `?${params.toString()}`;
+
+                const res = await fetchApi(endpoint);
+                
+                let list = [];
+                if (res === null || res === undefined) list = [];
+                else if (Array.isArray(res)) list = res;
+                else if (res.data && Array.isArray(res.data)) list = res.data;
+
+                if (list.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-12 text-center py-5">
+                            <div class="text-muted mb-3"><i class="bi bi-megaphone display-4"></i></div>
+                            <h5>No announcements found.</h5>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = list.map(a => {
+                    const title = a.title || 'Untitled';
+                    const content = a.content || '';
+                    const priority = a.priority || 'normal';
+                    const status = a.status || 'published';
+                    const dateStr = a.published_at || a.created_at || new Date();
+                    
+                    let borderClass = 'secondary';
+                    if(priority === 'high') borderClass = 'danger';
+                    if(priority === 'urgent') borderClass = 'warning';
+
+                    let contextBadge = '<span class="badge bg-dark">Global</span>';
+                    if (a.course) contextBadge = `<span class="badge bg-primary">${a.course.course_code}</span>`;
+                    else if (a.course_id) contextBadge = `<span class="badge bg-info text-dark">Course #${a.course_id}</span>`;
+
+                    return `
+                        <div class="col-md-6">
+                            <div class="card h-100 border-start border-4 border-${borderClass} shadow-sm">
+                                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                    <div>${contextBadge}</div>
+                                    <span class="badge badge-soft-${borderClass} text-uppercase">${priority}</span>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold">${title}</h5>
+                                    <p class="card-text text-secondary small">${content}</p>
+                                </div>
+                                <div class="card-footer bg-white border-0 pt-0 d-flex justify-content-between small text-muted">
+                                    <span><i class="bi bi-calendar3 me-1"></i> ${new Date(dateStr).toLocaleDateString()}</span>
+                                    <span class="text-capitalize badge bg-light text-dark border">${status}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error("Load Announcements Error:", err);
+                container.innerHTML = `<div class="alert alert-danger">Error displaying announcements: ${err.message}</div>`;
+            }
+        }
+
+        async function submitAnnouncement() {
+            const cid = document.getElementById('annCourseId').value;
+            const pubAt = document.getElementById('annPublishedAt').value;
+            const expAt = document.getElementById('annExpiresAt').value;
+
+            if(!document.getElementById('annTitle').value) { alert("Title required"); return; }
+
+            const payload = {
+                title: document.getElementById('annTitle').value,
+                content: document.getElementById('annContent').value,
+                course_id: cid && cid !== "" ? parseInt(cid) : null,
+                announcement_type: (cid && cid !== "") ? 'course' : 'global',
+                priority: document.getElementById('annPriority').value,
+                status: document.getElementById('annStatus').value,
+                published_at: pubAt ? new Date(pubAt).toISOString() : null,
+                expires_at: expAt ? new Date(expAt).toISOString() : null
+            };
+
+            const res = await fetchApi('/announcements', {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+
+            if(res) {
+                alert('Announcement Posted!');
+                bootstrap.Modal.getInstance(document.getElementById('announcementModal')).hide();
+                loadAnnouncements();
+            }
+        }
+
+        function openAnnouncementModal() {
+            const sel = document.getElementById('annCourseId');
+            sel.innerHTML = '<option value="">Global (All Students)</option>';
+            globalCourses.forEach(c => {
+                sel.innerHTML += `<option value="${c.id}">${c.course_code} - ${c.course_name}</option>`;
+            });
+            document.getElementById('formAnnouncement').reset();
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('annPublishedAt').value = now.toISOString().slice(0, 16);
+            new bootstrap.Modal(document.getElementById('announcementModal')).show();
+        }
+
+        // --- COURSE DETAIL & ATTENDANCE ---
+
+        async function openCourseDetail(id) {
+            currentCourseId = id;
+            const course = await fetchApi(`/courses/${id}`);
+            if(course) {
+                document.getElementById('detailTitle').innerText = course.course_name;
+                document.getElementById('detailCode').innerText = course.course_code;
+                document.getElementById('detailDesc').innerText = course.description || '';
+                document.getElementById('btnDeleteCourse').onclick = () => deleteCourse(id);
+                
+                renderAssignments(course.assignments || []);
+                currentEnrollments = course.enrollments || [];
+                renderStudents(currentEnrollments);
+                
+                document.getElementById('sessionListGroup').innerHTML = ''; 
+                document.getElementById('attendanceTableBody').innerHTML = '<tr><td colspan="3" class="text-center p-5 text-muted">Select a session</td></tr>';
+                
+                navTo('courseDetail');
+            }
+        }
+
+        async function submitSession() {
+            const start = document.getElementById('sessionStartTime').value;
+            const end = document.getElementById('sessionEndTime').value;
+            const deadline = document.getElementById('sessionDeadline').value;
+            const name = document.getElementById('sessionName').value;
+
+            if(!start || !end || !deadline || !name) { 
+                alert("All fields are required"); 
+                return; 
+            }
+
+            const data = {
+                course_id: parseInt(currentCourseId),
+                session_name: name,
+                status: 'open',
+                start_time: new Date(start).toISOString(),
+                end_time: new Date(end).toISOString(),
+                deadline: new Date(deadline).toISOString()
+            };
+            
+            const res = await fetchApi('/attendance-sessions', {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+
+            if(res) {
+                alert('Session Created!');
+                bootstrap.Modal.getInstance(document.getElementById('createSessionModal')).hide();
+                loadAttendanceTab();
+            }
+        }
+
+        async function loadAttendanceTab() {
+            const sessions = await fetchApi(`/attendance-sessions/course/${currentCourseId}/all`);
+            const el = document.getElementById('sessionListGroup');
+            let list = Array.isArray(sessions) ? sessions : (sessions?.data || []);
+            
+            if(!list.length) { el.innerHTML = '<div class="p-3 text-muted text-center">No sessions found.</div>'; return; }
+            
+            el.innerHTML = list.map(s => `
+                <a href="#" class="list-group-item list-group-item-action" onclick="loadSessionDetail(${s.id}, '${s.session_name || s.topic}')">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1 fw-bold">${s.session_name || s.topic}</h6>
+                        <small>${new Date(s.start_time || s.session_date).toLocaleDateString()}</small>
+                    </div>
+                    <small class="text-${s.status==='open'?'success':'secondary'} text-uppercase">${s.status}</small>
+                </a>
+            `).join('');
+        }
+
+        async function loadSessionDetail(sid, topic) {
+            document.getElementById('sessionDetailHeader').innerText = topic;
+            const tbody = document.getElementById('attendanceTableBody');
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center p-3">Loading...</td></tr>';
+
+            const res = await fetchApi(`/attendance-records/session/${sid}/records`);
+            let recs = Array.isArray(res) ? res : (res?.data || []);
+            
+            if(recs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center p-3">No students found in this session.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = recs.map(r => `
+                <tr>
+                    <td>
+                        <div class="fw-bold">${r.enrollment?.student?.full_name || 'Student'}</div>
+                        <small class="text-muted">${r.enrollment?.user?.email || ''}</small>
+                    </td>
+                    <td class="text-center"><span class="badge bg-secondary">${r.status}</span></td>
+                    <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                            <button onclick="markAttendance(${sid}, ${r.enrollment_id}, 'present')" class="btn btn-outline-success">P</button>
+                            <button onclick="markAttendance(${sid}, ${r.enrollment_id}, 'sick')" class="btn btn-outline-warning">S</button>
+                            <button onclick="markAttendance(${sid}, ${r.enrollment_id}, 'absent')" class="btn btn-outline-danger">A</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function markAttendance(sid, eid, status) {
+            await fetchApi(`/attendance-records/mark/${sid}/${eid}`, { 
+                method: 'POST', 
+                body: JSON.stringify({status})
+            });
+            loadSessionDetail(sid, document.getElementById('sessionDetailHeader').innerText);
+        }
+
+        function openCreateSessionModal() {
+            document.getElementById('formCreateSession').reset();
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            const nowStr = now.toISOString().slice(0, 16);
+            document.getElementById('sessionStartTime').value = nowStr;
+            document.getElementById('sessionEndTime').value = nowStr;
+            document.getElementById('sessionDeadline').value = nowStr;
+            new bootstrap.Modal(document.getElementById('createSessionModal')).show();
+        }
+
+        // --- CERTIFICATES (REFACTORED: PROGRESS CARDS & AUTO GENERATE) ---
+
+        async function loadCertificatesTab() {
+            // Kita ubah container dari tbody tabel menjadi div grid untuk kartu
+            const tabPane = document.getElementById('tabCertificates');
+            
+            // Reset isi tab pane agar sesuai layout grid baru (bukan tabel lagi)
+            tabPane.innerHTML = `
+                <div class="d-flex justify-content-between mb-4 align-items-center">
+                    <div>
+                        <h5 class="mb-1">Student Progress & Certificates</h5>
+                        <p class="text-muted small mb-0">
+                            Monitor student eligibility. System automatically generates certificates for eligible students.
+                        </p>
+                    </div>
+                    <button class="btn btn-sm btn-primary" onclick="bulkGenerateCertificates()">
+                        <i class="bi bi-arrow-repeat"></i> Check & Generate All Eligible
+                    </button>
+                </div>
+                
+                <div id="certificatesContainer" class="row g-3">
+                    <div class="col-12 text-center p-5"><div class="spinner-border text-primary"></div></div>
+                </div>
+            `;
+
+            const gridContainer = document.getElementById('certificatesContainer');
+
+            try {
+                // 1. Get existing certificates
+                const certRes = await fetchApi(`/certificates?course_id=${currentCourseId}`);
+                let issuedCerts = Array.isArray(certRes) ? certRes : (certRes?.data || []);
+
+                // 2. Get all students (currentEnrollments loaded in openCourseDetail)
+                if (!currentEnrollments || currentEnrollments.length === 0) {
+                    gridContainer.innerHTML = '<div class="col-12 text-center p-5 text-muted">No students enrolled.</div>';
+                    return;
+                }
+
+                gridContainer.innerHTML = ''; // Clear loading
+
+                // 3. Process each student
+                for (const enrollment of currentEnrollments) {
+                    const studentId = enrollment.student_id;
+                    const existingCert = issuedCerts.find(c => c.student_id == studentId);
+                    
+                    // Ambil nama siswa dengan aman
+                    let studentName = `Student #${studentId}`;
+                    if (enrollment.student && enrollment.student.user) {
+                        studentName = enrollment.student.user.full_name || enrollment.student.user.name;
+                    }
+                    
+                    if (existingCert) {
+                        // STATE A: Issued (Tampilkan Kartu Hijau)
+                        gridContainer.innerHTML += renderCertificateCard(studentName, existingCert);
+                    } else {
+                        // STATE B: Not Issued (Check Eligibility ke Backend)
+                        // Call backend eligibility check for each student without cert
+                        const eligibility = await fetchApi(`/certificates/eligibility/${enrollment.id}`);
+                        gridContainer.innerHTML += renderProgressCard(studentName, eligibility);
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+                gridContainer.innerHTML = `<div class="alert alert-danger">Error loading certificate data: ${e.message}</div>`;
+            }
+        }
+
+        function renderCertificateCard(studentName, cert) {
+            // Added 'progress-card' class for hover effect
+            return `
+                <div class="col-md-6 col-xl-4">
+                    <div class="card h-100 border-success border-2 shadow-sm progress-card">
+                        <div class="card-body text-center">
+                            <div class="mb-3 text-success">
+                                <i class="bi bi-patch-check-fill display-4"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">${studentName}</h5>
+                            <p class="badge bg-success bg-opacity-10 text-success fs-6 mb-2">Certified</p>
+                            <p class="text-muted small mb-3">
+                                Code: <span class="font-monospace text-dark">${cert.certificate_code}</span><br>
+                                Issued: ${new Date(cert.issued_at).toLocaleDateString()}
+                            </p>
+                            <div class="d-flex gap-2 justify-content-center">
+                                <button class="btn btn-sm btn-outline-success" onclick="downloadCertificate('${cert.id}')">
+                                    <i class="bi bi-download"></i> Download
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteCertificate('${cert.id}')">
+                                    <i class="bi bi-x-circle"></i> Revoke
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderProgressCard(studentName, eligibility) {
+            // Fallback if API fails or returns null
+            // Added 'progress-card' class for hover effect
+            if (!eligibility) {
+                return `
+                    <div class="col-md-6 col-xl-4">
+                        <div class="card h-100 border-light bg-light progress-card">
+                            <div class="card-body text-center text-muted">
+                                <h5>${studentName}</h5>
+                                <p>Unable to check eligibility.</p>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+
+            // Calculate progress visually 
+            const attendancePct = eligibility.attendance_percentage || 0;
+            const assignmentPct = eligibility.assignment_completion_rate || 0;
+            
+            return `
+                <div class="col-md-6 col-xl-4">
+                    <div class="card h-100 border-0 shadow-sm progress-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="card-title fw-bold mb-0">${studentName}</h6>
+                                <span class="badge bg-secondary">In Progress</span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <span>Attendance</span>
+                                    <span>${attendancePct}% / 75%</span>
+                                </div>
+                                <div class="progress mb-2" style="height: 6px;">
+                                    <div class="progress-bar bg-${attendancePct >= 75 ? 'success' : 'warning'}" style="width: ${attendancePct}%"></div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <span>Assignments</span>
+                                    <span>${assignmentPct}% / 80%</span>
+                                </div>
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar bg-${assignmentPct >= 80 ? 'success' : 'warning'}" style="width: ${assignmentPct}%"></div>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-light border small mb-0 text-muted py-2">
+                                <i class="bi bi-info-circle me-1"></i> Requirements:
+                                <ul class="mb-0 ps-3 mt-1" style="font-size: 0.85rem;">
+                                    ${eligibility.errors && eligibility.errors.length > 0 
+                                        ? eligibility.errors.map(e => `<li>${e}</li>`).join('') 
+                                        : '<li>All requirements met! Ready to generate.</li>'}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function bulkGenerateCertificates() {
+            if(!confirm("System will auto-check all students and issue certificates for eligible ones.\n\nContinue?")) return;
+            
+            // Call endpoint: POST /api/v1/certificates/bulk-generate/{courseId}
+            const res = await fetchApi(`/certificates/bulk-generate/${currentCourseId}`, { method: 'POST' });
+            
+            if(res) {
+                const count = res.generated_count || res.count || 0; 
+                alert(`Success! ${count} new certificates generated.`);
+                loadCertificatesTab(); // Reload to update cards
+            }
+        }
+
+        async function deleteCertificate(id) {
+            if(confirm("Revoke this certificate? The student will lose access to it.")) {
+                const res = await fetchApi(`/certificates/${id}`, { method: 'DELETE' });
+                if (res !== null) {
+                    alert("Certificate revoked successfully.");
+                    loadCertificatesTab();
+                }
+            }
+        }
+
+        async function downloadCertificate(id) {
+            window.open(`${BASE_API}/certificates/${id}/download?token=${localStorage.getItem('auth_token')}`, '_blank');
+        }
+
+        // --- HELPERS ---
+        
+        function renderAssignments(list) {
+            const el = document.getElementById('assignmentListContainer');
+            if(!list.length) { el.innerHTML = '<div class="alert alert-light text-center">No assignments yet.</div>'; return; }
+            el.innerHTML = list.map(a => `
+                <div class="card mb-3 border-start border-primary border-3 shadow-sm">
+                    <div class="card-body py-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1 fw-bold">${a.title}</h6>
+                            <div class="text-muted small">
+                                <span class="me-3"><i class="bi bi-calendar"></i> ${a.due_date ? new Date(a.due_date).toLocaleDateString() : 'No Due Date'}</span>
+                                <span class="badge bg-${a.status === 'published'?'success':'secondary'}">${a.status}</span>
+                            </div>
+                        </div>
+                        <button onclick="viewSubmissions(${a.id})" class="btn btn-sm btn-outline-primary">View Submissions</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function renderStudents(list) {
+            const tbody = document.getElementById('studentListBody');
+            if(!list.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center p-4">No students enrolled.</td></tr>'; return; }
+            tbody.innerHTML = list.map(e => `
+                <tr>
+                    <td>${e.student?.full_name || 'Unknown'}</td>
+                    <td>${e.student?.user?.email || '-'}</td>
+                    <td><span class="badge bg-success rounded-pill">Active</span></td>
+                </tr>
+            `).join('');
+        }
+
+        async function submitCreateCourse() {
+            const data = {
+                course_code: document.querySelector('[name="course_code"]').value,
+                course_name: document.querySelector('[name="course_name"]').value,
+                description: document.querySelector('[name="description"]').value,
+                credits: document.querySelector('[name="credits"]').value,
+                instructor_id: currentUser.instructor ? currentUser.instructor.id : currentUser.id 
+            };
+            const res = await fetchApi('/courses', { method: 'POST', body: JSON.stringify(data) });
+            if(res) {
+                bootstrap.Modal.getInstance(document.getElementById('createCourseModal')).hide();
+                loadDashboard();
+            }
+        }
+
+        function openAssignmentModal() {
+            document.getElementById('formCreateAssignment').reset();
+            new bootstrap.Modal(document.getElementById('createAssignmentModal')).show();
+        }
+
+        async function viewSubmissions(id) {
+            const a = await fetchApi(`/assignments/${id}`);
+            if(a) {
+                document.getElementById('submissionTitle').innerText = `Submissions: ${a.title}`;
+                const tbody = document.getElementById('submissionTableBody');
+                const list = a.submissions || [];
+                if(!list.length) tbody.innerHTML = '<tr><td colspan="5" class="text-center p-4">No submissions yet.</td></tr>';
+                else tbody.innerHTML = list.map(s => `
+                    <tr>
+                        <td>${s.enrollment?.student?.full_name || 'Student'}</td>
+                        <td>${new Date(s.created_at).toLocaleDateString()}</td>
+                        <td>${s.file_path ? `<a href="${s.file_path}" target="_blank">Link</a>`:'-'}</td>
+                        <td>${s.grade ? s.grade.score : '-'}</td>
+                        <td><button onclick="openGradingModal(${s.id}, ${s.enrollment_id})" class="btn btn-sm btn-primary">Grade</button></td>
+                    </tr>
+                `).join('');
+                navTo('submissionView');
+            }
+        }
+
+        function openGradingModal(sid, eid) {
+            document.getElementById('gradeEnrollmentId').value = eid;
+            new bootstrap.Modal(document.getElementById('gradingModal')).show();
+        }
+
+        async function submitGrade() {
+            const data = {
+                enrollment_id: document.getElementById('gradeEnrollmentId').value,
+                grade_component_id: 1, 
+                score: document.getElementById('gradeValue').value,
+                feedback: document.getElementById('gradeFeedback').value
+            };
+            const res = await fetchApi('/grades', { method: 'POST', body: JSON.stringify(data) });
+            if(res) {
+                alert('Saved');
+                bootstrap.Modal.getInstance(document.getElementById('gradingModal')).hide();
+            }
+        }
+
+        async function deleteCourse(id) {
+            if(confirm('Delete course?')) {
+                await fetchApi(`/courses/${id}`, { method: 'DELETE' });
+                loadDashboard();
+                navTo('courses');
+            }
+        }
+
+        function navTo(id, el) {
+            document.querySelectorAll('.page-section').forEach(d => d.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(el) {
+                document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+                el.classList.add('active');
+            }
+            if(id === 'announcements') loadAnnouncements();
+            if(id === 'courses') loadDashboard();
+        }
+
+        function backToCourseDetail() { navTo('courseDetail'); }
+        function logout() { localStorage.removeItem('auth_token'); window.location.reload(); }
+
+        document.addEventListener('DOMContentLoaded', initApp);
+
+    </script>
+</body>
+</html>

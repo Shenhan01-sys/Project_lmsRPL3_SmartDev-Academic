@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panduan Implementasi: Registrasi Siswa LMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Mendefinisikan Color Palette dari prompt Anda */
+        :root {
+            --primary-blue: #4285F4;
+            --accent-green: #20C997;
+            --white: #FFFFFF;
+            --light-gray: #F8F9FA;
+            --gray-100: #E9ECEF;
+            --text-primary: #212529;
+            --text-secondary: #6C757D;
+            --success: #20C997;
+            --warning: #FFC107;
+            --error: #DC3545;
+            --primary-hover: #3367D6;
+            --accent-hover: #1AA87D;
+
+            /* Spacing System */
+            --space-xs: 8px;
+            --space-sm: 16px;
+            --space-md: 24px;
+            --space-lg: 32px;
+            --space-xl: 48px;
+            --space-2xl: 64px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-gray);
+            color: var(--text-primary);
+        }
+
+        /* Helper class untuk code block header */
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #374151; /* gray-700 */
+            padding: 8px 16px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .code-header span {
+            font-family: 'monospace';
+            font-size: 14px;
+            color: #D1D5DB; /* gray-300 */
+        }
+
+        .copy-btn {
+            background-color: #4B5563; /* gray-600 */
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .copy-btn:hover {
+            background-color: #6B7280; /* gray-500 */
+        }
+        
+        pre {
+            background-color: #1F2937; /* gray-800 */
+            color: #F9FAFB; /* gray-50 */
+            padding: 16px;
+            border-radius: 0 0 8px 8px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-10">
+
+    <div class="max-w-5xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden">
+        <!-- Header Halaman Guide -->
+        <header class="p-8 md:p-12 bg-gradient-to-r from-[--primary-blue] to-[--primary-hover]">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">🎨 Generate Halaman Registrasi Siswa</h1>
+            <p class="text-xl text-blue-100">Panduan langkah-demi-langkah berdasarkan analisis `RegistrationController.php`.</p>
+        </header>
+
+        <main class="p-8 md:p-12 space-y-12">
+
+            <!-- Overview Proyek -->
+            <section>
+                <h2 class="text-3xl font-bold mb-4 text-[--primary-blue]">🎯 Overview Proyek</h2>
+                <p class="text-lg text-[--text-secondary]">
+                    Buat sistem registrasi siswa multi-step (2 halaman) dengan Laravel Blade dan Tailwind CSS, menggunakan color palette "Tech Cerdas" yang modern dan enerjik.
+                </p>
+            </section>
+
+            <!-- Color Palette -->
+            <section>
+                <h2 class="text-3xl font-bold mb-6 text-[--primary-blue]">🎨 Color Palette (Wajib Digunakan)</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Visual Palette -->
+                    <div class="space-y-4">
+                        <h3 class="text-xl font-semibold text-[--text-primary]">Visual Palette</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                            <div>
+                                <div class="w-full h-16 rounded-lg shadow-inner" style="background-color: var(--primary-blue);"></div>
+                                <p class="mt-2 text-sm font-medium">Primary Blue</p>
+                                <p class="text-xs text-[--text-secondary]">#4285F4</p>
+                            </div>
+                            <div>
+                                <div class="w-full h-16 rounded-lg shadow-inner" style="background-color: var(--accent-green);"></div>
+                                <p class="mt-2 text-sm font-medium">Accent Green</p>
+                                <p class="text-xs text-[--text-secondary]">#20C997</p>
+                            </div>
+                            <div>
+                                <div class="w-full h-16 rounded-lg shadow-inner border" style="background-color: var(--light-gray);"></div>
+                                <p class="mt-2 text-sm font-medium">Light Gray</p>
+                                <p class="text-xs text-[--text-secondary]">#F8F9FA</p>
+                            </div>
+                            <div>
+                                <div class="w-full h-16 rounded-lg shadow-inner border" style="background-color: var(--gray-100);"></div>
+                                <p class="mt-2 text-sm font-medium">Gray 100</p>
+                                <p class="text-xs text-[--text-secondary]">#E9ECEF</p>
+                            </div>
+                            <div>
+                                <div class="w-full h-16 rounded-lg shadow-inner" style="background-color: var(--text-primary);"></div>
+                                <p class="mt-2 text-sm font-medium">Text Primary</p>
+                                <p class="text-xs text-[--text-secondary]">#212529</p>
+                            </div>
+                            <div>
+                                <div class="w-full h-16 rounded-lg shadow-inner" style="background-color: var(--error);"></div>
+                                <p class="mt-2 text-sm font-medium">Error</p>
+                                <p class="text-xs text-[--text-secondary]">#DC3545</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kode CSS -->
+                    <div>
+                        <h3 class="text-xl font-semibold text-[--text-primary] mb-4">Kode CSS</h3>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span>CSS</span>
+                                <button class="copy-btn" data-clipboard-target="code-css-palette">
+                                    Copy
+                                </button>
+                            </div>
+                            <pre id="code-css-palette"><code class="language-css">:root {
+    /* Primary Colors */
+    --primary-blue: #4285F4;
+    --accent-green: #20C997;
+    
+    /* Neutral Colors */
+    --white: #FFFFFF;
+    --light-gray: #F8F9FA;
+    --gray-100: #E9ECEF;
+    
+    /* Text Colors */
+    --text-primary: #212529;
+    --text-secondary: #6C757D;
+    
+    /* Status Colors */
+    --success: #20C997;
+    --warning: #FFC107;
+    --error: #DC3545;
+    
+    /* Interactive States */
+    --primary-hover: #3367D6;
+    --accent-hover: #1AA87D;
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Data yang Harus Ditampilkan -->
+            <section>
+                <h2 class="text-3xl font-bold mb-6 text-[--primary-blue]">📝 Data yang Harus Ditampilkan</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Page 1 -->
+                    <div class="bg-[--light-gray] p-6 rounded-lg">
+                        <h3 class="text-2xl font-semibold text-[--text-primary] mb-4">PAGE 1: Informasi Dasar</h3>
+                        <p class="font-mono text-sm text-[--text-secondary] mb-6">/register/step-1</p>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <h4 class="text-lg font-semibold text-[--text-primary] mb-3">Section 1: Data Siswa</h4>
+                                <ul class="list-disc list-inside space-y-2 text-[--text-secondary]">
+                                    <li><code class="text-sm bg-[--gray-100] text-[--text-primary] px-2 py-1 rounded">name</code> (Text Input) - Required</li>
+                                    <li><code class="text-sm bg-[--gray-100] text-[--text-primary] px-2 py-1 rounded">email</code> (Email Input) - Required, unique</li>
+                                    <li><code class="text-sm bg-[--gray-100] text-[--text-primary] px-2 py-1 rounded">password</code> (Password Input) - Required, min:8</li>
+                                    <li><code class="text-sm bg-[--gray-100] text-[--text-primary] px-2 py-1 rounded">password_confirmation</code> (Password Input) - Required</li>
+                                    <li><code class="text-sm bg-[--gray-100] text-[--text-primary] px-2 py-1 rounded">phone</code> (Text Input) - Required, max:20</li>
+                                    <li><code class="text-sm bg-[--gray-100] text-[--text-primary] px-2 py-1 rounded">tanggal_lahir</code> (Date Input) - Required</li>
+                                    <li><code class="text-sm bg-[--gray-100] text-[--text-primary] px-2 py-1 rounded">tempat_lahir</code> (Text Input) - Required</li>
+                                    <li><code class="text-sm bg-[--gray-100] text-[--text-primary] px-2 py-1 rounded">jenis_kelamin</code> (Radio Button: L/P) - Required</li>
+                                </ul>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-lg font-semibold text-[--text-primary] mb-3">Section 2: Data Orang Tua</h4>
+                                <ul class="list-disc list-inside space-y-2 text-[--text-secondary]">
+                                    <li><code class="text-sm bg-[--gray-100] text-[--text-primary] px-2 py-1 rounded">nama_orang_tua</code> (Text Input) - Required</li>
+                                    <li><code class="text-sm bg-[--gray-100] text-[--text-primary] px-2 py-1 rounded">phone_orang_tua</code> (Text Input) - Required, max:20</li>
+                                    <li><code class="text-sm bg-[--gray-100] text-[--text-primary] px-2 py-1 rounded">alamat_orang_tua</code> (Textarea) - Required, max:500</li>
+                                </ul>
+                            </div>
+
+                            <div class="pt-4">
+                                <button class="w-full text-white font-semibold py-3 px-6 rounded-lg shadow-lg" style="background-color: var(--primary-blue);">
+                                    Simpan & Lanjut ke Upload Dokumen
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Page 2 -->
+                    <div class="bg-[--light-gray] p-6 rounded-lg">
+                        <h3 class="text-2xl font-semibold text-[--text-primary] mb-4">PAGE 2: Upload Dokumen</h3>
+                        <p class="font-mono text-sm text-[--text-secondary] mb-6">/register/step-2</p>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <h4 class="text-lg font-semibold text-[--text-primary] mb-3">Section: Upload Dokumen</h4>
+                                <ul class="list-disc list-inside space-y-2 text-[--text-secondary]">
+                                    <li><code class="text-sm bg-[--gray-100] text-[--text-primary] px-2 py-1 rounded">ktp_orang_tua</code> (File) - Required, image, max:2MB</li>
+                                    <li><code class="text-sm bg-[--gray-100] text-[--text-primary] px-2 py-1 rounded">ijazah</code> (File) - Required, image/pdf, max:2MB</li>
+                                    <li><code class="text-sm bg-[--gray-100] text-[--text-primary] px-2 py-1 rounded">foto_siswa</code> (File) - Required, image, max:1MB</li>
+                                    <li><code class="text-sm bg-[--gray-100] text-[--text-primary] px-2 py-1 rounded">bukti_pembayaran</code> (File) - Required, image/pdf, max:2MB</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="pt-4 space-y-4">
+                                <button class="w-full text-[--text-primary] font-semibold py-3 px-6 rounded-lg" style="background-color: var(--gray-100); border: 2px solid var(--gray-100);">
+                                    Kembali
+                                </button>
+                                <button class="w-full text-white font-semibold py-3 px-6 rounded-lg shadow-lg" style="background-color: var(--accent-green);">
+                                    Kirim Pendaftaran
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Desain Requirements -->
+            <section>
+                <h2 class="text-3xl font-bold mb-6 text-[--primary-blue]">🎨 Desain Requirements</h2>
+                <div class="space-y-8">
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold text-[--text-primary] mb-4">1. Layout Structure & Header</h3>
+                        <p class="mb-4 text-[--text-secondary]">Header sticky dengan background gradient, logo, progress indicator, dan shadow lembut.</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span>Blade Mockup (Text)</span>
+                                <button class="copy-btn" data-clipboard-target="code-layout">
+                                    Copy
+                                </button>
+                            </div>
+                            <pre id="code-layout"><code class="language-html">&lt;!-- Layout Structure --&gt;
+&lt;div class="flex flex-col min-h-screen bg-[--light-gray]"&gt;
+    &lt;!-- HEADER (Sticky) --&gt;
+    &lt;header class="sticky top-0 z-50 h-[80px] bg-gradient-to-r from-[--primary-blue] to-[--primary-hover] shadow-lg" 
+            style="box-shadow: 0 2px 8px rgba(66, 133, 244, 0.2);"&gt;
+        &lt;div class="container mx-auto h-full flex items-center justify-between px-6"&gt;
+            &lt;!-- Logo --&gt;
+            &lt;span class="text-2xl font-bold text-white"&gt;🎓 SmartDev LMS&lt;/span&gt;
+            
+            &lt;!-- Progress Indicator --&gt;
+            &lt;div class="text-white font-medium"&gt;Step 1 of 2&lt;/div&gt;
+            
+            &lt;!-- Help Icon --&gt;
+            &lt;svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;
+                &lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4 0 1.14-.62 2.15-1.55 2.79l-.12.08a2 2 0 00-1.07 1.83v.01c0 .28.22.5.5.5h.38a.5.5 0 00.5-.5v-.01c0-.42.17-.83.47-1.13l.12-.08c1.32-.9 2.13-2.38 2.13-4.04 0-3.31-2.69-6-6-6s-6 2.69-6 6c0 .6.08 1.18.23 1.72zM12 18a1 1 0 100-2 1 1 0 000 2z" /&gt;
+            &lt;/svg&gt;
+        &lt;/div&gt;
+    &lt;/header&gt;
+
+    &lt;!-- MAIN CONTENT --&gt;
+    &lt;main class="flex-grow container mx-auto px-6 py-10"&gt;
+        &lt;!-- FORM CARD --&gt;
+        &lt;div class="bg-white rounded-2xl shadow-lg p-8 md:p-12 max-w-xl mx-auto" 
+             style="box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);"&gt;
+            
+            &lt;!-- Form content goes here --&gt;
+            &lt;h2 class="text-2xl font-bold mb-6"&gt;Section Title&lt;/h2&gt;
+            &lt;p&gt;...&lt;/p&gt;
+
+        &lt;/div&gt;
+    &lt;/main&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-semibold text-[--text-primary] mb-4">2. Form Input & Button Design</h3>
+                        <p class="mb-4 text-[--text-secondary]">Styling untuk input, label, dan tombol (Primary, Accent, Secondary).</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span>CSS</span>
+                                <button class="copy-btn" data-clipboard-target="code-css-form">
+                                    Copy
+                                </button>
+                            </div>
+                            <pre id="code-css-form"><code class="language-css">/* Apply with Tailwind @layer utilities or in a separate CSS file */
+
+.form-label {
+    @apply block text-sm font-semibold text-[--text-primary] mb-2;
+}
+
+.form-input, .form-textarea {
+    @apply w-full h-12 px-4 py-3 border-2 border-[--gray-100] rounded-lg text-base;
+    @apply transition-all duration-300 ease-in-out;
+}
+
+.form-textarea {
+    @apply h-32;
+}
+
+.form-input:focus, .form-textarea:focus {
+    @apply border-[--primary-blue] outline-none;
+    box-shadow: 0 0 0 4px rgba(66, 133, 244, 0.1);
+}
+
+.form-helper {
+    @apply text-xs text-[--text-secondary] mt-1;
+}
+
+/* === BUTTONS === */
+.btn {
+    @apply py-3.5 px-8 rounded-lg font-semibold text-base border-none cursor-pointer;
+    @apply transition-all duration-300 ease-in-out;
+}
+
+.btn-primary {
+    @apply bg-[--primary-blue] text-white;
+    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+}
+.btn-primary:hover {
+    @apply bg-[--primary-hover] -translate-y-0.5;
+    box-shadow: 0 6px 16px rgba(66, 133, 244, 0.4);
+}
+
+.btn-accent {
+    @apply bg-[--accent-green] text-white;
+    /* ... similar shadow ... */
+}
+.btn-accent:hover {
+    @apply bg-[--accent-hover] -translate-y-0.5;
+    /* ... similar hover shadow ... */
+}
+
+.btn-secondary {
+    @apply bg-[--light-gray] text-[--text-primary] border-2 border-[--gray-100];
+}
+.btn-secondary:hover {
+    @apply bg-[--gray-100];
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-semibold text-[--text-primary] mb-4">3. File Upload & Radio Button</h3>
+                        <p class="mb-4 text-[--text-secondary]">Komponen kustom untuk upload file (drag & drop) dan radio button yang lebih menarik.</p>
+                        
+                        <!-- Visual Mockup -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <!-- Drag & Drop Mockup -->
+                            <div class="border-2 border-dashed border-[--gray-100] bg-[--light-gray] rounded-lg p-8 text-center">
+                                <svg class="w-12 h-12 mx-auto text-[--primary-blue] mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-4-4V7a4 4 0 014-4h.586a1 1 0 01.707.293l.414.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l.414-.414a1 1 0 01.707-.293H17a4 4 0 014 4v5a4 4 0 01-4 4h-1.586a1 1 0 00-.707.293l-.414.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-.414-.414a1 1 0 00-.707-.293H7z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v6m0 0l-3-3m3 3l3-3"></path></svg>
+                                <p class="font-semibold text-[--text-primary]">Drag & drop atau klik untuk upload</p>
+                                <p class="text-sm text-[--text-secondary]">PNG, JPG, atau PDF (Maks 2MB)</p>
+                            </div>
+                            <!-- Radio Button Mockup -->
+                            <div class="space-y-4">
+                                <label class="block text-sm font-semibold text-[--text-primary] mb-2">Jenis Kelamin</label>
+                                <div class="flex gap-4">
+                                    <div class="flex-1 p-4 border-2 border-[--primary-blue] bg-blue-50 rounded-lg cursor-pointer">
+                                        <p class="font-semibold text-center text-[--primary-blue]">Laki-laki</p>
+                                    </div>
+                                    <div class="flex-1 p-4 border-2 border-[--gray-100] rounded-lg cursor-pointer">
+                                        <p class="font-semibold text-center text-[--text-secondary]">Perempuan</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span>CSS (Radio Button)</span>
+                                <button class="copy-btn" data-clipboard-target="code-css-radio">
+                                    Copy
+                                </button>
+                            </div>
+                            <pre id="code-css-radio"><code class="language-css">.radio-group {
+    @apply flex gap-4;
+}
+.radio-item {
+    @apply flex-1 p-4 border-2 border-[--gray-100] rounded-lg cursor-pointer;
+    @apply transition-all duration-300 ease-in-out;
+}
+.radio-item:hover {
+    @apply border-[--primary-blue];
+}
+/* This class would be applied via JS or by checking Blade's loop state */
+.radio-item.selected {
+    @apply border-[--primary-blue] bg-blue-50;
+}
+/* Hide actual radio button */
+.radio-item input[type="radio"] {
+    @apply hidden;
+}</code></pre>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+            
+            <!-- Technical Implementation -->
+            <section>
+                <h2 class="text-3xl font-bold mb-6 text-[--primary-blue]">💻 Technical Implementation</h2>
+                <div class="space-y-8">
+                    <div>
+                        <h3 class="text-xl font-semibold text-[--text-primary] mb-4">1. Routes (routes/web.php)</h3>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span>PHP</span>
+                                <button class="copy-btn" data-clipboard-target="code-php-routes">
+                                    Copy
+                                </button>
+                            </div>
+                            <pre id="code-php-routes"><code class="language-php">use App\Http\Controllers\RegistrationController;
+
+// routes/web.php
+Route::get('/register/step-1', [RegistrationController::class, 'showStep1'])->name('register.step1');
+Route::post('/register/step-1', [RegistrationController::class, 'registerCalonSiswa'])->name('register.store.step1');
+Route::get('/register/step-2', [RegistrationController::class, 'showStep2'])->name('register.step2')->middleware('auth');
+Route::post('/register/step-2', [RegistrationController::class, 'uploadDocuments'])->name('register.store.step2')->middleware('auth');
+</code></pre>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-semibold text-[--text-primary] mb-4">2. Blade Files Structure</h3>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span>Shell</span>
+                                <button class="copy-btn" data-clipboard-target="code-shell-structure">
+                                    Copy
+                                </button>
+                            </div>
+                            <pre id="code-shell-structure"><code class="language-bash">resources/views/
+├── register/
+│   ├── step1.blade.php
+│   ├── step2.blade.php
+│   └── layouts/
+│       └── registration.blade.php
+└── components/
+    ├── progress-indicator.blade.php
+    ├── form-input.blade.php
+    ├── file-upload.blade.php
+    └── radio-group.blade.php
+</code></pre>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-semibold text-[--text-primary] mb-4">3. JavaScript Requirements (public/js/register.js)</h3>
+                        <p class="mb-4 text-[--text-secondary]">Fungsionalitas yang dibutuhkan di sisi client-side.</p>
+                        <ul class="list-disc list-inside space-y-2 text-[--text-primary]">
+                            <li>Form validation real-time (cek email, password, etc.)</li>
+                            <li>Password strength indicator.</li>
+                            <li>File upload preview & validation (ukuran, tipe file).</li>
+                            <li>Fungsionalitas Drag & drop file upload.</li>
+                            <li>Menyimpan progres ke `localStorage` (jika user refresh).</li>
+                            <li>Transisi antar step yang mulus (jika digabung dalam 1 halaman).</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- UX & Security -->
+            <section>
+                <h2 class="text-3xl font-bold mb-6 text-[--primary-blue]">✨ UX, Security & Validation</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- UX Enhancements -->
+                    <div class="bg-[--light-gray] p-6 rounded-lg">
+                        <h3 class="text-2xl font-semibold text-[--text-primary] mb-4">UX Enhancements</h3>
+                        <ul class="list-disc list-inside space-y-3 text-[--text-secondary]">
+                            <li><strong class="text-[--text-primary]">Validation Messages:</strong> Tampilkan pesan error/sukses inline dengan icon.</li>
+                            <li><strong class="text-[--text-primary]">Loading States:</strong> Tombol submit menampilkan spinner dan text "Menyimpan...".</li>
+                            <li><strong class="text-[--text-primary]">Responsive:</strong> Card padding lebih kecil di mobile, font size disesuaikan.</li>
+                            <li><strong class="text-[--text-primary]">Micro-interactions:</strong> Efek 'lift' (translateY) saat hover tombol, border 'glow' saat input focus.</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Security & Validation -->
+                    <div class="bg-[--light-gray] p-6 rounded-lg">
+                        <h3 class="text-2xl font-semibold text-[--text-primary] mb-4">Security & Validation</h3>
+                        <ul class="list-disc list-inside space-y-3 text-[--text-secondary]">
+                            <li><strong class="text-[--text-primary]">Frontend:</strong> Validasi dasar (required, email format, file size) di JS untuk UX cepat.</li>
+                            <li><strong class="text-[--text-primary]">Backend:</strong> Validasi WAJIB di Controller (Laravel Request) untuk keamanan. Jangan pernah percaya input user.</li>
+                            <li><strong class="text-[--text-primary]">Error Handling:</strong> Tampilkan error dari backend (via Blade `@error`) dan highlight field yang salah (border merah).</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Design Preview -->
+            <section>
+                <h2 class="text-3xl font-bold mb-6 text-[--primary-blue]">🎨 Desain Preview (Text Mockup)</h2>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Mockup</span>
+                        <button class="copy-btn" data-clipboard-target="code-mockup">
+                            Copy
+                        </button>
+                    </div>
+                    <pre id="code-mockup" class="text-sm">╔════════════════════════════════════════════════════╗
+║  🎓 SmartDev    ● ━━━━━━━━ ○  Step 1 of 2     [?] ║
+╠════════════════════════════════════════════════════╣
+║                                                    ║
+║     ┌────────────────────────────────────┐       ║
+║     │  Pendaftaran Siswa Baru            │       ║
+║     │  ────────────────────────           │       ║
+║     │                                     │       ║
+║     │  DATA SISWA                         │       ║
+║     │  Nama Lengkap * │       ║
+║     │  [________________________]          │       ║
+║     │                                     │       ║
+║     │  Email * │       ║
+║     │  [________________________]          │       ║
+║     │                                     │       ║
+║     │  ... (form fields lainnya)          │       ║
+║     │                                     │       ║
+║     │  [ Simpan & Lanjut ke Upload ]      │       ║
+║     └────────────────────────────────────┘       ║
+║                                                    ║
+╚════════════════════════════════════════════════════╝</pre>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const copyButtons = document.querySelectorAll('.copy-btn');
+            
+            copyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetId = button.dataset.clipboardTarget;
+                    const targetElement = document.getElementById(targetId);
+                    
+                    if (!targetElement) return;
+                    
+                    const textToCopy = targetElement.textContent;
+                    
+                    // Gunakan document.execCommand untuk kompatibilitas iframe
+                    const textarea = document.createElement('textarea');
+                    textarea.value = textToCopy;
+                    textarea.style.position = 'fixed';
+                    textarea.style.left = '-9999px';
+                    document.body.appendChild(textarea);
+                    
+                    textarea.select();
+                    
+                    try {
+                        document.execCommand('copy');
+                        
+                        const originalText = button.innerHTML;
+                        button.innerHTML = `
+                            <svg class="w-4 h-4 inline-block" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            Copied!
+                        `;
+                        
+                        setTimeout(() => {
+                            button.innerHTML = originalText;
+                        }, 2000);
+                        
+                    } catch (err) {
+                        console.error('Failed to copy text: ', err);
+                        button.innerHTML = 'Error';
+                        setTimeout(() => {
+                            button.innerHTML = originalText;
+                        }, 2000);
+                    }
+                    
+                    document.body.removeChild(textarea);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

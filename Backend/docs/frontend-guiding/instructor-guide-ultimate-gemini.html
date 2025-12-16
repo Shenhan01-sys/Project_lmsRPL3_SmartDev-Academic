@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartDev Instructor - Ultimate Dashboard</title>
+    
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #64748b;
+            --bg-light: #f1f5f9;
+            --sidebar-width: 260px;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Sidebar */
+        #sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: #1e293b;
+            color: white;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        #sidebar .nav-link {
+            color: #cbd5e1;
+            padding: 0.8rem 1.5rem;
+            font-size: 0.95rem;
+            border-left: 3px solid transparent;
+        }
+
+        #sidebar .nav-link:hover, #sidebar .nav-link.active {
+            color: white;
+            background: rgba(255,255,255,0.05);
+            border-left-color: var(--primary);
+        }
+
+        #sidebar .brand {
+            padding: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Main Content */
+        #content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+        }
+
+        /* Cards & Sections */
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+
+        .page-section {
+            display: none;
+            animation: fadein 0.3s;
+        }
+        .page-section.active {
+            display: block;
+        }
+
+        @keyframes fadein {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Loading */
+        #loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.8);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(2px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading -->
+    <div id="loading-overlay">
+        <div class="text-center">
+            <div class="spinner-border text-primary mb-2" role="status"></div>
+            <div class="text-muted small">Connecting to API...</div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <nav id="sidebar">
+        <div class="brand">
+            <i class="bi bi-mortarboard-fill me-2 text-primary"></i> SmartDev
+        </div>
+        <div class="p-3 mb-2 border-bottom border-secondary border-opacity-25">
+            <small class="text-muted d-block">Logged in as:</small>
+            <strong id="sidebarUserName">Instructor</strong>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" onclick="navTo('dashboard', this)">
+                    <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="navTo('courses', this)">
+                    <i class="bi bi-book me-2"></i> My Courses
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="navTo('announcements', this)">
+                    <i class="bi bi-megaphone me-2"></i> Announcements
+                </a>
+            </li>
+            <li class="nav-item mt-5">
+                <a class="nav-link text-danger" href="#" onclick="logout()">
+                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div id="content">
+        
+        <!-- Config Bar -->
+        <div class="d-flex justify-content-end mb-4">
+            <div class="input-group input-group-sm w-auto">
+                <span class="input-group-text">Ngrok URL</span>
+                <input type="text" id="ngrokUrl" class="form-control" value="https://loraine-seminiferous-snappily.ngrok-free.dev" style="width: 250px;">
+                <button class="btn btn-primary" onclick="initApp()">Refresh</button>
+            </div>
+        </div>
+
+        <!-- 1. DASHBOARD SECTION -->
+        <section id="dashboard" class="page-section active">
+            <h2 class="mb-4">Dashboard Overview</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card p-4 h-100 bg-primary text-white">
+                        <h3><i class="bi bi-book"></i> <span id="statCourses">0</span></h3>
+                        <p class="mb-0 opacity-75">Active Courses</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-4 h-100 border-start border-4 border-success">
+                        <h3 class="text-success"><i class="bi bi-people"></i> <span id="statStudents">0</span></h3>
+                        <p class="text-muted mb-0">Total Students</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-4 h-100 border-start border-4 border-warning">
+                        <h3 class="text-warning"><i class="bi bi-journal-text"></i> <span id="statAssignments">0</span></h3>
+                        <p class="text-muted mb-0">Total Assignments</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. COURSES SECTION -->
+        <section id="courses" class="page-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>My Courses</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCourseModal">
+                    <i class="bi bi-plus-lg"></i> Create Course
+                </button>
+            </div>
+            <div id="coursesList" class="row g-4">
+                <!-- JS Injected -->
+            </div>
+        </section>
+
+        <!-- 3. COURSE DETAIL (Tabs for Content, Assignment, Attendance) -->
+        <section id="courseDetail" class="page-section">
+            <button class="btn btn-sm btn-outline-secondary mb-3" onclick="navTo('courses')">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </button>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h2 id="detailTitle" class="fw-bold text-primary">Course Title</h2>
+                            <span id="detailCode" class="badge bg-dark">CODE</span>
+                        </div>
+                        <div class="text-end">
+                            <button class="btn btn-outline-danger btn-sm" id="btnDeleteCourse">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                    <p id="detailDesc" class="mt-2 text-muted">Description...</p>
+                </div>
+            </div>
+
+            <!-- Course Tabs -->
+            <ul class="nav nav-tabs mb-3" id="courseTabs">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabAssignments">Assignments</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabAttendance" onclick="loadAttendanceTab()">Attendance</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabStudents">Students</button>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <!-- Tab: Assignments -->
+                <div class="tab-pane fade show active" id="tabAssignments">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5>Assignments List</h5>
+                        <button class="btn btn-sm btn-primary" onclick="openAssignmentModal()">
+                            <i class="bi bi-plus-circle"></i> New Assignment
+                        </button>
+                    </div>
+                    <div id="assignmentListContainer">Loading...</div>
+                </div>
+
+                <!-- Tab: Attendance -->
+                <div class="tab-pane fade" id="tabAttendance">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5>Class Sessions</h5>
+                        <button class="btn btn-sm btn-primary" onclick="openCreateSessionModal()">
+                            <i class="bi bi-calendar-plus"></i> New Session
+                        </button>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="list-group" id="sessionListGroup">
+                                <!-- List of dates -->
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header bg-white" id="sessionDetailHeader">
+                                    Select a session to manage attendance
+                                </div>
+                                <div class="card-body p-0">
+                                    <table class="table table-hover mb-0" id="attendanceTable">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Student</th>
+                                                <th class="text-center">Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="attendanceTableBody">
+                                            <tr><td colspan="3" class="text-center p-3 text-muted">Select session first</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Students -->
+                <div class="tab-pane fade" id="tabStudents">
+                    <div class="card">
+                        <div class="card-body">
+                            <table class="table">
+                                <thead><tr><th>Name</th><th>Email</th><th>Status</th></tr></thead>
+                                <tbody id="studentListBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. SUBMISSIONS & GRADING VIEW -->
+        <section id="submissionView" class="page-section">
+            <button class="btn btn-sm btn-outline-secondary mb-3" onclick="backToCourseDetail()">
+                <i class="bi bi-arrow-left"></i> Back to Course
+            </button>
+            <h3 id="submissionTitle">Submissions</h3>
+            <div class="card">
+                <div class="card-body">
+                    <table class="table align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Student</th>
+                                <th>Submitted At</th>
+                                <th>File</th>
+                                <th>Current Grade</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="submissionTableBody">
+                            <!-- Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. ANNOUNCEMENTS SECTION -->
+        <section id="announcements" class="page-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Announcements</h2>
+                <button class="btn btn-primary" onclick="openAnnouncementModal()">
+                    <i class="bi bi-megaphone"></i> Post New
+                </button>
+            </div>
+            <div id="announcementList" class="row g-3">
+                <!-- Injected -->
+            </div>
+        </section>
+
+    </div>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- 1. Create Course Modal -->
+    <div class="modal fade" id="createCourseModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Course</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formCreateCourse">
+                        <div class="mb-3"><label>Code</label><input type="text" name="course_code" class="form-control" required></div>
+                        <div class="mb-3"><label>Name</label><input type="text" name="course_name" class="form-control" required></div>
+                        <div class="mb-3"><label>Description</label><textarea name="description" class="form-control"></textarea></div>
+                        <div class="mb-3"><label>Credits</label><input type="number" name="credits" class="form-control" value="3"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitCreateCourse()">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Create Assignment Modal -->
+    <div class="modal fade" id="createAssignmentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">New Assignment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formCreateAssignment">
+                        <div class="mb-3"><label>Title</label><input type="text" id="assignTitle" class="form-control" required></div>
+                        <div class="mb-3"><label>Description</label><textarea id="assignDesc" class="form-control"></textarea></div>
+                        <div class="mb-3"><label>Due Date</label><input type="datetime-local" id="assignDate" class="form-control"></div>
+                        <div class="mb-3"><label>Max Score</label><input type="number" id="assignScore" class="form-control" value="100"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitAssignment()">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Create Session Modal -->
+    <div class="modal fade" id="createSessionModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">New Attendance Session</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formCreateSession">
+                        <div class="mb-3"><label>Date & Time</label><input type="datetime-local" id="sessionDate" class="form-control" required></div>
+                        <div class="mb-3"><label>Topic / Type</label><input type="text" id="sessionTopic" class="form-control" placeholder="e.g. Pertemuan 1" required></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitSession()">Create Session</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Grading Modal -->
+    <div class="modal fade" id="gradingModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Input Grade</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="gradeSubmissionId">
+                    <input type="hidden" id="gradeEnrollmentId">
+                    <div class="mb-3">
+                        <label>Score (0-100)</label>
+                        <input type="number" id="gradeValue" class="form-control" min="0" max="100">
+                    </div>
+                    <div class="mb-3">
+                        <label>Feedback</label>
+                        <textarea id="gradeFeedback" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitGrade()">Save Grade</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Announcement Modal -->
+    <div class="modal fade" id="announcementModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Post Announcement</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formAnnouncement">
+                        <div class="mb-3">
+                            <label>Title</label>
+                            <input type="text" id="annTitle" class="form-control" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label>Content</label>
+                            <textarea id="annContent" class="form-control" rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label>Target Course</label>
+                                <select id="annCourseId" class="form-select">
+                                    <option value="">Global (All)</option>
+                                    <!-- Filled by JS -->
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Priority</label>
+                                <select id="annPriority" class="form-select">
+                                    <option value="normal" selected>Normal</option>
+                                    <option value="high">High</option>
+                                    <option value="urgent">Urgent</option>
+                                    <option value="low">Low</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label>Status</label>
+                                <select id="annStatus" class="form-select">
+                                    <option value="published" selected>Published</option>
+                                    <option value="draft">Draft</option>
+                                    <option value="archived">Archived</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label>Publish At</label>
+                                <input type="datetime-local" id="annPublishedAt" class="form-control">
+                            </div>
+                            <div class="col-md-4">
+                                <label>Expires At</label>
+                                <input type="datetime-local" id="annExpiresAt" class="form-control">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitAnnouncement()">Post</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        /**
+         * SMARTDEV LMS INSTRUCTOR LOGIC
+         * Refactored for Laravel Backend Structure
+         */
+
+        let BASE_API = document.getElementById('ngrokUrl').value + '/api/v1';
+        let currentUser = null;
+        let currentCourseId = null;
+        let globalCourses = []; // Store for dropdowns
+
+        // --- UTILS ---
+
+        function getHeaders() {
+            const token = localStorage.getItem('auth_token');
+            if(!token) {
+                token = '24|CNMkfWDIvxnDPpnSaXJHSw8Si0zMMu29vfQWoMJ2f7ff58d7';
+            }
+            return {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'ngrok-skip-browser-warning': 'true'
+            };
+        }
+
+        async function fetchApi(endpoint, options = {}) {
+            document.getElementById('loading-overlay').style.display = 'flex';
+            
+            // Debug: Log Request
+            console.group("API Request Debug");
+            console.log("URL:", BASE_API + endpoint);
+            console.log("Method:", options.method || 'GET');
+            if(options.body) {
+                console.log("Payload:", JSON.parse(options.body));
+            }
+            console.groupEnd();
+
+            try {
+                // Refresh Base URL in case user changed input
+                BASE_API = document.getElementById('ngrokUrl').value + '/api/v1';
+                
+                const res = await fetch(BASE_API + endpoint, {
+                    ...options,
+                    headers: getHeaders()
+                });
+
+                // Handle Auth Error
+                if(res.status === 401) {
+                    alert('Session expired or Unauthorized');
+                    logout();
+                    return null;
+                }
+                
+                // Handle No Content
+                if(res.status === 204) return true;
+
+                // Handle Error Responses (4xx, 5xx)
+                if(!res.ok) {
+                    console.error("Server Error Response:", responseData); // <--- Tambahan Debugging
+                    
+                    // Logika baru untuk menyusun pesan error detail dari validasi Laravel
+                    let msg = responseData.message || `HTTP Error ${res.status}`;
+                    if(responseData.errors) {
+                        msg += "\nDetails:\n" + Object.entries(responseData.errors)
+                            .map(([key, val]) => `- ${key}: ${val[0]}`)
+                            .join("\n");
+                    }
+                    throw new Error(msg);
+                }
+
+                const data = await res.json();
+                return data;
+            } catch (e) {
+                console.error("Fetch Error:", e);
+                alert("API Error: " + e.message);
+                return null;
+            } finally {
+                document.getElementById('loading-overlay').style.display = 'none';
+            }
+        }
+        // --- APP INIT ---
+
+        async function initApp() {
+            const token = localStorage.getItem('auth_token');
+            if(!token) {
+                const input = prompt("Masukkan Bearer Token Anda (Tanpa kata 'Bearer '):");
+                if(input) {
+                    localStorage.setItem('auth_token', input);
+                    initApp();
+                }
+                return;
+            }
+
+            // Fetch User Profile
+            // Note: Endpoint /api/user biasanya di root group, bukan v1. Cek routes/api.php
+            const userUrl = document.getElementById('ngrokUrl').value + '/api/user';
+            try {
+                const res = await fetch(userUrl, { headers: getHeaders() });
+                if(res.ok) {
+                    currentUser = await res.json();
+                    document.getElementById('sidebarUserName').innerText = currentUser.full_name || currentUser.name;
+                    
+                    // Load Dashboard Data
+                    loadDashboard();
+                } else {
+                    throw new Error("Auth Failed");
+                }
+            } catch(e) {
+                alert("Login failed or API unreachable. Check console.");
+                localStorage.removeItem('auth_token');
+            }
+        }
+
+        // --- DASHBOARD & COURSES ---
+
+        async function loadDashboard() {
+            const courses = await fetchApi('/courses');
+            if(!courses) return;
+
+            // Filter Logic: Only courses for this instructor
+            // Assuming user.id matches course.instructor.user_id OR checking instructor_code
+            const myCourses = courses.filter(c => {
+                if(currentUser.role === 'admin') return true;
+                // Safety check
+                if(!c.instructor) return false;
+                // Check by User ID fallback
+                return c.instructor.user_id === currentUser.id; 
+            });
+
+            globalCourses = myCourses; // Save for dropdowns
+
+            // Update Stats
+            document.getElementById('statCourses').innerText = myCourses.length;
+            // Simple aggregations (mock for now, usually need dedicated endpoints)
+            document.getElementById('statAssignments').innerText = myCourses.reduce((acc, c) => acc + (c.assignments?.length || 0), 0);
+
+            renderCourseList(myCourses);
+        }
+
+        function renderCourseList(courses) {
+            const container = document.getElementById('coursesList');
+            if(courses.length === 0) {
+                container.innerHTML = '<div class="col-12 text-center text-muted">No courses found.</div>';
+                return;
+            }
+
+            container.innerHTML = courses.map(c => `
+                <div class="col-md-6 col-xl-4">
+                    <div class="card course-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="badge bg-primary">${c.course_code}</span>
+                                <span class="badge bg-light text-dark border">${c.status}</span>
+                            </div>
+                            <h5 class="card-title text-primary fw-bold">${c.course_name}</h5>
+                            <p class="text-muted small mb-3">${c.description || 'No description'}</p>
+                            
+                            <div class="d-grid">
+                                <button onclick="openCourseDetail(${c.id})" class="btn btn-outline-primary">
+                                    Manage Course
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function submitCreateCourse() {
+            const data = {
+                course_code: document.querySelector('[name="course_code"]').value,
+                course_name: document.querySelector('[name="course_name"]').value,
+                description: document.querySelector('[name="description"]').value,
+                credits: document.querySelector('[name="credits"]').value,
+                // Backend expects instructor_id from related table. 
+                // We assume currentUser has instructor relationship loaded, or fallback
+                instructor_id: currentUser.instructor ? currentUser.instructor.id : 1 
+            };
+
+            const res = await fetchApi('/courses', {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+
+            if(res) {
+                alert('Course created!');
+                bootstrap.Modal.getInstance(document.getElementById('createCourseModal')).hide();
+                loadDashboard();
+            }
+        }
+
+        // --- COURSE DETAIL ---
+
+        async function openCourseDetail(courseId) {
+            currentCourseId = courseId;
+            const course = await fetchApi(`/courses/${courseId}`);
+            if(!course) return;
+
+            // Populate Header
+            document.getElementById('detailTitle').innerText = course.course_name;
+            document.getElementById('detailCode').innerText = course.course_code;
+            document.getElementById('detailDesc').innerText = course.description || '';
+            
+            // Setup Delete Button
+            document.getElementById('btnDeleteCourse').onclick = () => deleteCourse(courseId);
+
+            // Render Assignments Tab (Default)
+            renderAssignments(course.assignments || []);
+
+            // Render Students Tab
+            renderStudents(course.enrollments || []);
+
+            // Clear Attendance Tab (will load on click)
+            document.getElementById('attendanceTableBody').innerHTML = '<tr><td colspan="3" class="text-center p-3">Select a session</td></tr>';
+
+            navTo('courseDetail');
+        }
+
+        function renderAssignments(assignments) {
+            const el = document.getElementById('assignmentListContainer');
+            if(assignments.length === 0) {
+                el.innerHTML = '<div class="alert alert-info">No assignments yet.</div>';
+                return;
+            }
+            el.innerHTML = assignments.map(a => `
+                <div class="card mb-2 border-start border-primary border-3">
+                    <div class="card-body py-2 d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>${a.title}</strong>
+                            <div class="small text-muted">Due: ${a.due_date ? new Date(a.due_date).toLocaleDateString() : '-'}</div>
+                        </div>
+                        <div>
+                            <button onclick="viewSubmissions(${a.id})" class="btn btn-sm btn-primary">Submissions</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderStudents(enrollments) {
+            const tbody = document.getElementById('studentListBody');
+            tbody.innerHTML = enrollments.map(e => `
+                <tr>
+                    <td>${e.student?.user?.name || 'Unknown'}</td>
+                    <td>${e.student?.user?.email || '-'}</td>
+                    <td><span class="badge bg-success">Active</span></td>
+                </tr>
+            `).join('');
+        }
+
+        async function deleteCourse(id) {
+            if(confirm('Delete this course?')) {
+                await fetchApi(`/courses/${id}`, { method: 'DELETE' });
+                loadDashboard();
+                navTo('courses');
+            }
+        }
+
+        // --- ASSIGNMENT ACTIONS ---
+
+        function openAssignmentModal() {
+            document.getElementById('formCreateAssignment').reset();
+            new bootstrap.Modal(document.getElementById('createAssignmentModal')).show();
+        }
+
+        async function submitAssignment() {
+            const data = {
+                course_id: currentCourseId,
+                title: document.getElementById('assignTitle').value,
+                description: document.getElementById('assignDesc').value,
+                due_date: document.getElementById('assignDate').value,
+                max_score: document.getElementById('assignScore').value
+            };
+            
+            const res = await fetchApi('/assignments', {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+
+            if(res) {
+                bootstrap.Modal.getInstance(document.getElementById('createAssignmentModal')).hide();
+                openCourseDetail(currentCourseId); // Reload
+            }
+        }
+
+        async function viewSubmissions(assignmentId) {
+            const assignment = await fetchApi(`/assignments/${assignmentId}`);
+            if(!assignment) return;
+
+            const submissions = assignment.submissions || [];
+            const tbody = document.getElementById('submissionTableBody');
+            document.getElementById('submissionTitle').innerText = `Submissions for: ${assignment.title}`;
+
+            tbody.innerHTML = submissions.map(s => {
+                // Determine student name via enrollment path
+                let sName = s.enrollment?.student?.user?.full_name || "Student";
+                let gradeBadge = s.grade 
+                    ? `<span class="badge bg-success">${s.grade.score}</span>` 
+                    : `<span class="badge bg-secondary">Not Graded</span>`;
+
+                return `
+                    <tr>
+                        <td>${sName}</td>
+                        <td>${new Date(s.created_at).toLocaleDateString()}</td>
+                        <td>${s.file_path ? `<a href="${s.file_path}" target="_blank">Download</a>` : '-'}</td>
+                        <td>${gradeBadge}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" 
+                                onclick="openGradingModal(${s.id}, ${s.enrollment_id})">
+                                Grade
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            navTo('submissionView');
+        }
+
+        // --- GRADING ---
+
+        function openGradingModal(submissionId, enrollmentId) {
+            document.getElementById('gradeSubmissionId').value = submissionId;
+            document.getElementById('gradeEnrollmentId').value = enrollmentId;
+            document.getElementById('gradeValue').value = '';
+            document.getElementById('gradeFeedback').value = '';
+            new bootstrap.Modal(document.getElementById('gradingModal')).show();
+        }
+
+        async function submitGrade() {
+            // Logic: Create Grade Entry via GradeController
+            // Endpoint: POST /api/v1/grades
+            const data = {
+                enrollment_id: document.getElementById('gradeEnrollmentId').value,
+                // Assuming there's a default grade component or we select one.
+                // For this dashboard to work simply, we might need a default Component ID.
+                // Let's fetch components first or just send score if backend handles default.
+                // If GradeController requires grade_component_id, we need to fetch it.
+                // FOR DEMO: We send score directly, hoping backend validates or we mock.
+                // REAL IMPLEMENTATION: You need to select GradeComponent first (UTS, UAS, Tugas).
+                grade_component_id: 1, // HARDCODED FOR DEMO (Assign ID 1 as default assignment)
+                score: document.getElementById('gradeValue').value,
+                feedback: document.getElementById('gradeFeedback').value
+            };
+
+            // WARNING: Check your GradeController store method validation.
+            // It likely requires grade_component_id.
+            
+            const res = await fetchApi('/grades', {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+
+            if(res) {
+                alert('Grade Saved');
+                bootstrap.Modal.getInstance(document.getElementById('gradingModal')).hide();
+                // Back to submission view? We need context. 
+                // Simplest is reload dashboard or alert success.
+            }
+        }
+
+        // --- ATTENDANCE ---
+
+        async function loadAttendanceTab() {
+            // Fetch Sessions
+            // Route: GET /attendance-sessions/course/{id}/all
+            const sessions = await fetchApi(`/attendance-sessions/course/${currentCourseId}/all`);
+            const list = document.getElementById('sessionListGroup');
+            
+            if(!sessions || sessions.length === 0) {
+                list.innerHTML = '<div class="p-2 text-muted">No sessions created.</div>';
+                return;
+            }
+
+            list.innerHTML = sessions.map(sess => `
+                <a href="#" class="list-group-item list-group-item-action" onclick="loadSessionDetail(${sess.id}, '${sess.topic}')">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">${sess.topic}</h6>
+                        <small>${new Date(sess.session_date).toLocaleDateString()}</small>
+                    </div>
+                    <small class="text-success">${sess.status}</small>
+                </a>
+            `).join('');
+        }
+
+        function openCreateSessionModal() {
+            new bootstrap.Modal(document.getElementById('createSessionModal')).show();
+        }
+
+        async function submitSession() {
+            const data = {
+                course_id: currentCourseId,
+                session_date: document.getElementById('sessionDate').value,
+                topic: document.getElementById('sessionTopic').value,
+                status: 'open'
+            };
+            
+            const res = await fetchApi('/attendance-sessions', {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+
+            if(res) {
+                bootstrap.Modal.getInstance(document.getElementById('createSessionModal')).hide();
+                loadAttendanceTab();
+            }
+        }
+
+        async function loadSessionDetail(sessionId, topic) {
+            document.getElementById('sessionDetailHeader').innerHTML = `Attendance: <strong>${topic}</strong>`;
+            const tbody = document.getElementById('attendanceTableBody');
+            tbody.innerHTML = '<tr><td colspan="3">Loading records...</td></tr>';
+
+            // Fetch Records
+            // Route: GET /attendance-records/session/{id}/records
+            const records = await fetchApi(`/attendance-records/session/${sessionId}/records`);
+            
+            if(!records || records.length === 0) {
+                // If no records, it implies we need to fetch enrollments and show buttons to create records
+                // OR the backend automatically creates empty records on session create.
+                // Let's assume backend creates empty records or we render enrollments manually.
+                // For this UI, let's assume we get a list of records.
+                tbody.innerHTML = '<tr><td colspan="3">No records found. Ensure students are enrolled.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = records.map(rec => {
+                const studentName = rec.enrollment?.student?.user?.full_name || 'Student';
+                return `
+                    <tr>
+                        <td>${studentName}</td>
+                        <td class="text-center">
+                            <span class="badge bg-${getStatusColor(rec.status)}">${rec.status}</span>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button onclick="markAttendance(${sessionId}, ${rec.enrollment_id}, 'present')" class="btn btn-outline-success">P</button>
+                                <button onclick="markAttendance(${sessionId}, ${rec.enrollment_id}, 'sick')" class="btn btn-outline-warning">S</button>
+                                <button onclick="markAttendance(${sessionId}, ${rec.enrollment_id}, 'absent')" class="btn btn-outline-danger">A</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function markAttendance(sessionId, enrollmentId, status) {
+            // Route: POST /attendance-records/mark/{sessionId}/{enrollmentId}
+            await fetchApi(`/attendance-records/mark/${sessionId}/${enrollmentId}`, {
+                method: 'POST',
+                body: JSON.stringify({ status: status })
+            });
+            // Refresh list silently/update UI
+            // Ideally just update the specific row to avoid full reload flicker
+        }
+
+        function getStatusColor(status) {
+            if(status === 'present') return 'success';
+            if(status === 'absent') return 'danger';
+            if(status === 'sick') return 'warning';
+            return 'secondary';
+        }
+
+        // --- ANNOUNCEMENTS ---
+
+        async function loadAnnouncements(filters = {}) {
+            const container = document.getElementById('announcementList');
+            container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+
+            try {
+                // 1. Construct Query Params
+                let endpoint = '/announcements';
+                const params = new URLSearchParams();
+                if (filters.status) params.append('status', filters.status);
+                if (filters.course_id) params.append('course_id', filters.course_id);
+                
+                if (params.toString()) endpoint += `?${params.toString()}`;
+
+                // 2. Fetch Data
+                const res = await fetchApi(endpoint);
+                console.log("Announcements Resp:", res); // Cek Console F12
+
+                // 3. EKSTRAKSI DATA (Perbaikan Utama)
+                // Backend Laravel dengan pagination mengembalikan object { data: [...] }
+                // Backend tanpa pagination mengembalikan array [...]
+                let list = [];
+                
+                if (res && Array.isArray(res.data)) {
+                    list = res.data; // Kasus Pagination
+                } else if (Array.isArray(res)) {
+                    list = res; // Kasus Array Langsung
+                } else {
+                    // Jika format tidak dikenal, anggap kosong (jangan error)
+                    console.warn("Format data tidak dikenali, dianggap kosong.");
+                    list = [];
+                }
+
+                // 4. Render
+                if (list.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-12 text-center py-5">
+                            <div class="text-muted mb-3"><i class="bi bi-megaphone display-4"></i></div>
+                            <h5>No announcements found.</h5>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = list.map(a => {
+                    // Safe properties with defaults
+                    const title = a.title || 'Untitled';
+                    const content = a.content || '';
+                    const priority = a.priority || 'normal';
+                    const status = a.status || 'published';
+                    const dateStr = a.published_at || a.created_at || new Date();
+                    
+                    // Styling Badge
+                    let borderClass = 'secondary';
+                    if(priority === 'high') borderClass = 'danger';
+                    if(priority === 'urgent') borderClass = 'warning';
+
+                    // Context Badge Logic
+                    let contextBadge = '<span class="badge bg-dark">Global</span>';
+                    if (a.course) {
+                        contextBadge = `<span class="badge bg-primary">${a.course.course_code || 'Course'}</span>`;
+                    } else if (a.course_id) {
+                        contextBadge = `<span class="badge bg-info text-dark">Course #${a.course_id}</span>`;
+                    }
+
+                    return `
+                        <div class="col-md-6">
+                            <div class="card h-100 border-start border-4 border-${borderClass} shadow-sm">
+                                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                    <div>${contextBadge}</div>
+                                    <span class="badge bg-light text-dark border text-uppercase">${priority}</span>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold">${title}</h5>
+                                    <p class="card-text text-secondary small">${content}</p>
+                                </div>
+                                <div class="card-footer bg-white border-0 pt-0 d-flex justify-content-between small text-muted">
+                                    <span><i class="bi bi-calendar3 me-1"></i> ${new Date(dateStr).toLocaleDateString()}</span>
+                                    <span class="text-capitalize badge bg-light text-dark border">${status}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error("Load Announcements Error:", err);
+                container.innerHTML = `<div class="alert alert-danger">Error displaying announcements: ${err.message}</div>`;
+            }
+        }
+
+        function openAnnouncementModal() {
+            const sel = document.getElementById('annCourseId');
+            sel.innerHTML = '<option value="">Global (All Students)</option>';
+            globalCourses.forEach(c => {
+                sel.innerHTML += `<option value="${c.id}">${c.course_code} - ${c.course_name}</option>`;
+            });
+            
+            // Reset Form defaults
+            document.getElementById('formAnnouncement').reset();
+            
+            // Auto-fill Published At with current local time (for convenience)
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('annPublishedAt').value = now.toISOString().slice(0, 16);
+
+            new bootstrap.Modal(document.getElementById('announcementModal')).show();
+        }
+        
+        async function submitAnnouncement() {
+            const courseIdInput = document.getElementById('annCourseId').value;
+            const pubAtInput = document.getElementById('annPublishedAt').value;
+            const expAtInput = document.getElementById('annExpiresAt').value;
+
+            // Validate minimal fields
+            if(!document.getElementById('annTitle').value || !document.getElementById('annContent').value) {
+                alert("Title and Content are required.");
+                return;
+            }
+
+            const data = {
+                title: document.getElementById('annTitle').value,
+                content: document.getElementById('annContent').value,
+                
+                // LOGIC 1: Parse integer for ID or null
+                // Penting: Jika string kosong "", kirim null. Jika ada nilai, parse Int.
+                course_id: courseIdInput ? parseInt(courseIdInput) : null,
+                
+                // LOGIC 2: Determine type
+                announcement_type: courseIdInput ? 'course' : 'global',
+                
+                // LOGIC 3: Get dropdown values
+                priority: document.getElementById('annPriority').value,
+                status: document.getElementById('annStatus').value,
+                
+                // LOGIC 4: Handle Dates - Convert to ISO String or send null
+                // Format datetime-local HTML: "YYYY-MM-DDTHH:mm"
+                // Backend Laravel biasanya terima Y-m-d H:i:s atau ISO 8601
+                published_at: pubAtInput ? new Date(pubAtInput).toISOString() : new Date().toISOString(),
+                expires_at: expAtInput ? new Date(expAtInput).toISOString() : null
+            };
+
+            const res = await fetchApi('/announcements', {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+
+            if(res) {
+                alert('Announcement Posted Successfully!');
+                bootstrap.Modal.getInstance(document.getElementById('announcementModal')).hide();
+                loadAnnouncements();
+            }
+        }
+
+        // --- NAVIGATION ---
+
+        function navTo(sectionId, navEl) {
+            // Hide all
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+            // Show target
+            document.getElementById(sectionId).classList.add('active');
+
+            // Update sidebar
+            if(navEl) {
+                document.querySelectorAll('#sidebar .nav-link').forEach(el => el.classList.remove('active'));
+                navEl.classList.add('active');
+            }
+
+            // Dynamic Load
+            if(sectionId === 'announcements') loadAnnouncements();
+            if(sectionId === 'courses') loadDashboard(); // Refresh courses list
+        }
+
+        function backToCourseDetail() {
+            navTo('courseDetail');
+        }
+
+        function logout() {
+            if(confirm('Logout?')) {
+                localStorage.removeItem('auth_token');
+                window.location.reload();
+            }
+        }
+
+        // Init on Load
+        document.addEventListener('DOMContentLoaded', initApp);
+
+    </script>
+</body>
+</html>
