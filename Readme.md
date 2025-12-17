@@ -1456,48 +1456,6 @@ upload_max_filesize = 10M
 post_max_size = 10M
 ```
 
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please follow these guidelines:
-
-### How to Contribute
-
-1. **Fork the Repository**
-```bash
-git clone https://github.com/your-username/smartdev-academic.git
-```
-
-2. **Create a Feature Branch**
-```bash
-git checkout -b feature/your-feature-name
-```
-
-3. **Make Your Changes**
-   - Write clean, documented code
-   - Follow PSR-12 coding standards
-   - Add tests for new features
-
-4. **Commit Your Changes**
-```bash
-git commit -m "feat: add amazing feature"
-```
-
-5. **Push to Your Fork**
-```bash
-git push origin feature/your-feature-name
-```
-
-6. **Create Pull Request**
-   - Describe your changes
-   - Reference related issues
-   - Wait for review
-
-### Commit Convention
-
-We follow [Conventional Commits](https://www.conventionalcommits.org/):
-
 ```
 feat: new feature
 fix: bug fix
@@ -1547,71 +1505,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
-
----
-
-## 📞 Support
-
-### Need Help?
-
-- 📧 **Email**: support@smartdevacademic.com
-- 💬 **Discord**: [Join our community](https://discord.gg/smartdev)
-- 📖 **Documentation**: [Full Documentation](https://docs.smartdevacademic.com)
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/your-username/smartdev-academic/issues)
-- 💡 **Feature Requests**: [GitHub Discussions](https://github.com/your-username/smartdev-academic/discussions)
-
-### Frequently Asked Questions
-
-<details>
-<summary><b>How do I reset my password?</b></summary>
-
-1. Click "Forgot Password" on login page
-2. Enter your email
-3. Check email for reset link
-4. Follow instructions to reset password
-</details>
-
-<details>
-<summary><b>Can I change my email address?</b></summary>
-
-Yes, contact admin or update in your profile settings.
-</details>
-
-<details>
-<summary><b>How do I enroll in a course?</b></summary>
-
-Contact your admin or instructor to enroll you in courses. Students cannot self-enroll.
-</details>
-
-<details>
-<summary><b>What file types can I upload?</b></summary>
-
-Supported file types: PDF, DOC, DOCX, JPG, PNG. Maximum file size: 2MB per file.
-</details>
-
-<details>
-<summary><b>How are grades calculated?</b></summary>
-
-Grades are calculated based on weighted components (Quiz, Assignment, Midterm, Final) configured by your instructor.
-</details>
-
----
-
-## 🙏 Acknowledgments
-
-### Special Thanks
-
-- **Laravel Team** - For the amazing framework
-- **TailwindCSS Team** - For the beautiful utility-first CSS framework
-- **Chart.js Contributors** - For the powerful charting library
-- **SweetAlert2 Team** - For the beautiful alert library
-- **Open Source Community** - For all the incredible tools and libraries
-
-### Built With Love By
-
-**SmartDev Academic Team** 💙
-
----
 
 ## 🗺️ Roadmap
 
